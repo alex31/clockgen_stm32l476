@@ -198,14 +198,14 @@
 /*
  * IO lines assignments.
  */
-#define	LINE_A02_VCP_TX                PAL_LINE(GPIOA, 2U)
-#define	LINE_A03_VCP_RX                PAL_LINE(GPIOA, 3U)
-#define	LINE_A05_LED_GREEN             PAL_LINE(GPIOA, 5U)
-#define	LINE_A13_SWDIO                 PAL_LINE(GPIOA, 13U)
-#define	LINE_A14_SWCLK                 PAL_LINE(GPIOA, 14U)
+#define	LINE_VCP_TX                    PAL_LINE(GPIOA, 2U)
+#define	LINE_VCP_RX                    PAL_LINE(GPIOA, 3U)
+#define	LINE_LED_GREEN                 PAL_LINE(GPIOA, 5U)
+#define	LINE_SWDIO                     PAL_LINE(GPIOA, 13U)
+#define	LINE_SWCLK                     PAL_LINE(GPIOA, 14U)
 
-#define	LINE_C14_RCC_OSC32_IN          PAL_LINE(GPIOC, 14U)
-#define	LINE_C15_RCC_OSC32_OUT         PAL_LINE(GPIOC, 15U)
+#define	LINE_RCC_OSC32_IN              PAL_LINE(GPIOC, 14U)
+#define	LINE_RCC_OSC32_OUT             PAL_LINE(GPIOC, 15U)
 
 
 /*
@@ -1332,17 +1332,17 @@
 					 PIN_LOCKR_DISABLED(PG15))
 
 #define AF_PA02_VCP_TX                   7U
-#define AF_LINE_A02_VCP_TX               7U
+#define AF_LINE_VCP_TX                   7U
 #define AF_PA03_VCP_RX                   7U
-#define AF_LINE_A03_VCP_RX               7U
+#define AF_LINE_VCP_RX                   7U
 #define AF_PA13_SWDIO                    0U
-#define AF_LINE_A13_SWDIO                0U
+#define AF_LINE_SWDIO                    0U
 #define AF_PA14_SWCLK                    0U
-#define AF_LINE_A14_SWCLK                0U
+#define AF_LINE_SWCLK                    0U
 #define AF_PC14_RCC_OSC32_IN             0U
-#define AF_LINE_C14_RCC_OSC32_IN         0U
+#define AF_LINE_RCC_OSC32_IN             0U
 #define AF_PC15_RCC_OSC32_OUT            0U
-#define AF_LINE_C15_RCC_OSC32_OUT        0U
+#define AF_LINE_RCC_OSC32_OUT            0U
 
 
 #if !defined(_FROM_ASM_)

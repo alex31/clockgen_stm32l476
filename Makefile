@@ -5,30 +5,56 @@
 
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
+
+DEBUG := 1
+OPT_SPEED := 2
+OPT_SIZE := 3
+
+EXECMODE := $(DEBUG)
+#EXECMODE := $(OPT_SPEED)
+#EXECMODE := $(OPT_SIZE)
+
+
+GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
 GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
-	    -Wno-error=unused-function \
-	    -Wunused -Wpointer-arith \
-	    -Wstrict-prototypes \
-	    -Werror=sign-compare \
-	    -Wshadow \
-	    -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=5 
+            -Wno-error=cpp  \
+            -Wno-error=unused-function \
+            -Wunused -Wpointer-arith \
+            -Werror=sign-compare \
+            -Wshadow -Wparentheses -fmax-errors=5 \
+            -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=2 \
+	    -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
+            -Wformat-overflow=2
 
+ifeq "$(GCCVERSIONGTEQ10)" "1"
+    GCC_DIAG = -Wno-error=volatile 
+    USE_CPPOPT = -Wno-volatile -Wno-error=deprecated-declarations
+endif
 
-ifeq ($(USE_OPT),)
+ifeq ($(EXECMODE),$(DEBUG)) 
+  USE_LTO = no
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) \
-	    -Wl,--build-id=none 
+	    $(GCC_DIAG)
 endif
 
-ifeq ($(USE_OPT),)
-  USE_OPT =  -Ofast  -flto  -Wall -Wextra \
+ifeq ($(EXECMODE),$(OPT_SPEED))
+    USE_LTO = yes
+    USE_OPT =  -Ofast -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	     $(GCC_DIAG) \
-	    -Wl,--build-id=none \
-            -u prvGetRegistersFromStack
+	     $(GCC_DIAG)
 endif
 
+ifeq ($(EXECMODE),$(OPT_SIZE)) 
+    USE_LTO = yes
+    USE_OPT =  -Os  -flto  -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+            --specs=nano.specs \
+            -DCH_DBG_STATISTICS=0 -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
+	    -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 -DCH_DBG_FILL_THREADS=0 \
+	    -DCH_DBG_THREADS_PROFILING=0 -DNOSHELL=1 \
+	     $(GCC_DIAG)
+endif
 
 
 # C specific options here (added to USE_OPT).
@@ -37,9 +63,9 @@ ifeq ($(USE_COPT),)
 endif
 
 # C++ specific options here (added to USE_OPT).
-ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -std=gnu++1y -fno-rtti -fno-exceptions 
-endif
+
+USE_CPPOPT += -std=c++2a -fno-rtti -fno-exceptions -fno-threadsafe-statics
+
 
 # Enable this if you want the linker to remove unused code and data
 ifeq ($(USE_LINK_GC),)
@@ -128,6 +154,7 @@ DEPDIR   := ./.dep
 STMSRC = $(RELATIVE)/COMMON/stm
 VARIOUS = $(RELATIVE)/COMMON/various
 USBD_LIB = $(VARIOUS)/Chibios-USB-Devices
+ETL_LIB = ../../../../etl/include
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -170,7 +197,8 @@ ASMSRC = $(ALLASMSRC)
 ASMXSRC = $(ALLXASMSRC)
 
 # Inclusion directories.
-INCDIR = $(CONFDIR) $(ALLINC) $(VARIOUS) $(STMSRC) $(USBD_LIB) 
+INCDIR = $(CONFDIR) $(ALLINC) $(VARIOUS) $(STMSRC) \
+         $(USBD_LIB) $(ETL_LIB) 
 
 # Define C warning options here.
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
@@ -181,7 +209,7 @@ CPPWARN = -Wall -Wextra -Wundef
 #
 # Compiler settings
 ##############################################################################
-
+LD   = $(TRGT)g++
 ##############################################################################
 # Start of user section
 #
@@ -216,7 +244,7 @@ $(OBJS): $(CONFDIR)/board.h
 
 
 $(CONFDIR)/board.h: $(CONFDIR)/board.cfg
-	boardGen.pl	$<  $@
+	boardGen.pl --no-pp-line 	$<  $@
 
 
 stflash: all
