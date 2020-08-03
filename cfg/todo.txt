@@ -1,0 +1,33 @@
+
+// fonctions :
+
+boutons de réglage:
+2 timers en quad phase : 4 broches (TIM1 et TIM8)
+2 entrées input pullup : 2 broches
+
+signal d'horloge :
+2 timers : 2 broches (TIM3 et TIM4)
+
+pwm de contraste : 
+1 timer : 1 broche (TIM15)
+
+entrée frequencemetre : 1 timer 32 bits : 1 broche (TIM2)
+
+sortie beep :  1 dac en DMA : 1 broche
+
+écran HD44800 en 4 bits : 7 broches
+
+maintient du reset à la mise sous tension : 1 broche
+
+============
+
+: 5 timers 16 bits et 1 timer 32 bits
+: 1 dac en dma
+: 19 broches
+
+
+=========
+
+fonctions annexes : 1 bouton appuyé au demarrage :
+° reglage contraste ecran LCD
+° reglage durée de maintient du reset
