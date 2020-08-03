@@ -10,8 +10,8 @@ DEBUG := 1
 OPT_SPEED := 2
 OPT_SIZE := 3
 
-EXECMODE := $(DEBUG)
-#EXECMODE := $(OPT_SPEED)
+#EXECMODE := $(DEBUG)
+EXECMODE := $(OPT_SPEED)
 #EXECMODE := $(OPT_SIZE)
 
 
@@ -64,7 +64,7 @@ endif
 
 # C++ specific options here (added to USE_OPT).
 
-USE_CPPOPT += -std=c++2a -fno-rtti -fno-exceptions -fno-threadsafe-statics
+USE_CPPOPT += -std=c++20 -fno-rtti -fno-exceptions -fno-threadsafe-statics
 
 
 # Enable this if you want the linker to remove unused code and data
@@ -244,7 +244,7 @@ $(OBJS): $(CONFDIR)/board.h
 
 
 $(CONFDIR)/board.h: $(CONFDIR)/board.cfg
-	boardGen.pl --no-pp-line 	$<  $@
+	boardGen.pl --no-pp-line $<  $@
 
 
 stflash: all

@@ -9,34 +9,22 @@
 #include "ttyConsole.hpp"       // fichier d'entête du shell
 #endif
 #include "printf.h"
-#include "picaso4Display.h"
+#include "resetTTL.hpp"
+#include "clockGenerator.hpp"
 //#include "freqCapture.hpp"
 //#include "display.hpp"
 
 
-/*
-  Câbler une LED sur la broche C0
-
-
-  ° connecter B6 (uart1_tx) sur PROBE+SERIAL Rx AVEC UN JUMPER
-  ° connecter B7 (uart1_rx) sur PROBE+SERIAL Tx AVEC UN JUMPER
-  ° connecter C0 sur led0 
-  ° connecter C13 sur la broche RST de l'écran (côté écran, la broche de droite)
-
- */
-
-
-
+volatile uint32_t blinkWait=100;
 
 static THD_WORKING_AREA(waBlinker, 304);	// declaration de la pile du thread blinker
-static void blinker (void *arg)			// fonction d'entrée du thread blinker
+static void blinker ([[maybe_unused]] void *arg)
 {
-  (void)arg;					// on dit au compilateur que "arg" n'est pas utilisé
-  chRegSetThreadName("blinker");		// on nomme le thread
+  chRegSetThreadName("blinker");		
   
-  while (true) {				// boucle infinie
-    palToggleLine(LINE_LED_GREEN);			// clignotement de la led
-    chThdSleepMilliseconds(500);
+  while (true) {
+    palToggleLine(LINE_LED_GREEN);
+    chThdSleepMilliseconds(blinkWait);
   }
 }
    
@@ -49,19 +37,29 @@ void _init_chibios() {
 
 int main (void)
 {
+  ClockGenerator cgm(&PWMD3, TimerMode::Master);
+  TIM3->CR1 = 0;
+  ClockGenerator cgs(&PWMD4, TimerMode::Slave);
 #ifndef NOSHELL
   consoleInit();	// initialisation des objets liés au shell
 #endif
-  
-  chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO+2, &blinker, NULL); // lancement du thread
+  releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
+  chThdCreateStatic(waBlinker, sizeof(waBlinker),
+		    NORMALPRIO+2, &blinker, NULL);
 
   //  initFreqCapture();
   //  initDisplay();
 #ifndef NOSHELL
   consoleLaunch();  // lancement du shell
 #endif
-  
-
+  cgs.start();
+  cgm.start();
+   // for (uint32_t i=1; i<= 100000; i++) {
+   //   cg.setFreq(i);
+   // }
+  cgs.setFreq(2000);
+  cgm.setFreq(1000);
+  blinkWait = 500;
   // main thread does nothing
   chThdSleep(TIME_INFINITE);
 }

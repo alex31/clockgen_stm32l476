@@ -178,7 +178,7 @@
 #define STM32_GPT_USE_TIM3                  FALSE
 #define STM32_GPT_USE_TIM4                  FALSE
 #define STM32_GPT_USE_TIM5                  FALSE
-#define STM32_GPT_USE_TIM6                  FALSE
+#define STM32_GPT_USE_TIM6                  TRUE
 #define STM32_GPT_USE_TIM7                  FALSE
 #define STM32_GPT_USE_TIM8                  FALSE
 #define STM32_GPT_USE_TIM15                 FALSE
@@ -221,7 +221,7 @@
  * ICU driver system settings.
  */
 #define STM32_ICU_USE_TIM1                  FALSE
-#define STM32_ICU_USE_TIM2                  FALSE
+#define STM32_ICU_USE_TIM2                  TRUE
 #define STM32_ICU_USE_TIM3                  FALSE
 #define STM32_ICU_USE_TIM4                  FALSE
 #define STM32_ICU_USE_TIM5                  FALSE
@@ -236,13 +236,28 @@
 #define STM32_PWM_USE_ADVANCED              FALSE
 #define STM32_PWM_USE_TIM1                  FALSE
 #define STM32_PWM_USE_TIM2                  FALSE
-#define STM32_PWM_USE_TIM3                  FALSE
-#define STM32_PWM_USE_TIM4                  FALSE
+#define STM32_PWM_USE_TIM3                  TRUE
+#define STM32_PWM_USE_TIM4                  TRUE
 #define STM32_PWM_USE_TIM5                  FALSE
 #define STM32_PWM_USE_TIM8                  FALSE
-#define STM32_PWM_USE_TIM15                 FALSE
+#define STM32_PWM_USE_TIM15                 TRUE
 #define STM32_PWM_USE_TIM16                 FALSE
 #define STM32_PWM_USE_TIM17                 FALSE
+
+
+/*
+ * RAW_TIMERS
+ */
+#define STM32_RAWTIMER_USE_TIM1                  TRUE
+#define STM32_RAWTIMER_USE_TIM2                  FALSE
+#define STM32_RAWTIMER_USE_TIM3                  FALSE
+#define STM32_RAWTIMER_USE_TIM4                  FALSE
+#define STM32_RAWTIMER_USE_TIM5                  FALSE
+#define STM32_RAWTIMER_USE_TIM8                  TRUE
+#define STM32_RAWTIMER_USE_TIM15                 FALSE
+#define STM32_RAWTIMER_USE_TIM16                 FALSE
+#define STM32_RAWTIMER_USE_TIM17                 FALSE
+
 
 /*
  * RTC driver system settings.

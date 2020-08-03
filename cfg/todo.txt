@@ -8,12 +8,12 @@ boutons de réglage:
 signal d'horloge :
 2 timers : 2 broches (TIM3 et TIM4)
 
-pwm de contraste : 
+pwm de contraste (hd44780) : 
 1 timer : 1 broche (TIM15)
 
 entrée frequencemetre : 1 timer 32 bits : 1 broche (TIM2)
 
-sortie beep :  1 dac en DMA : 1 broche
+sortie beep :  1 dac en DMA declenché par TIM6: 1 broche
 
 écran HD44800 en 4 bits : 7 broches
 
@@ -21,7 +21,7 @@ maintient du reset à la mise sous tension : 1 broche
 
 ============
 
-: 5 timers 16 bits et 1 timer 32 bits
+: 6 timers 16 bits et 1 timer 32 bits
 : 1 dac en dma
 : 19 broches
 
@@ -31,3 +31,19 @@ maintient du reset à la mise sous tension : 1 broche
 fonctions annexes : 1 bouton appuyé au demarrage :
 ° reglage contraste ecran LCD
 ° reglage durée de maintient du reset
+
+===========
+
+ecrire :
+
+* module de maintien du reset : DONE
+
+==================
+
+* module de génération de signal d'horloge
+* module de generation de signal buzzer par dac+dma
+* module affichage hd44780
+* module UI (les deux boutons rotatifs et l'appui)
+  + machine à état qui gère un système d'abonnement aux evenements
+* module frequencemetre
+* module de lecture/ecriture de la mémoire flash

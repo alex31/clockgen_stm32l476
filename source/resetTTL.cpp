@@ -1,0 +1,15 @@
+#include <ch.h>
+#include <hal.h>
+#include "resetTTL.hpp"
+
+static virtual_timer_t vt;
+
+void releaseResetAfter(const sysinterval_t after)
+{
+  chVTObjectInit(&vt);
+  chVTSet(&vt, after,
+	  [] ([[maybe_unused]] void *arg) {
+	    palSetLine(LINE_TTL_RESET_OUT);
+	  }
+	  , nullptr);
+}
