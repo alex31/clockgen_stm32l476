@@ -29,12 +29,17 @@ void ClockGenerator::start(void)
 void ClockGenerator::setFreq(uint32_t freq)
 {
   freq = std::clamp(freq, 1UL, 100000UL);
-
+  
   if (mode == TimerMode::Slave) {
     pwmd->tim->SMCR = 0;
   }
   pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
   
+  /* reset the timer  : when both timer are started by linked ENABLE
+     they start synchronously from same reset state
+   */
+  pwmd->tim->EGR   = STM32_TIM_EGR_UG; 
+
   uint32_t divider = pwmd->clock / freq;
   
   uint16_t prescaler = 1 + (divider >> 16);
@@ -47,7 +52,6 @@ void ClockGenerator::setFreq(uint32_t freq)
   
   pwmd->tim->PSC = prescaler - 1;
   pwmd->tim->ARR = reload - 1;
-
   pwmEnableChannel(pwmd, channel, (reload / 2));
 
   if (mode == TimerMode::Master) {
@@ -58,6 +62,5 @@ void ClockGenerator::setFreq(uint32_t freq)
       (0b010 << TIM_SMCR_TS_Pos) |
       // TIM4 Enable controled by TIM3 enable
       (0b110 << TIM_SMCR_SMS_Pos);
-  }
-
+    }
 }

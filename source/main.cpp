@@ -40,6 +40,8 @@ int main (void)
   ClockGenerator cgs(&PWMD4, TimerMode::Slave);
   ClockGenerator cgm(&PWMD3, TimerMode::Master);
 
+
+
 #ifndef NOSHELL
   consoleInit();	// initialisation des objets liés au shell
 #endif
@@ -56,7 +58,7 @@ int main (void)
   DebugTrace("enable of tim3 = %lu tim4 = %lu",
     	     TIM3->CR1 & STM32_TIM_CR1_CEN,
     	     TIM4->CR1 & STM32_TIM_CR1_CEN);
-  cgs.setFreq(1000);
+  cgs.setFreq(2000);
   DebugTrace("enable of tim3 = %lu tim4 = %lu",
     	     TIM3->CR1 & STM32_TIM_CR1_CEN,
     	     TIM4->CR1 & STM32_TIM_CR1_CEN);
