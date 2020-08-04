@@ -16,6 +16,11 @@ ClockGenerator::ClockGenerator(PWMDriver * const _pwmd, const TimerMode _mode) :
   start();
 }
 
+void ClockGenerator::pause(void)
+{
+  pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
+}
+
 void ClockGenerator::start(void)
 {
   pwmStart(pwmd, &pwmcfg);
@@ -63,4 +68,11 @@ void ClockGenerator::setFreq(uint32_t freq)
       // TIM4 Enable controled by TIM3 enable
       (0b110 << TIM_SMCR_SMS_Pos);
     }
+}
+
+void Clocks::setMasterSlaveFreq(const uint32_t masterF, const uint32_t slaveF)
+{
+  cgm.pause();
+  cgs.setFreq(slaveF);
+  cgm.setFreq(masterF);
 }

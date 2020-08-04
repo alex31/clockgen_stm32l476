@@ -27,11 +27,21 @@ class ClockGenerator {
 public:
   ClockGenerator(PWMDriver * const _pwmd, const TimerMode _mode);
   void setFreq(uint32_t freq);
-  void setMode(const TimerMode mode);
+  void pause(void);
 private:
   
   void start(void);
   PWMDriver * const pwmd;
   const TimerMode mode;
   PWMConfig pwmcfg = pwmcfgSkel;
+};
+
+class Clocks {
+public:
+  Clocks(void) : cgs(&PWMD4, TimerMode::Slave),
+		 cgm(&PWMD3, TimerMode::Master) {}
+  void setMasterSlaveFreq(const uint32_t masterF, const uint32_t slaveF);
+private:
+  ClockGenerator cgs;
+  ClockGenerator cgm;
 };

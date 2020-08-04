@@ -37,8 +37,7 @@ void _init_chibios() {
 
 int main (void)
 {
-  ClockGenerator cgs(&PWMD4, TimerMode::Slave);
-  ClockGenerator cgm(&PWMD3, TimerMode::Master);
+  Clocks clocks;
 
 
 
@@ -55,17 +54,9 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
 
-  DebugTrace("enable of tim3 = %lu tim4 = %lu",
-    	     TIM3->CR1 & STM32_TIM_CR1_CEN,
-    	     TIM4->CR1 & STM32_TIM_CR1_CEN);
-  cgs.setFreq(2000);
-  DebugTrace("enable of tim3 = %lu tim4 = %lu",
-    	     TIM3->CR1 & STM32_TIM_CR1_CEN,
-    	     TIM4->CR1 & STM32_TIM_CR1_CEN);
-  chThdSleepMilliseconds(10);
-  cgm.setFreq(1000);
-  blinkWait = 500;
-  // main thread does nothing
+  clocks.setMasterSlaveFreq(1000U, 2000U);
+  clocks.setMasterSlaveFreq(10000U, 20000U);
+
   chThdSleep(TIME_INFINITE);
 }
 
