@@ -26,11 +26,11 @@ static constexpr PWMConfig pwmcfgSkel = {
 class ClockGenerator {
 public:
   ClockGenerator(PWMDriver * const _pwmd, const TimerMode _mode);
-  void start(void);
   void setFreq(uint32_t freq);
   void setMode(const TimerMode mode);
 private:
   
+  void start(void);
   PWMDriver * const pwmd;
   const TimerMode mode;
   PWMConfig pwmcfg = pwmcfgSkel;

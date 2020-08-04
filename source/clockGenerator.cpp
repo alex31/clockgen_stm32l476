@@ -12,26 +12,28 @@ ClockGenerator::ClockGenerator(PWMDriver * const _pwmd, const TimerMode _mode) :
   if (mode == TimerMode::Master) {
     pwmcfg.cr2 = 0b001 << TIM_CR2_MMS_Pos;
  }
+
+  start();
 }
 
 void ClockGenerator::start(void)
 {
   pwmStart(pwmd, &pwmcfg);
-  pwmd->tim->CR1 = 0U;
+  pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
+
   if (mode == TimerMode::Master) {
-    //pwmd->tim->SMCR = 1 << TIM_SMCR_MSM_Pos;
-  } else {
-    // TIM4 slave triggered by TIM3
-    pwmd->tim->SMCR = 0b010 << TIM_SMCR_TS_Pos;
-    // TIM4 Enable controled by TIM3 enable
-    pwmd->tim->SMCR |= 0b110 << TIM_SMCR_SMS_Pos;
-  }
+    pwmd->tim->SMCR = 1U << TIM_SMCR_MSM_Pos;
+  } 
 }
 
 void ClockGenerator::setFreq(uint32_t freq)
 {
   freq = std::clamp(freq, 1UL, 100000UL);
-  pwmd->tim->CR1 = 0U;
+
+  if (mode == TimerMode::Slave) {
+    pwmd->tim->SMCR = 0;
+  }
+  pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
   
   uint32_t divider = pwmd->clock / freq;
   
@@ -45,11 +47,17 @@ void ClockGenerator::setFreq(uint32_t freq)
   
   pwmd->tim->PSC = prescaler - 1;
   pwmd->tim->ARR = reload - 1;
- if (mode == TimerMode::Master) {
-   pwmd->tim->CR1   = STM32_TIM_CR1_ARPE | STM32_TIM_CR1_URS |
-     STM32_TIM_CR1_CEN;
- } else  {
-   pwmd->tim->CR1   = STM32_TIM_CR1_ARPE | STM32_TIM_CR1_URS;
- }
+
   pwmEnableChannel(pwmd, channel, (reload / 2));
+
+  if (mode == TimerMode::Master) {
+   pwmd->tim->CR1 |= STM32_TIM_CR1_CEN;
+  } else {
+    pwmd->tim->SMCR = 
+      // TIM4 slave triggered by TIM3
+      (0b010 << TIM_SMCR_TS_Pos) |
+      // TIM4 Enable controled by TIM3 enable
+      (0b110 << TIM_SMCR_SMS_Pos);
+  }
+
 }
