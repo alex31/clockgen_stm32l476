@@ -55,7 +55,7 @@ int main (void)
 				  [] ([[maybe_unused]] void *arg) {
 				    chSysLockFromISR();
 				    if (palReadLine(LINE_BOUTON_F1_SW) == PAL_LOW) {
-				      if (mul >= 100000)
+				      if (mul >= 1000)
 					mul = 1;
 				      else
 					mul *= 10;
@@ -99,18 +99,26 @@ int main (void)
       switch (std::abs(delta)) {
       case 0: break;
       case 1 : val += sign; break;
-      default : val -= val % 10; val += 10*sign*(std::abs(delta)-1); break;
+      case 2 : val += 3*sign; break;
+      default : val -= val % 10; val += 10*sign*(std::abs(delta)-1)*2; break;
       }
       
       if (val < 0)
 	val += 1000;
       val %= 1000;
+
+      int32_t hz = val * mul;
+      if (mul == 1)
+	DebugTrace("val = %03ld Hz", hz);
+      else if (mul == 10)
+	DebugTrace("val = %04.2f KHz", hz/1000.0f); 
+      else if (mul == 100)
+	DebugTrace("val = %04.1f KHz", hz/1000.0f);
+      else 
+	DebugTrace("val = %03ld KHz", hz/1000); 
       
-    
-      DebugTrace("val = %ld", val * mul);
     }
     chThdSleepMilliseconds(100);
   }
 }
-
 
