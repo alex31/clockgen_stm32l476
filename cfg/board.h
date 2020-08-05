@@ -59,7 +59,7 @@
 /*
  * IO pins assignments.
  */
-#define	PA00_FREQMETER_IN              0U
+#define	PA00                           0U
 #define	PA01_TTL_RESET_OUT             1U
 #define	PA02_VCP_TX                    2U
 #define	PA03_VCP_RX                    3U
@@ -74,7 +74,7 @@
 #define	PA12                           12U
 #define	PA13_SWDIO                     13U
 #define	PA14_SWCLK                     14U
-#define	PA15                           15U
+#define	PA15_FREQMETER_IN              15U
 
 #define	PB00_LCD_RS                    0U
 #define	PB01_LCD_RW                    1U
@@ -198,7 +198,6 @@
 /*
  * IO lines assignments.
  */
-#define	LINE_FREQMETER_IN              PAL_LINE(GPIOA, 0U)
 #define	LINE_TTL_RESET_OUT             PAL_LINE(GPIOA, 1U)
 #define	LINE_VCP_TX                    PAL_LINE(GPIOA, 2U)
 #define	LINE_VCP_RX                    PAL_LINE(GPIOA, 3U)
@@ -209,6 +208,7 @@
 #define	LINE_BOUTON_F1_IN_B            PAL_LINE(GPIOA, 9U)
 #define	LINE_SWDIO                     PAL_LINE(GPIOA, 13U)
 #define	LINE_SWCLK                     PAL_LINE(GPIOA, 14U)
+#define	LINE_FREQMETER_IN              PAL_LINE(GPIOA, 15U)
 
 #define	LINE_LCD_RS                    PAL_LINE(GPIOB, 0U)
 #define	LINE_LCD_RW                    PAL_LINE(GPIOB, 1U)
@@ -255,7 +255,7 @@
 #define PIN_LOCKR_DISABLED(n)       (0U << (n))
 #define PIN_LOCKR_ENABLED(n)        (1U << (n))
 
-#define VAL_GPIOA_MODER                 (PIN_MODE_ALTERNATE(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_MODER                 (PIN_MODE_ANALOG(PA00) | \
 					 PIN_MODE_OUTPUT(PA01_TTL_RESET_OUT) | \
 					 PIN_MODE_ALTERNATE(PA02_VCP_TX) | \
 					 PIN_MODE_ALTERNATE(PA03_VCP_RX) | \
@@ -270,9 +270,9 @@
 					 PIN_MODE_ANALOG(PA12) | \
 					 PIN_MODE_ALTERNATE(PA13_SWDIO) | \
 					 PIN_MODE_ALTERNATE(PA14_SWCLK) | \
-					 PIN_MODE_ANALOG(PA15))
+					 PIN_MODE_ALTERNATE(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(PA00) | \
 					 PIN_OTYPE_PUSHPULL(PA01_TTL_RESET_OUT) | \
 					 PIN_OTYPE_PUSHPULL(PA02_VCP_TX) | \
 					 PIN_OTYPE_PUSHPULL(PA03_VCP_RX) | \
@@ -287,9 +287,9 @@
 					 PIN_OTYPE_PUSHPULL(PA12) | \
 					 PIN_OTYPE_PUSHPULL(PA13_SWDIO) | \
 					 PIN_OTYPE_PUSHPULL(PA14_SWCLK) | \
-					 PIN_OTYPE_PUSHPULL(PA15))
+					 PIN_OTYPE_PUSHPULL(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_HIGH(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PA00) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA01_TTL_RESET_OUT) | \
 					 PIN_OSPEED_SPEED_HIGH(PA02_VCP_TX) | \
 					 PIN_OSPEED_SPEED_HIGH(PA03_VCP_RX) | \
@@ -304,9 +304,9 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PA12) | \
 					 PIN_OSPEED_SPEED_HIGH(PA13_SWDIO) | \
 					 PIN_OSPEED_SPEED_HIGH(PA14_SWCLK) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PA15))
+					 PIN_OSPEED_SPEED_HIGH(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_PUPDR                 (PIN_PUPDR_FLOATING(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_PUPDR                 (PIN_PUPDR_FLOATING(PA00) | \
 					 PIN_PUPDR_FLOATING(PA01_TTL_RESET_OUT) | \
 					 PIN_PUPDR_FLOATING(PA02_VCP_TX) | \
 					 PIN_PUPDR_FLOATING(PA03_VCP_RX) | \
@@ -321,9 +321,9 @@
 					 PIN_PUPDR_FLOATING(PA12) | \
 					 PIN_PUPDR_PULLUP(PA13_SWDIO) | \
 					 PIN_PUPDR_PULLUP(PA14_SWCLK) | \
-					 PIN_PUPDR_FLOATING(PA15))
+					 PIN_PUPDR_FLOATING(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_HIGH(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_HIGH(PA00) | \
 					 PIN_ODR_LEVEL_LOW(PA01_TTL_RESET_OUT) | \
 					 PIN_ODR_LEVEL_HIGH(PA02_VCP_TX) | \
 					 PIN_ODR_LEVEL_HIGH(PA03_VCP_RX) | \
@@ -338,9 +338,9 @@
 					 PIN_ODR_LEVEL_HIGH(PA12) | \
 					 PIN_ODR_LEVEL_HIGH(PA13_SWDIO) | \
 					 PIN_ODR_LEVEL_HIGH(PA14_SWCLK) | \
-					 PIN_ODR_LEVEL_HIGH(PA15))
+					 PIN_ODR_LEVEL_HIGH(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_AFRL			(PIN_AFIO_AF(PA00_FREQMETER_IN, 1) | \
+#define VAL_GPIOA_AFRL			(PIN_AFIO_AF(PA00, 0) | \
 					 PIN_AFIO_AF(PA01_TTL_RESET_OUT, 0) | \
 					 PIN_AFIO_AF(PA02_VCP_TX, 7) | \
 					 PIN_AFIO_AF(PA03_VCP_RX, 7) | \
@@ -356,9 +356,9 @@
 					 PIN_AFIO_AF(PA12, 0) | \
 					 PIN_AFIO_AF(PA13_SWDIO, 0) | \
 					 PIN_AFIO_AF(PA14_SWCLK, 0) | \
-					 PIN_AFIO_AF(PA15, 0))
+					 PIN_AFIO_AF(PA15_FREQMETER_IN, 1))
 
-#define VAL_GPIOA_ASCR                  (PIN_ASCR_DISABLED(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_ASCR                  (PIN_ASCR_DISABLED(PA00) | \
 					 PIN_ASCR_DISABLED(PA01_TTL_RESET_OUT) | \
 					 PIN_ASCR_DISABLED(PA02_VCP_TX) | \
 					 PIN_ASCR_DISABLED(PA03_VCP_RX) | \
@@ -373,9 +373,9 @@
 					 PIN_ASCR_DISABLED(PA12) | \
 					 PIN_ASCR_DISABLED(PA13_SWDIO) | \
 					 PIN_ASCR_DISABLED(PA14_SWCLK) | \
-					 PIN_ASCR_DISABLED(PA15))
+					 PIN_ASCR_DISABLED(PA15_FREQMETER_IN))
 
-#define VAL_GPIOA_LOCKR                 (PIN_LOCKR_DISABLED(PA00_FREQMETER_IN) | \
+#define VAL_GPIOA_LOCKR                 (PIN_LOCKR_DISABLED(PA00) | \
 					 PIN_LOCKR_DISABLED(PA01_TTL_RESET_OUT) | \
 					 PIN_LOCKR_DISABLED(PA02_VCP_TX) | \
 					 PIN_LOCKR_DISABLED(PA03_VCP_RX) | \
@@ -390,7 +390,7 @@
 					 PIN_LOCKR_DISABLED(PA12) | \
 					 PIN_LOCKR_DISABLED(PA13_SWDIO) | \
 					 PIN_LOCKR_DISABLED(PA14_SWCLK) | \
-					 PIN_LOCKR_DISABLED(PA15))
+					 PIN_LOCKR_DISABLED(PA15_FREQMETER_IN))
 
 #define VAL_GPIOB_MODER                 (PIN_MODE_OUTPUT(PB00_LCD_RS) | \
 					 PIN_MODE_OUTPUT(PB01_LCD_RW) | \
@@ -1351,8 +1351,6 @@
 					 PIN_LOCKR_DISABLED(PG14) | \
 					 PIN_LOCKR_DISABLED(PG15))
 
-#define AF_PA00_FREQMETER_IN             1U
-#define AF_LINE_FREQMETER_IN             1U
 #define AF_PA02_VCP_TX                   7U
 #define AF_LINE_VCP_TX                   7U
 #define AF_PA03_VCP_RX                   7U
@@ -1367,6 +1365,8 @@
 #define AF_LINE_SWDIO                    0U
 #define AF_PA14_SWCLK                    0U
 #define AF_LINE_SWCLK                    0U
+#define AF_PA15_FREQMETER_IN             1U
+#define AF_LINE_FREQMETER_IN             1U
 #define AF_PB06_CLOCK_F2_OUT             2U
 #define AF_LINE_CLOCK_F2_OUT             2U
 #define AF_PB14_LCD_CONTRAST             14U

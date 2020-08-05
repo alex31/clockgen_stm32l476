@@ -6,12 +6,12 @@
 
 class EncoderModeTimer {
 public:
-  EncoderModeTimer(stm32_tim_t *_timer) : timer(_timer) {}
-  void start(void);
+  EncoderModeTimer(stm32_tim_t *_timer) : timer(_timer) {start();}
   std::pair<bool, uint32_t> getCnt(void) {
-    return {cntIsUpdated(), timer->CNT};
+    return {cntIsUpdated(), timer->CNT >> 1U};
   }
 private:
+  void start(void);
   void rccEnable(void);
   bool cntIsUpdated(void);
   

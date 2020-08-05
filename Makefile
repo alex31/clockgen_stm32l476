@@ -244,7 +244,7 @@ $(OBJS): $(CONFDIR)/board.h
 
 
 $(CONFDIR)/board.h: $(CONFDIR)/board.cfg
-	boardGen.pl --no-pp-line $<  $@
+	boardGen.pl --no-pp-line --no-adcp-in $<  $@
 
 
 stflash: all
