@@ -33,7 +33,7 @@ void ClockGenerator::start(void)
 
 void ClockGenerator::setFreq(uint32_t freq)
 {
-  freq = std::clamp(freq, 1UL, 100000UL);
+  freq = std::clamp(freq, 1UL, 1000UL*1000UL);
   
   if (mode == TimerMode::Slave) {
     pwmd->tim->SMCR = 0;

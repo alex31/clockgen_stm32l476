@@ -117,7 +117,10 @@ int main (void)
       else 
 	DebugTrace("val = %03ld KHz", hz/1000); 
       
+      clocks.setMasterSlaveFreq(hz, hz/2);
     }
+
+
     chThdSleepMilliseconds(100);
   }
 }
