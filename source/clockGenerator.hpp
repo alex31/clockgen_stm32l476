@@ -28,8 +28,8 @@ public:
   void setFreq(uint32_t freq);
   void pause(void);
   void play(void);
+
 private:
-  
   void start(void);
   PWMDriver * const pwmd;
   const uint32_t channel;

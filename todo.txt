@@ -1,0 +1,13 @@
+* ecrire :
+
+* module encodeur en copiant ce qui a été maquetté dans main.cpp
+
+* module affichage
+
+* module ADC
+
+* faire un firmware test_hardware pour valider la maquette de l'horloge
+
+* étudier l'IHM (graphe d'état)
+
+* coder l'IHM
