@@ -2,6 +2,7 @@
 
 #include "ch.h"
 #include "hal.h"
+#include <algorithm>
 
 #define CONCAT_NX(st1, st2) st1 ## st2
 #define CONCAT(st1, st2) CONCAT_NX(st1, st2)
@@ -101,7 +102,6 @@ static_assert((FREQMETER_IN_TIM == 2) or (FREQMETER_IN_TIM == 5));
 static constexpr PWMDriver &PWM_F1 = CONCAT(PWMD, CLOCK_F1_OUT_TIM);
 static constexpr PWMDriver &PWM_F2 = CONCAT(PWMD, CLOCK_F2_OUT_TIM);
 static constexpr ICUDriver &ICU_IN = CONCAT(ICUD, FREQMETER_IN_TIM);
-[[maybe_unused]]
-static inline const     stm32_tim_t * ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
-[[maybe_unused]]
-static inline const     stm32_tim_t * ENCODER_F2 = CONCAT(STM32_TIM, BOUTON_F2_IN_A_TIM);
+
+static inline    stm32_tim_t * const ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
+static inline    stm32_tim_t * const ENCODER_F2 = CONCAT(STM32_TIM, BOUTON_F2_IN_A_TIM);

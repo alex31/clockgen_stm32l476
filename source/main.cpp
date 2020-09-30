@@ -43,8 +43,8 @@ static virtual_timer_t vt;
 
 int main (void)
 {
-  Clocks clocks;
-  EncoderModeTimer bt1(STM32_TIM1);
+  ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
+  EncoderModeTimer bt1(ENCODER_F1);
   chVTObjectInit(&vt);
   
   palEnableLineEvent(LINE_BOUTON_F1_SW, PAL_EVENT_MODE_FALLING_EDGE);
@@ -80,8 +80,8 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
 
-  clocks.setMasterSlaveFreq(1000U, 2000U);
-  clocks.setMasterSlaveFreq(10000U, 20000U);
+  f1.setFreq(1000U);
+  f2.setFreq(2000U);
 
   int32_t lastV=0;
   int32_t val =0;
@@ -118,7 +118,9 @@ int main (void)
       else 
 	DebugTrace("val = %03ld KHz", hz/1000); 
       
-      clocks.setMasterSlaveFreq(hz, hz/2);
+      f1.setFreq(hz);
+      f2.setFreq(hz / 2);
+
     }
 
 

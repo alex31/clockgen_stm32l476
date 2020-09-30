@@ -2,17 +2,10 @@
 #include "stdutil.h"
 #include <algorithm>
 
-namespace {
-
-  constexpr uint32_t channel = 0U;
-}
-ClockGenerator::ClockGenerator(PWMDriver * const _pwmd, const TimerMode _mode) :
-    pwmd(_pwmd), mode(_mode)
+ClockGenerator::ClockGenerator(PWMDriver * const _pwmd, const uint32_t _channel) :
+    pwmd(_pwmd), channel(_channel)
 {
-  if (mode == TimerMode::Master) {
-    pwmcfg.cr2 = 0b001 << TIM_CR2_MMS_Pos;
- }
-
+  pwmcfg.channels[channel].mode = PWM_OUTPUT_ACTIVE_HIGH;
   start();
 }
 
@@ -21,32 +14,24 @@ void ClockGenerator::pause(void)
   pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
 }
 
+void ClockGenerator::play(void)
+{
+  pwmd->tim->CR1 |= STM32_TIM_CR1_CEN;
+}
+
 void ClockGenerator::start(void)
 {
   pwmStart(pwmd, &pwmcfg);
-  pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
-
-  if (mode == TimerMode::Master) {
-    pwmd->tim->SMCR = 1U << TIM_SMCR_MSM_Pos;
-  } 
+  pause();
 }
 
 void ClockGenerator::setFreq(uint32_t freq)
 {
-  freq = std::clamp(freq, 1UL, 1000UL*1000UL);
+  freq = std::clamp(freq, 1UL, 1_mhz);
   
-  if (mode == TimerMode::Slave) {
-    pwmd->tim->SMCR = 0;
-  }
-  pwmd->tim->CR1 &= ~STM32_TIM_CR1_CEN;
+  pause();
   
-  /* reset the timer  : when both timer are started by linked ENABLE
-     they start synchronously from same reset state
-   */
-  pwmd->tim->EGR   = STM32_TIM_EGR_UG; 
-
   uint32_t divider = pwmd->clock / freq;
-  
   uint16_t prescaler = 1 + (divider >> 16);
   uint16_t reload = divider / prescaler;
 
@@ -54,25 +39,9 @@ void ClockGenerator::setFreq(uint32_t freq)
     DebugTrace("f=%lu prescaler=%u reload=%u width=%u",
 	       freq, prescaler, reload, reload / 2);
   }
-  
+
   pwmd->tim->PSC = prescaler - 1;
   pwmd->tim->ARR = reload - 1;
   pwmEnableChannel(pwmd, channel, (reload / 2));
-
-  if (mode == TimerMode::Master) {
-   pwmd->tim->CR1 |= STM32_TIM_CR1_CEN;
-  } else {
-    pwmd->tim->SMCR = 
-      // TIM4 slave triggered by TIM3
-      (0b010 << TIM_SMCR_TS_Pos) |
-      // TIM4 Enable controled by TIM3 enable
-      (0b110 << TIM_SMCR_SMS_Pos);
-    }
-}
-
-void Clocks::setMasterSlaveFreq(const uint32_t masterF, const uint32_t slaveF)
-{
-  cgm.pause();
-  cgs.setFreq(slaveF);
-  cgm.setFreq(masterF);
+  play();
 }
