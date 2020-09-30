@@ -13,6 +13,7 @@
 #include "resetTTL.hpp"
 #include "clockGenerator.hpp"
 #include "encoderTimer.hpp"
+#include "hardwareConf.hpp"
 //#include "freqCapture.hpp"
 //#include "display.hpp"
 
