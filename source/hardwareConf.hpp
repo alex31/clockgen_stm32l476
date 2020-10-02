@@ -4,13 +4,12 @@
 #include "hal.h"
 #include <algorithm>
 
-#define CONCAT_NX(st1, st2) st1 ## st2
-#define CONCAT(st1, st2) CONCAT_NX(st1, st2)
-
 /*
  * Concatenate preprocessor tokens A and B after macro-expanding them.
  */
-#define PPCAT(A, B) PPCAT_NX(A, B)
+#define CONCAT_NX(st1, st2) st1 ## st2
+#define CONCAT(st1, st2) CONCAT_NX(st1, st2)
+
 
 /*
 #                 ______   _____         

@@ -9,17 +9,13 @@ static constexpr PWMConfig pwmcfgSkel = {
 	.period    = 10_khz,
 	.callback  = nullptr,
 	.channels  = {
-		      // sortie active, polarité normale, pas de callback
 		      {.mode = PWM_OUTPUT_DISABLED, .callback = NULL},
-		      // sortie inactive
 		      {.mode = PWM_OUTPUT_DISABLED, .callback = NULL},
-		      // sortie inactive
 		      {.mode = PWM_OUTPUT_DISABLED, .callback = NULL},
-		      // sortie inactive
 		      {.mode = PWM_OUTPUT_DISABLED, .callback = NULL}
 		      },
-	.cr2  = 0, // doit être initialisé à 0 (voir stm32f4 reference manuel)
-	.dier = 0  // doit être initialisé à 0 (voir stm32f4 reference manuel)
+	.cr2  = 0, 
+	.dier = 0  
   };
 
 class ClockGenerator {

@@ -23,10 +23,12 @@ bool EncoderModeTimer::cntIsUpdated(void)
 }
 void EncoderModeTimer::rccEnable(void)
 {
+#ifdef TIM2
   if (timer == STM32_TIM1) {
     rccEnableTIM1(true);
     rccResetTIM1();
   }
+#endif
 #ifdef TIM2
   else  if (timer == STM32_TIM2) {
     rccEnableTIM2(true);

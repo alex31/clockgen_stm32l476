@@ -6,8 +6,18 @@
 
 * module ADC
 
+* module DAC
+
 * faire un firmware test_hardware pour valider la maquette de l'horloge
 
 * étudier l'IHM (graphe d'état)
 
 * coder l'IHM
+
+* sauver le contexte en flash
+
+
+===================
+class bouton :
+      genere EVTs : turn(int), click, longclick
+
