@@ -24,7 +24,6 @@ static void eventCb(const Event& ev);
 
 struct Frequency {
   uint32_t freq;
-  uint32_t mulExp;
   ClockGenerator &cg;
 };
 
@@ -54,7 +53,7 @@ namespace std {
 }
 
 ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
-Frequency frequencies[2] = {{1, 0, f1}, {1, 0, f2}};
+Frequency frequencies[2] = {{1, f1}, {1, f2}};
 
 int main (void)
 {
@@ -110,15 +109,17 @@ int main (void)
 
 static void eventCb(const Event& ev)
 {
-  auto & [freq, mulExp, cg] = frequencies[ev.getIndex()];
+  auto & [freq, cg] = frequencies[ev.getIndex()];
   int32_t inc=0;
 
+  const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 6UL) -2UL;
+ 
   switch (ev.getEvent()) {
   case  Events::Turn : {
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
-    // freq += std::clamp(delta*delta*delta, -200L, 200L);
     const int32_t deltabs = std::abs(delta);
+
     switch (deltabs) {
     case 0: break;
     case 1 :
@@ -128,23 +129,16 @@ static void eventCb(const Event& ev)
     default : inc  = sign * powf(deltabs*2, 1.7f); break;
     }
 
+    const uint32_t minFreqInRange = powf(10.0f, floorf(log10f(freq))) -1.0f;
     inc = std::clamp(inc, -200L, 200L);
-    const int magnitude = log10f(freq);
     freq += inc * powf(10, mulExp);
+    freq = std::clamp(freq, minFreqInRange, 999_khz);
     freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
-    freq = std::clamp(freq, 1_hz, 999_khz);
-    const int newMagnitude = log10f(freq);
-    if (newMagnitude > 2)
-      mulExp = (mulExp + newMagnitude - magnitude) % 4;
-    else
-      mulExp = 0;
-
-     break;
+    break;
   }
     
   case Events::ShortClick : {
-    mulExp = ((mulExp + 1) % 4);
-    if (mulExp == 0) {
+    if (mulExp == 3) {
       freq = 1;
     } else if (freq < 1000) {
       freq = 1000;
