@@ -43,7 +43,7 @@ bool RotaryButton<U>::loop()
  
   if (change) {
     int16_t delta = cnt - lastCnt;
-    DebugTrace("delta = %d", delta);
+    //    DebugTrace("delta = %d", delta);
     if (std::abs(delta) >= 2) {
       Event ev(Events::Turn, index, delta/2);
       lastCnt = cnt;

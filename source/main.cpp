@@ -155,7 +155,7 @@ static void eventCb(const Event& ev)
 
   freq = std::clamp(freq, 1_hz, 999_khz);
 
-  DebugTrace("mulExp=%ld", mulExp);
+  //  DebugTrace("mulExp=%ld", mulExp);
 
   if (freq < 1_khz)
     DebugTrace("freq[%u] = %03ld Hz", ev.getIndex(), freq);
