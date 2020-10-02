@@ -1,23 +1,20 @@
 * ecrire :
 
-* module encodeur en copiant ce qui a été maquetté dans main.cpp
+0/ selection de frequence
 
-* module affichage
+1/ faire un firmware test_hardware pour valider la maquette de l'horloge
 
-* module ADC
+  + module affichage : gestion de l'afficheur 4 lignes 
 
-* module DAC
+  + module ADC : recuperer les tension
 
-* faire un firmware test_hardware pour valider la maquette de l'horloge
+  + module DAC : jouer un echantillon
 
-* étudier l'IHM (graphe d'état)
+  + module mémoire I²C
+
+2/ étudier l'IHM (graphe d'état)
 
 * coder l'IHM
 
 * sauver le contexte en flash
-
-
-===================
-class bouton :
-      genere EVTs : turn(int), click, longclick
 
