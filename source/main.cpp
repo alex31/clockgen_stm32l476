@@ -111,44 +111,66 @@ int main (void)
 static void eventCb(const Event& ev)
 {
   auto & [freq, mulExp, cg] = frequencies[ev.getIndex()];
-  int inc=0;
+  int32_t inc=0;
 
   switch (ev.getEvent()) {
   case  Events::Turn : {
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
     // freq += std::clamp(delta*delta*delta, -200L, 200L);
-    
-    DebugTrace("delta =%ld", delta);
-    switch (std::abs(delta)) {
+    const int32_t deltabs = std::abs(delta);
+    switch (deltabs) {
     case 0: break;
-    case 1 : inc = sign; break;
-    case 2 : inc = 3*sign; break;
-    default : inc  += 20*sign*(std::abs(delta)-1); break;
+    case 1 :
+    case 2 : inc = sign; break;
+    case 3 : 
+    case 4 : inc = 3*sign; break;
+    default : inc  = sign * powf(deltabs*2, 2.0f); break;
     }
 
     const int magnitude = log10f(freq);
+    const int nextMinMagnitude = std::clamp(magnitude-1, 0, 6);
+    const int nextMaxMagnitude = std::clamp(magnitude+1, 0, 6);
+    const uint32_t nextMin = powf(10.0, nextMinMagnitude);
+    const uint32_t nextMax = powf(10.0, nextMaxMagnitude);
     freq += inc * powf(10, mulExp);
     freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
+    freq = std::clamp(freq, nextMin, nextMax);
     freq = std::clamp(freq, 1_hz, 999_khz);
     const int newMagnitude = log10f(freq);
     if (newMagnitude > 2)
-      mulExp += (newMagnitude - magnitude);
+      mulExp = (mulExp + newMagnitude - magnitude) % 4;
     else
       mulExp = 0;
+
+    DebugTrace("magnitude = %d, nextMinMagnitude =%d, nextMaxMagnitude=%d\r\n"
+	       "nextMin = %lu, nextMax=%lu, newFreq = %lu\n",
+	       magnitude, nextMinMagnitude, nextMaxMagnitude,
+	       nextMin, nextMax, freq);
+
+    
     break;
   }
     
   case Events::ShortClick : {
-      mulExp++;
+    mulExp = ((mulExp + 1) % 4);
+    if (mulExp == 0) {
+      freq = 1;
+    } else if (freq < 1000) {
+      freq = 1000;
+    } else {
+      freq = powf(10, ceilf(log10f(freq+1)));
+    }
+    
     break;
   }
 
   default:
     DebugTrace("ignoring LongClick");
   }
-  
-  mulExp %= 4UL;
+
+  freq = std::clamp(freq, 1_hz, 999_khz);
+
   DebugTrace("mulExp=%ld", mulExp);
 
   if (freq < 1_khz)

@@ -42,14 +42,13 @@ bool RotaryButton<U>::loop()
   auto [change, cnt] = encoder.getCnt();
  
   if (change) {
-    // result of substract from 2 unsigned must be done in signed context
-    // so the cast is made necessary because of the "/ 2"
-    int16_t delta = static_cast<int16_t>(cnt - lastCnt) / 2;
-    lastCnt = cnt;
-    // val += std::clamp(delta*delta*delta, -200L, 200L);
-     
-    Event ev(Events::Turn, index, delta);
-    chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+    int16_t delta = cnt - lastCnt;
+    DebugTrace("delta = %d", delta);
+    if (std::abs(delta) >= 2) {
+      Event ev(Events::Turn, index, delta/2);
+      lastCnt = cnt;
+      chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+    }
   }
 
   return true;
