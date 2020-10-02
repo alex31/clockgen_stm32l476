@@ -125,17 +125,13 @@ static void eventCb(const Event& ev)
     case 2 : inc = sign; break;
     case 3 : 
     case 4 : inc = 3*sign; break;
-    default : inc  = sign * powf(deltabs*2, 2.0f); break;
+    default : inc  = sign * powf(deltabs*2, 1.7f); break;
     }
 
+    inc = std::clamp(inc, -200L, 200L);
     const int magnitude = log10f(freq);
-    const int nextMinMagnitude = std::clamp(magnitude-1, 0, 6);
-    const int nextMaxMagnitude = std::clamp(magnitude+1, 0, 6);
-    const uint32_t nextMin = powf(10.0, nextMinMagnitude);
-    const uint32_t nextMax = powf(10.0, nextMaxMagnitude);
     freq += inc * powf(10, mulExp);
     freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
-    freq = std::clamp(freq, nextMin, nextMax);
     freq = std::clamp(freq, 1_hz, 999_khz);
     const int newMagnitude = log10f(freq);
     if (newMagnitude > 2)
@@ -143,13 +139,7 @@ static void eventCb(const Event& ev)
     else
       mulExp = 0;
 
-    DebugTrace("magnitude = %d, nextMinMagnitude =%d, nextMaxMagnitude=%d\r\n"
-	       "nextMin = %lu, nextMax=%lu, newFreq = %lu\n",
-	       magnitude, nextMinMagnitude, nextMaxMagnitude,
-	       nextMin, nextMax, freq);
-
-    
-    break;
+     break;
   }
     
   case Events::ShortClick : {
