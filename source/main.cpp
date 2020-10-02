@@ -112,7 +112,7 @@ static void eventCb(const Event& ev)
   auto & [freq, cg] = frequencies[ev.getIndex()];
   int32_t inc=0;
 
-  const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 6UL) -2UL;
+  const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
  
   switch (ev.getEvent()) {
   case  Events::Turn : {
