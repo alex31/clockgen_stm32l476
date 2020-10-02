@@ -8,7 +8,7 @@ using callback_t = void(*) (const Event&);
 
 namespace EVT {
   constexpr size_t threadStackSize = 1024U;
-  constexpr size_t MB_LEN = 2U;
+  constexpr size_t MB_LEN = 8U;
   extern msg_t msgBuf[MB_LEN];
   extern mailbox_t mb;
   extern THD_WORKING_AREA(waEventSerializer, threadStackSize);

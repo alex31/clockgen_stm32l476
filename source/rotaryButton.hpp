@@ -4,6 +4,9 @@
 #include "encoderTimer.hpp"
 #include "event.hpp"
 #include <functional>
+#include <type_traits>
+
+
 
 namespace RB {
   constexpr size_t threadStackSize = 1024U;
@@ -23,7 +26,7 @@ private:
   bool loop(void) final;
 
   EncoderModeTimer encoder;
-  int32_t lastCnt=0;
+  uint16_t lastCnt=0;
   uint32_t index;
 };
 
@@ -37,11 +40,12 @@ template<typename U>
 bool RotaryButton<U>::loop()
 {
   auto [change, cnt] = encoder.getCnt();
-  const int32_t scnt = cnt;
-
+ 
   if (change) {
-    const int32_t delta = scnt - lastCnt;
-    lastCnt = scnt;
+    // result of substract from 2 unsigned must be done in signed context
+    // so the cast is made necessary because of the "/ 2"
+    int16_t delta = static_cast<int16_t>(cnt - lastCnt) / 2;
+    lastCnt = cnt;
     // val += std::clamp(delta*delta*delta, -200L, 200L);
      
     Event ev(Events::Turn, index, delta);

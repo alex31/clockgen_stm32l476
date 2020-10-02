@@ -7,7 +7,7 @@ void EncoderModeTimer::start(void)
   timer->PSC = 0;	    // prescaler must be set to zero
   timer->SMCR = 1;          // Encoder mode 1 : count on TI1 only
   timer->CCER = 0;          // rising edge polarity
-  timer->ARR = 0xFFFFFFFF;  // count from 0-ARR or ARR-0
+  timer->ARR = 0xFFFF;  // count from 0-ARR or ARR-0
   timer->CCMR1 = 0xC1C1;    // f_DTS/16, N=8, IC1->TI1, IC2->TI2
   timer->CNT = 0;           // Initialize counter
   timer->EGR = 1;           // generate an update event
@@ -16,7 +16,7 @@ void EncoderModeTimer::start(void)
 
 bool EncoderModeTimer::cntIsUpdated(void)
 {
-  const auto newV = timer->CNT >> 1U;
+  const uint16_t newV = timer->CNT;
   const bool change = (newV != lastCnt);
   lastCnt = newV;
   return change;

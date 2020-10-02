@@ -23,8 +23,8 @@ volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
 
 struct Frequency {
-  int32_t val;
-  int32_t mul;
+  uint32_t freq;
+  uint32_t mulExp;
   ClockGenerator &cg;
 };
 
@@ -53,10 +53,8 @@ namespace std {
   void __throw_bad_function_call() { chSysHalt("throw_bad_function_call"); while(true);};
 }
 
-volatile int32_t mul = 1;
-
 ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
-Frequency frequencies[2] = {{0, 1, f1}, {0, 1, f2}};
+Frequency frequencies[2] = {{1, 0, f1}, {1, 0, f2}};
 
 int main (void)
 {
@@ -110,37 +108,39 @@ int main (void)
 }
 
 
-
 static void eventCb(const Event& ev)
 {
-  auto & [val, mul, cg] = frequencies[ev.getIndex()];
-
+  auto & [freq, mulExp, cg] = frequencies[ev.getIndex()];
+  int inc=0;
 
   switch (ev.getEvent()) {
   case  Events::Turn : {
     const int32_t delta = ev.getLoad();
-    DebugTrace("delta =%ld", delta);
     const int32_t sign = delta > 0 ? 1 : -1;
-    // val += std::clamp(delta*delta*delta, -200L, 200L);
+    // freq += std::clamp(delta*delta*delta, -200L, 200L);
     
+    DebugTrace("delta =%ld", delta);
     switch (std::abs(delta)) {
     case 0: break;
-    case 1 : val += sign; break;
-    case 2 : val += 3*sign; break;
-    default : val -= val % 10; val += 20*sign*(std::abs(delta)-1); break;
+    case 1 : inc = sign; break;
+    case 2 : inc = 3*sign; break;
+    default : inc  += 20*sign*(std::abs(delta)-1); break;
     }
-    
-    if (val < 0)
-      val += 1000;
-    val %= 1000;
+
+    const int magnitude = log10f(freq);
+    freq += inc * powf(10, mulExp);
+    freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
+    freq = std::clamp(freq, 1_hz, 999_khz);
+    const int newMagnitude = log10f(freq);
+    if (newMagnitude > 2)
+      mulExp += (newMagnitude - magnitude);
+    else
+      mulExp = 0;
     break;
   }
-
+    
   case Events::ShortClick : {
-    if (mul >= 1000)
-      mul = 1;
-    else
-      mul *= 10;
+      mulExp++;
     break;
   }
 
@@ -148,17 +148,18 @@ static void eventCb(const Event& ev)
     DebugTrace("ignoring LongClick");
   }
   
-  
-  int32_t hz = val * mul;
-  if (mul == 1)
-    DebugTrace("val[%u] = %03ld Hz", ev.getIndex(), hz);
-  else if (mul == 10)
-    DebugTrace("val[%u] = %04.2f KHz", ev.getIndex(), hz/1000.0f); 
-  else if (mul == 100)
-    DebugTrace("val[%u] = %04.1f KHz", ev.getIndex(), hz/1000.0f);
+  mulExp %= 4UL;
+  DebugTrace("mulExp=%ld", mulExp);
+
+  if (freq < 1_khz)
+    DebugTrace("freq[%u] = %03ld Hz", ev.getIndex(), freq);
+  else if (freq < 10_khz)
+    DebugTrace("freq[%u] = %04.2f KHz", ev.getIndex(), freq/1000.0f); 
+  else if (freq < 100_khz)
+    DebugTrace("freq[%u] = %04.1f KHz", ev.getIndex(), freq/1000.0f);
   else 
-    DebugTrace("val[%u] = %03ld KHz", ev.getIndex(), hz/1000); 
+    DebugTrace("freq[%u] = %03ld KHz", ev.getIndex(), freq/1000); 
   
-  cg.setFreq(hz);
+  cg.setFreq(freq);
 }
 
