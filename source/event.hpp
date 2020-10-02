@@ -19,7 +19,7 @@ class Event {
 public:
   Event() :
     event(Events::None), idx(0), load(0) {}
-  Event(const Events _event, const int _idx, const int _load = 0) :
+  Event(const Events _event, const int _idx, const int16_t _load = 0) :
     event(_event), idx(_idx), load(_load) {}
   int  getLoad(void) const {return load;}
   int  getIndex(void) const {return idx;}
@@ -32,7 +32,7 @@ private:
     struct {
       const Events event;
       const uint8_t idx;
-      uint16_t      load;
+      int16_t      load;
     };
     msg_t msg;
   };

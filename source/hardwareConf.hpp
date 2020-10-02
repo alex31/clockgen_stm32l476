@@ -100,6 +100,7 @@ static_assert((FREQMETER_IN_TIM == 2) or (FREQMETER_IN_TIM == 5));
 
 static constexpr PWMDriver &PWM_F1 = CONCAT(PWMD, CLOCK_F1_OUT_TIM);
 static constexpr PWMDriver &PWM_F2 = CONCAT(PWMD, CLOCK_F2_OUT_TIM);
+
 static constexpr ICUDriver &ICU_IN = CONCAT(ICUD, FREQMETER_IN_TIM);
 
 static inline    stm32_tim_t * const ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
