@@ -23,6 +23,7 @@ volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
 
 struct Frequency {
+  uint32_t lastFreq;
   uint32_t freq;
   ClockGenerator &cg;
 };
@@ -53,7 +54,7 @@ namespace std {
 }
 
 ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
-Frequency frequencies[2] = {{1, f1}, {1, f2}};
+Frequency frequencies[2] = {{1, 1, f1}, {1, 1, f2}};
 
 int main (void)
 {
@@ -109,7 +110,7 @@ int main (void)
 
 static void eventCb(const Event& ev)
 {
-  auto & [freq, cg] = frequencies[ev.getIndex()];
+  auto & [lastFreq, freq, cg] = frequencies[ev.getIndex()];
   int32_t inc=0;
 
   const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
@@ -119,6 +120,8 @@ static void eventCb(const Event& ev)
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
     const int32_t deltabs = std::abs(delta);
+
+    lastFreq = freq;
 
     switch (deltabs) {
     case 0: break;
@@ -138,6 +141,7 @@ static void eventCb(const Event& ev)
   }
     
   case Events::ShortClick : {
+    lastFreq = freq;
     if (mulExp == 3) {
       freq = 1;
     } else if (freq < 1000) {
@@ -155,7 +159,8 @@ static void eventCb(const Event& ev)
   }
     
  case Events::DoubleClick : {
-    DebugTrace("ignoring Double Click");
+    DebugTrace("Double Click : undo");
+    freq = lastFreq;
     break;
   }
 
