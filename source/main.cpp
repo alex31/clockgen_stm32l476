@@ -129,7 +129,7 @@ static void eventCb(const Event& ev)
     case 2 : inc = sign; break;
     case 3 : 
     case 4 : inc = 3*sign; break;
-    default : inc  = sign * powf(deltabs*2, 1.7f); break;
+    default : inc  = sign * powf((deltabs-3)*2, 1.0f+(deltabs/10.0f)); break;
     }
 
     const uint32_t minFreqInRange = powf(10.0f, floorf(log10f(freq))) -1.0f;

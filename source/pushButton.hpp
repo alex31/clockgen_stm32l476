@@ -98,6 +98,7 @@ void PushButton<U>::proceedDown(void)
 		chMBPostI(&EVT::mb, ev.getEventAsMsg());
 		pb->state = PBState::DoubleClick;
 	      } else {
+		chVTResetI(&pb->vt);
 		chVTSetI(&pb->vt, TIME_MS2I(LONG_CLIC_INTERVAL_MS),
 			 [] ([[maybe_unused]] void *arg) {
 			   chSysLockFromISR();
