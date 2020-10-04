@@ -1,5 +1,10 @@
 * ecrire :
 
+
+* frequences : implementer undo
+
+* simplifier la classe workerThread
+
 1/ faire un firmware test_hardware pour valider la maquette de l'horloge
 
   + module affichage : gestion de l'afficheur 4 lignes 
@@ -14,5 +19,11 @@
 
 * coder l'IHM
 
+* heartbeat sur l'afficheur (pacman ?)
+
 * sauver le contexte en flash
+
+* ajouter le double clic aux evenements possibles ?
+
+* faire une FFT sur les tensions pour detecter une instabilité des alims
 

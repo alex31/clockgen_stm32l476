@@ -149,8 +149,17 @@ static void eventCb(const Event& ev)
     break;
   }
 
-  default:
-    DebugTrace("ignoring LongClick");
+  case Events::LongClick : {
+    DebugTrace("ignoring Long Click");
+    break;
+  }
+    
+ case Events::DoubleClick : {
+    DebugTrace("ignoring Double Click");
+    break;
+  }
+
+  default : break;
   }
 
   freq = std::clamp(freq, 1_hz, 999_khz);

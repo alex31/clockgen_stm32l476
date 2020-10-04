@@ -74,20 +74,6 @@ static constexpr size_t ADC_RESOLUTION_IN_BITS = 12U;
 static constexpr uint32_t SAMPLE_MAX = (1<<ADC_RESOLUTION_IN_BITS) - 1;
 
 
-/*
-#                                                    
-#                                                    
-#                 _   _   ___     ___   _ __         
-#                | | | | / __|   / _ \ | '__|        
-#                | |_| | \__ \  |  __/ | |           
-#                 \__,_| |___/   \___| |_|           
-#                            _    _    _              _       _                 
-#                           | |  (_)  | |            | |     | |                
-#                  ___    __| |   _   | |_     __ _  | |__   | |    ___         
-#                 / _ \  / _` |  | |  | __|   / _` | | '_ \  | |   / _ \        
-#                |  __/ | (_| |  | |  \ |_   | (_| | | |_) | | |  |  __/        
-#                 \___|  \__,_|  |_|   \__|   \__,_| |_.__/  |_|   \___|        
-*/
 
 static_assert(BOUTON_F2_IN_A_TIM == BOUTON_F2_IN_B_TIM);
 static_assert(BOUTON_F1_IN_A_TIM == BOUTON_F1_IN_B_TIM);
@@ -105,3 +91,22 @@ static constexpr ICUDriver &ICU_IN = CONCAT(ICUD, FREQMETER_IN_TIM);
 
 static inline    stm32_tim_t * const ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
 static inline    stm32_tim_t * const ENCODER_F2 = CONCAT(STM32_TIM, BOUTON_F2_IN_A_TIM);
+
+/*
+#                                                    
+#                                                    
+#                 _   _   ___     ___   _ __         
+#                | | | | / __|   / _ \ | '__|        
+#                | |_| | \__ \  |  __/ | |           
+#                 \__,_| |___/   \___| |_|           
+#                            _    _    _              _       _                 
+#                           | |  (_)  | |            | |     | |                
+#                  ___    __| |   _   | |_     __ _  | |__   | |    ___         
+#                 / _ \  / _` |  | |  | __|   / _` | | '_ \  | |   / _ \        
+#                |  __/ | (_| |  | |  \ |_   | (_| | | |_) | | |  |  __/        
+#                 \___|  \__,_|  |_|   \__|   \__,_| |_.__/  |_|   \___|        
+*/
+
+static constexpr uint32_t  ANTI_REBOUND_INTERVAL_MS = 30;
+static constexpr uint32_t  LONG_CLIC_INTERVAL_MS = 500;
+static constexpr uint32_t  DOUBLE_CLIC_INTERVAL_MS = 100;
