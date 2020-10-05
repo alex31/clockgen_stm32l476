@@ -4,13 +4,14 @@
 
 
 
-template<size_t WSS, typename T>
+template<typename T>
 class WorkerThread
 {
 public:
   enum ExitCode {ERROR_IN_INIT=-10, ERROR_IN_LOOP=-11};
 
-  WorkerThread(const char *m_name, const tprio_t m_prio) : name(m_name), prio(m_prio) {};
+  WorkerThread(const char *m_name, const size_t m_size,
+	       const tprio_t m_prio) : name(m_name), stackSize(m_size), prio(m_prio) {};
   bool run(sysinterval_t time);
   WorkerThread& terminate();
   WorkerThread& join();
@@ -26,35 +27,31 @@ protected:
 
 private:
   const char *name;
+  const size_t  stackSize;
   const tprio_t prio;
   sysinterval_t timeInLoop;
-  
-  static thread_t *handle;
-
-  static THD_WORKING_AREA(ws, WSS);
+  thread_t *handle = nullptr;
 };
 
 
-  
-template<size_t WSS, typename T>
-bool WorkerThread<WSS, T>::run(sysinterval_t m_timeInLoop)
+/*
+  thread_t * 	chThdCreateFromHeap (memory_heap_t *heapp, size_t size, const char *name, 
+		tprio_t prio, tfunc_t pf, void *arg)
+ */
+template<typename T>
+bool WorkerThread<T>::run(sysinterval_t m_timeInLoop)
 {
-  // this will force that only one process can be run
-  // in the same time
-  if (handle != nullptr)
+ if (init() == false)
     return false;
-  
-  if (init() == false)
-    return false;
-  
-  timeInLoop = m_timeInLoop;
-  handle = chThdCreateStatic(ws, sizeof(ws), prio, threadFunc, this);
-  chRegSetThreadNameX (handle, name);
+
+ timeInLoop = m_timeInLoop;
+  //  handle = chThdCreateStatic(ws, sizeof(ws), prio, threadFunc, this);
+  handle = chThdCreateFromHeap(nullptr, stackSize, name, prio, threadFunc, this);
   return true;
 }
 
-template<size_t WSS, typename T>
-WorkerThread<WSS, T>& WorkerThread<WSS, T>::join(void)
+template<typename T>
+WorkerThread<T>& WorkerThread<T>::join(void)
 {
   // this will force that only one process can be run
   // in the same time
@@ -65,8 +62,8 @@ WorkerThread<WSS, T>& WorkerThread<WSS, T>::join(void)
   return *this;
 }
 
-template<size_t WSS, typename T>
-WorkerThread<WSS, T>& WorkerThread<WSS, T>::terminate(void)
+template<typename T>
+WorkerThread<T>& WorkerThread<T>::terminate(void)
 {
   // this will force that only one process can be run
   // in the same time, not really a singleton but close. 
@@ -78,8 +75,8 @@ WorkerThread<WSS, T>& WorkerThread<WSS, T>::terminate(void)
 }
 
 
-template<size_t WSS, typename T>
-void WorkerThread<WSS, T>::threadFunc(void *o) {
+template<typename T>
+void WorkerThread<T>::threadFunc(void *o) {
   T * const self = static_cast<T*>(o);
   if (self->initInThreadContext() == false)
     chThdExit(ERROR_IN_INIT);
@@ -96,9 +93,3 @@ void WorkerThread<WSS, T>::threadFunc(void *o) {
   chThdExit(ERROR_IN_LOOP);
 }
 
-template<size_t WSS, typename T>
-ALIGNED_VAR(32) stkalign_t WorkerThread<WSS, T>::ws[THD_WORKING_AREA_SIZE(WSS) /
-						    sizeof(stkalign_t)];
-
-template<size_t WSS, typename T>
-thread_t *WorkerThread<WSS, T>::handle = nullptr;

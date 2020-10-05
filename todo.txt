@@ -1,9 +1,6 @@
-* ecrire :
 
 
-* frequences : implementer undo
 
-* simplifier la classe workerThread
 
 1/ faire un firmware test_hardware pour valider la maquette de l'horloge
 

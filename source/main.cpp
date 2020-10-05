@@ -28,9 +28,6 @@ struct Frequency {
   ClockGenerator &cg;
 };
 
-struct Dummy1 {};
-struct Dummy2 {};
-
 static THD_WORKING_AREA(waBlinker, 304);	// declaration de la pile du thread blinker
 static void blinker ([[maybe_unused]] void *arg)
 {
@@ -59,29 +56,11 @@ Frequency frequencies[2] = {{1, 1, f1}, {1, 1, f2}};
 int main (void)
 {
   Event::init(&eventCb);
-  RotaryButton<Dummy1> rb1(NORMALPRIO, ENCODER_F1);
-  RotaryButton<Dummy2> rb2(NORMALPRIO, ENCODER_F2);
-  PushButton<Dummy1> pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
-  PushButton<Dummy2> pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
+  RotaryButton rb1(NORMALPRIO, ENCODER_F1);
+  RotaryButton rb2(NORMALPRIO, ENCODER_F2);
+  PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
+  PushButton pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
   
-  // palSetLineCallback(LINE_BOUTON_F1_SW,
-  // 		     [] ([[maybe_unused]] void *arg) {
-  // 		       chSysLockFromISR();
-  // 		       if (not chVTIsArmedI(&vt)) {
-  // 			 chVTSetI(&vt, TIME_MS2I(100),
-  // 				  [] ([[maybe_unused]] void *arg) {
-  // 				    chSysLockFromISR();
-  // 				    if (palReadLine(LINE_BOUTON_F1_SW) == PAL_LOW) {
-  // 				      if (mul >= 1000)
-  // 					mul = 1;
-  // 				      else
-  // 					mul *= 10;
-  // 				    }
-  // 				    chSysUnlockFromISR();
-  // 				  }, nullptr);
-  // 		       }
-  // 		       chSysUnlockFromISR();
-  // 		     }, nullptr);
   
 #ifndef NOSHELL
   consoleInit();	// initialisation des objets liés au shell
