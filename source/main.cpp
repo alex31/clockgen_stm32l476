@@ -16,7 +16,7 @@
 #include "pushButton.hpp"
 #include "hardwareConf.hpp"
 //#include "freqCapture.hpp"
-//#include "display.hpp"
+#include "lcdDisplay.hpp"
 
 
 volatile uint32_t blinkWait=100;
@@ -52,6 +52,7 @@ namespace std {
 
 ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
 Frequency frequencies[2] = {{1, 1, f1}, {1, 1, f2}};
+LCDDisplay lcd(NORMALPRIO);
 
 int main (void)
 {
@@ -60,6 +61,7 @@ int main (void)
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
   PushButton pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
+
   
   
 #ifndef NOSHELL
@@ -75,6 +77,7 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
 
+  lcd.run(TIME_MS2I(100));
   f1.setFreq(1000U);
   f2.setFreq(2000U);
   rb1.run(TIME_MS2I(100));
@@ -91,6 +94,7 @@ static void eventCb(const Event& ev)
 {
   auto & [lastFreq, freq, cg] = frequencies[ev.getIndex()];
   int32_t inc=0;
+  static char buf[80];
 
   const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
  
@@ -149,16 +153,19 @@ static void eventCb(const Event& ev)
   freq = std::clamp(freq, 1_hz, 999_khz);
 
   //  DebugTrace("mulExp=%ld", mulExp);
-
-  if (freq < 1_khz)
-    DebugTrace("freq[%u] = %03ld Hz", ev.getIndex(), freq);
-  else if (freq < 10_khz)
-    DebugTrace("freq[%u] = %04.2f KHz", ev.getIndex(), freq/1000.0f); 
-  else if (freq < 100_khz)
-    DebugTrace("freq[%u] = %04.1f KHz", ev.getIndex(), freq/1000.0f);
-  else 
-    DebugTrace("freq[%u] = %03ld KHz", ev.getIndex(), freq/1000); 
   
+  if (freq < 1_khz) {
+    snprintf(buf, sizeof(buf), "freq[%u] = %03ld Hz", ev.getIndex(), freq);
+  } else if (freq < 10_khz) {
+    snprintf(buf, sizeof(buf), "freq[%u] = %04.2f KHz", ev.getIndex(), freq/1000.0f); 
+  } else if (freq < 100_khz) {
+    snprintf(buf, sizeof(buf), "freq[%u] = %04.1f KHz", ev.getIndex(), freq/1000.0f);
+  } else  {
+    snprintf(buf, sizeof(buf), "freq[%u] = %03ld KHz", ev.getIndex(), freq/1000); 
+  }
+  DebugTrace("%s", buf);
+  lcd.write(ev.getIndex(), etl::string_view(buf, sizeof(buf)));
+  lcd.draw();
   cg.setFreq(freq);
 }
 

@@ -386,5 +386,8 @@
 #define CH_HEAP_USE_TLSF 0 // if 0 or undef, chAlloc will be used
 #define CONSOLE_DEV_SD SD2
 #define CHPRINTF_USE_STDLIB TRUE
+#define USERLIB_USE_HD44780 TRUE
+#define HD44780_USE_DIMMABLE_BACKLIGHT      FALSE
+#define HD44780_USE_4_BIT_MODE		    TRUE
 
 #endif /* MCUCONF_H */
