@@ -167,6 +167,8 @@ static void eventCb(const Event& ev)
   lcd.write(3, etl::string_view(buf, sizeof(buf)));
   // lcd.write(ev.getIndex(), 0, "FRAQ"); // to test the library
   lcd.draw();
+  lcd.enableCursor(freq % 2);
+  lcd.setCursorPos(0, 10);
   cg.setFreq(freq);
 }
 
