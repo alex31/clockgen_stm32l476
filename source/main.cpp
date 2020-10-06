@@ -164,7 +164,8 @@ static void eventCb(const Event& ev)
     snprintf(buf, sizeof(buf), "freq[%u] = %03ld KHz", ev.getIndex(), freq/1000); 
   }
   DebugTrace("%s", buf);
-  lcd.write(ev.getIndex(), etl::string_view(buf, sizeof(buf)));
+  lcd.write(3, etl::string_view(buf, sizeof(buf)));
+  // lcd.write(ev.getIndex(), 0, "FRAQ"); // to test the library
   lcd.draw();
   cg.setFreq(freq);
 }

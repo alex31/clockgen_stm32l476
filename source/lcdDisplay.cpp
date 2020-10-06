@@ -27,14 +27,14 @@ namespace DP {
 					}
   };
   
-  
+
   static const HD44780Config lcdcfg = {
-				       .cursor = HD44780_CURSOR_OFF,        
-  .blinking = HD44780_BLINKING_OFF,    
+  .cursor = HD44780_CURSOR_OFF,        
+  .blinking = HD44780_BLINKING_ON,    
   .font = HD44780_SET_FONT_5X8,       
   .lines = HD44780_SET_2LINES,        
-  .pinmap = &lcdpins,                 
-  .backlight = 100,                   
+  .pinmap = &lcdpins,
+  .backlight = 0U
 };
 
 }
@@ -69,12 +69,26 @@ void LCDDisplay::write(const uint8_t lineN, etl::string_view sv)
 {
   if (lineN < DP::lcdHeight) {
     fb[lineN] = etl::string<DP::lcdWide>(sv);
+    std::fill(fb[lineN].begin() + strlen(sv.data()), fb[lineN].end(), ' ');
   }
 }
 
 void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view sv)
 {
   if ((lineN < DP::lcdHeight) and (posX < DP::lcdWide)) {
-    fb[lineN].replace(posX, sv.size(), sv.data(), sv.size());
+    const size_t slen = strlen(sv.data());
+    fb[lineN].replace(posX, slen, sv.data(), slen);
   }
+}
+
+void LCDDisplay::enableCursor(const bool enable)
+{
+  hd44780ShowCursor(&lcdd, enable);
+}
+
+void LCDDisplay::setCursorPos(uint8_t line, uint8_t posx)
+{
+  line = std::min(line, static_cast<uint8_t>(DP::lcdHeight - 1U));
+  posx = std::min(posx, static_cast<uint8_t>(DP::lcdWide -1U));
+  hd44780SetAddress(&lcdd, DP::rowAddr[line] + posx);
 }
