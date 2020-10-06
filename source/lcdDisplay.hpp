@@ -31,14 +31,14 @@ private:
   friend WorkerThread<LCDDisplay>;
 
   std::array<etl::string<DP::lcdWide>, DP::lcdHeight> fb{};
+  signed char heartBeat = ' ';
   
-  bool init(void) final;
-  bool loop(void) final;
-
-  
-
   HD44780Driver lcdd;
   MUTEX_DECL(mut);
+
+  bool init(void) final;
+  bool loop(void) final;
+  static constexpr uint8_t xy2pos(uint8_t line, const uint8_t posx);
 };
 
 

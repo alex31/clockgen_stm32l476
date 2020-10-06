@@ -11,8 +11,16 @@ adresse of rows :
 
  */
 namespace DP {
+  class MutexRAII
+  {
+  public:
+    MutexRAII(mutex_t *_mut) : mut(_mut) {chMtxLock(mut);};
+    ~MutexRAII() {chMtxUnlock(mut);};
+  private:
+    mutex_t *mut;
+  };
 
-  const uint8_t rowAddr[4] = {0U, 64U, 20U, 84U};
+  constexpr uint8_t rowAddr[4] = {0U, 64U, 20U, 84U};
   
   const hd44780_pins_t lcdpins = {
 				  .RS = LINE_LCD_RS,
@@ -53,13 +61,17 @@ bool LCDDisplay::init()
 
 bool LCDDisplay::loop()
 {
-
-  
+  DP::MutexRAII m(&mut);
+  hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeat++);
+  if (heartBeat < 0) {
+    heartBeat = ' ';
+  }
   return true;
 }
 
 void LCDDisplay::draw()
 {
+  DP::MutexRAII m(&mut);
   for (size_t lineN =0;lineN < DP::lcdHeight; lineN++) {
     hd44780Write(&lcdd, DP::rowAddr[lineN], fb[lineN].c_str());
   }
@@ -83,12 +95,19 @@ void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view
 
 void LCDDisplay::enableCursor(const bool enable)
 {
+  DP::MutexRAII m(&mut);
   hd44780ShowCursor(&lcdd, enable);
 }
 
 void LCDDisplay::setCursorPos(uint8_t line, uint8_t posx)
 {
+  DP::MutexRAII m(&mut);
+  hd44780SetAddress(&lcdd, xy2pos(line, posx));
+}
+
+constexpr uint8_t LCDDisplay::xy2pos(uint8_t line, uint8_t posx)
+{
   line = std::min(line, static_cast<uint8_t>(DP::lcdHeight - 1U));
   posx = std::min(posx, static_cast<uint8_t>(DP::lcdWide -1U));
-  hd44780SetAddress(&lcdd, DP::rowAddr[line] + posx);
+  return DP::rowAddr[line] + posx;
 }

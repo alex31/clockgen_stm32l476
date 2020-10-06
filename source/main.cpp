@@ -77,7 +77,7 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
 
-  lcd.run(TIME_MS2I(100));
+  lcd.run(TIME_MS2I(500));
   f1.setFreq(1000U);
   f2.setFreq(2000U);
   rb1.run(TIME_MS2I(100));
