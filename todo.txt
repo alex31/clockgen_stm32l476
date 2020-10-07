@@ -34,5 +34,9 @@ TESTER : changement de range : en fonction du dernier sens du bouton
 
 =======================================================
 
-Bouton appuyé à l'allumage : reglages :
+Bouton appuyé à l'allumage :
+  reglages : choix du son -> liste
+             volume du son -> champ increment par 10 entre 0 et 100
+	     
+	     
 
