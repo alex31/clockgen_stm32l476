@@ -138,8 +138,6 @@ static void eventCb(const Event& ev)
     } else { // dir == Direction::Down
      if (mulExp == 1) {
 	freq = 100_khz;
-      } else if (freq < 1000) {
-	freq = 1000;
       } else {
 	freq = powf(10, ceilf(log10f(freq-1)));
       }
