@@ -136,13 +136,15 @@ static void eventCb(const Event& ev)
 	freq = powf(10, ceilf(log10f(freq+1)));
       }
     } else { // dir == Direction::Down
-     if (mulExp == 1) {
+      if (mulExp == 1) {
 	freq = 100_khz;
       } else {
 	freq = powf(10, ceilf(log10f(freq-1)));
+	if (freq < 1000) {
+	  freq = 1;
+	}
       }
     }
-    
     break;
   }
 

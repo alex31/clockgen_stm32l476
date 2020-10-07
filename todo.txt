@@ -2,13 +2,7 @@
 API LCD :
 
 
-fonction freqToAscii
-
-afficher une liste de string (sans retour à la ligne)
-positionner le curseur au début d'un mot
-
-constructeur(marge gauche, liste de mots texte fixe, liste de mots choix);
-getPos(mot);
+fonction freqToStr, duration2Str
 
 
 TESTER : changement de range : en fonction du dernier sens du bouton
@@ -34,4 +28,11 @@ TESTER : changement de range : en fonction du dernier sens du bouton
 
 * faire une FFT sur les tensions pour detecter une instabilité des alims
 
+
+* affichage d'une aide contextuelle sur double clic ?
+
+
+=======================================================
+
+Bouton appuyé à l'allumage : reglages :
 

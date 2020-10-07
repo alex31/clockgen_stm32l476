@@ -2,7 +2,8 @@
 #include "ch.h"
 #include "hal.h"
 
-enum class Events : uint8_t {None, Turn, ShortClick, LongClick, DoubleClick}; 
+enum class Events : uint8_t {None, Turn, ShortClick, LongClick, DoubleClick,
+			     SetFreq}; 
 class Event;
 using callback_t = void(*) (const Event&);
 
@@ -30,9 +31,9 @@ public:
 private:
   union {
     struct {
-      const Events event;
-      const uint8_t idx;
-      int16_t      load;
+      const Events  event;
+      const uint8_t idx:4;
+      int32_t       load:20;
     };
     msg_t msg;
   };
