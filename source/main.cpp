@@ -124,10 +124,10 @@ static void eventCb(const Event& ev)
   }
     
   case Events::ShortClick : {
-    const enum class Direction {Fall, Rise} dir = lastFreq < freq ? Direction::Fall :
-							      Direction::Rise;
+    const enum class Direction {Up, Down} dir = lastFreq < freq ? Direction::Down :
+							      Direction::Up;
     lastFreq = freq;
-    if (dir == Direction::Rise) {
+    if (dir == Direction::Up) {
       if (mulExp == 3) {
 	freq = 1;
       } else if (freq < 1000) {
@@ -135,7 +135,7 @@ static void eventCb(const Event& ev)
       } else {
 	freq = powf(10, ceilf(log10f(freq+1)));
       }
-    } else {
+    } else { // dir == Direction::Down
      if (mulExp == 1) {
 	freq = 100_khz;
       } else if (freq < 1000) {
