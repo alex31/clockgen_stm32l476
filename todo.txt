@@ -1,5 +1,17 @@
 
+API LCD :
 
+
+fonction freqToAscii
+
+afficher une liste de string (sans retour à la ligne)
+positionner le curseur au début d'un mot
+
+constructeur(marge gauche, liste de mots texte fixe, liste de mots choix);
+getPos(mot);
+
+
+changement de range : en fonction du dernier sens du bouton
 
 
 1/ faire un firmware test_hardware pour valider la maquette de l'horloge
@@ -18,9 +30,8 @@
 
 * heartbeat sur l'afficheur (pacman ?)
 
-* sauver le contexte en flash
-
-* ajouter le double clic aux evenements possibles ?
+* sauver le contexte en F-RAM
 
 * faire une FFT sur les tensions pour detecter une instabilité des alims
+
 
