@@ -96,7 +96,15 @@ int main(void)
   std::cout << "#################" << std::endl;
   MenuEntries::print(me.getView(4));
 
+  std::cout << "#################" << std::endl;
+  FrameBuffer<5,5> fb55;
+  FrameBuffer<2,4> fb22;
+  fb55[0] = fb55[1] = fb55[2] = fb55[3] = fb55[4] = "12345";
+  fb22[0] = fb22[1] = fb22[2] = fb22[3] = "AB";
+  fb55.copyRect(fb22.getView(0,2), 2, 2);
 
+  for (const auto& str : fb55)
+    std::cout << str.data() << std::endl;
 
   return 0;
 }
