@@ -31,7 +31,7 @@ void MenuEntries::fill(const uint8_t margin, const etl::string_view sep)
     //    std::cout << "DBG> str[" << e.str.length() << "]=" << e.str.data() << std::endl;
     if (e.str.length() >= fb[line].available()) {
       line++;
-      if (line >= fb.size())
+      if (line >= fb.getHeight())
 	break;
     }
     const uint8_t posx = fb[line].length();
@@ -45,7 +45,7 @@ void MenuEntries::fill(const uint8_t margin, const etl::string_view sep)
   }
 }
 
-FrameBufferView MenuEntries::getView(const size_t index)
+FrameBuffer<MenuEntries::W, MenuEntries::L>::FbView MenuEntries::getView(const size_t index)
 {
   int bgin = 0;
   if (index < entries.size()) {
@@ -53,7 +53,7 @@ FrameBufferView MenuEntries::getView(const size_t index)
     bgin = std::clamp(bgin, 0, int(DP::virtualHeight) - 4);
   }
   std::cout << "DBG> bgin=" << bgin << std::endl;
-  return FrameBufferView{&fb[bgin], 4};
+  return fb.getView(bgin, 4);
 }
 
 
@@ -69,7 +69,7 @@ void MenuEntries::print(void) const
   }
 }
 
-void MenuEntries::print(FrameBufferView fbv)
+void MenuEntries::print(FrameBuffer<W, L>::FbView fbv)
 {
   for (const auto& s : fbv) {
     std::cout << s.data() << std::endl;
@@ -98,8 +98,5 @@ int main(void)
 
 
 
-  FrameeBuffer<20, 4> fb2;
-
-  
   return 0;
 }

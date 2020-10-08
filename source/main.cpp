@@ -22,10 +22,12 @@
 volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
 
+enum class Direction {Up=0x7E, Down=0x7F};
 struct Frequency {
   uint32_t lastFreq;
   uint32_t freq;
   ClockGenerator &cg;
+  Direction dir;
 };
 
 static THD_WORKING_AREA(waBlinker, 304);	// declaration de la pile du thread blinker
@@ -51,7 +53,7 @@ namespace std {
 }
 
 ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
-Frequency frequencies[2] = {{1, 1, f1}, {1, 1, f2}};
+Frequency frequencies[2] = {{1, 1, f1, Direction::Up}, {1, 1, f2, Direction::Up}};
 LCDDisplay lcd(NORMALPRIO);
 
 int main (void)
@@ -92,7 +94,7 @@ int main (void)
 
 static void eventCb(const Event& ev)
 {
-  auto & [lastFreq, freq, cg] = frequencies[ev.getIndex()];
+  auto & [lastFreq, freq, cg, dir] = frequencies[ev.getIndex()];
   int32_t inc=0;
   static char buf[80];
 
@@ -103,7 +105,7 @@ static void eventCb(const Event& ev)
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
     const int32_t deltabs = std::abs(delta);
-
+    dir = freq >= lastFreq ? Direction::Up : Direction::Down;
     lastFreq = freq;
 
     switch (deltabs) {
@@ -124,26 +126,24 @@ static void eventCb(const Event& ev)
   }
     
   case Events::ShortClick : {
-    const enum class Direction {Up, Down} dir = lastFreq < freq ? Direction::Down :
-							      Direction::Up;
+    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
+	       dir == Direction::Up ? "UP" : "DOWN");
     lastFreq = freq;
     if (dir == Direction::Up) {
       if (mulExp == 3) {
-	freq = 1;
-      } else if (freq < 1000) {
-	freq = 1000;
+	freq = 1_hz;
+      } else if (freq < 1_khz) {
+	freq = 1_khz;
       } else {
 	freq = powf(10, ceilf(log10f(freq+1)));
       }
     } else { // dir == Direction::Down
-      if (mulExp == 1) {
+      if (freq == 1)
 	freq = 100_khz;
-      } else {
-	freq = powf(10, ceilf(log10f(freq-1)));
-	if (freq < 1000) {
-	  freq = 1;
-	}
-      }
+      else if (freq <= 1_khz) 
+	freq = 1_hz;
+      else
+	freq = powf(10, floorf(log10f(freq-1)));
     }
     break;
   }
@@ -167,20 +167,18 @@ static void eventCb(const Event& ev)
   //  DebugTrace("mulExp=%ld", mulExp);
   
   if (freq < 1_khz) {
-    snprintf(buf, sizeof(buf), "freq[%u] = %03ld Hz", ev.getIndex(), freq);
+    snprintf(buf, sizeof(buf), "freq[%u] = %03ld Hz %c", ev.getIndex(), freq, char(dir));
   } else if (freq < 10_khz) {
-    snprintf(buf, sizeof(buf), "freq[%u] = %04.2f KHz", ev.getIndex(), freq/1000.0f); 
+    snprintf(buf, sizeof(buf), "freq[%u] = %04.2f KHz %c", ev.getIndex(), freq/1000.0f, char(dir)); 
   } else if (freq < 100_khz) {
-    snprintf(buf, sizeof(buf), "freq[%u] = %04.1f KHz", ev.getIndex(), freq/1000.0f);
+      snprintf(buf, sizeof(buf), "freq[%u] = %04.1f KHz %c", ev.getIndex(), freq/1000.0f, char(dir));
   } else  {
-    snprintf(buf, sizeof(buf), "freq[%u] = %03ld KHz", ev.getIndex(), freq/1000); 
+      snprintf(buf, sizeof(buf), "freq[%u] = %03ld KHz %c", ev.getIndex(), freq/1000, char(dir)); 
   }
   DebugTrace("%s", buf);
-  lcd.write(3, etl::string_view(buf, sizeof(buf)));
+  lcd.write(ev.getIndex(), etl::string_view(buf, sizeof(buf)));
   // lcd.write(ev.getIndex(), 0, "FRAQ"); // to test the library
   lcd.draw();
-  lcd.enableCursor(freq % 2);
-  lcd.setCursorPos(0, 10);
   cg.setFreq(freq);
 }
 

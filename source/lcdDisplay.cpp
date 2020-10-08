@@ -61,11 +61,16 @@ bool LCDDisplay::init()
 
 bool LCDDisplay::loop()
 {
-  DP::MutexRAII m(&mut);
-  hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeat++);
+  {
+    DP::MutexRAII m(&mut);
+    hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeat++);
+  }
   if (heartBeat < 0) {
     heartBeat = ' ';
   }
+  enableCursor(true);
+  setCursorPos(0, 15);
+
   return true;
 }
 

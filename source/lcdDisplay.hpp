@@ -9,7 +9,7 @@
 #include <array>
 
 namespace DP {
-  constexpr size_t threadStackSize = 1024U;
+  constexpr size_t threadStackSize = 1536U;
   constexpr size_t lcdHeight = 4U;
   constexpr size_t lcdWide = 20U;
 }
@@ -18,7 +18,7 @@ namespace DP {
 class LCDDisplay : public WorkerThread<LCDDisplay> {
 public:
   LCDDisplay(const tprio_t m_prio) :
-    WorkerThread("pushButton", DP::threadStackSize, m_prio)
+    WorkerThread("lcdDisplay", DP::threadStackSize, m_prio)
   {}
 
   void draw(void);
