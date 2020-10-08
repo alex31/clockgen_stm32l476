@@ -5,9 +5,6 @@ API LCD :
 fonction freqToStr, duration2Str
 
 
-TESTER : changement de range : en fonction du dernier sens du bouton
-
-
 1/ faire un firmware test_hardware pour valider la maquette de l'horloge
 
   + module affichage : gestion de l'afficheur 4 lignes 
