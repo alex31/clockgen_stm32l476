@@ -2,9 +2,6 @@
 API LCD :
 
 
-fonction freqToStr, duration2Str
-
-
 1/ faire un firmware test_hardware pour valider la maquette de l'horloge
 
   + module affichage : gestion de l'afficheur 4 lignes 
@@ -21,7 +18,7 @@ fonction freqToStr, duration2Str
 
 * heartbeat sur l'afficheur (pacman ?)
 
-* sauver le contexte en F-RAM
+* contexte en F-RAM
 
 * faire une FFT sur les tensions pour detecter une instabilité des alims
 

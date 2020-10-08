@@ -96,7 +96,6 @@ static void eventCb(const Event& ev)
 {
   auto & [lastFreq, freq, cg, dir] = frequencies[ev.getIndex()];
   int32_t inc=0;
-  static char buf[80];
 
   const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
  
@@ -105,7 +104,6 @@ static void eventCb(const Event& ev)
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
     const int32_t deltabs = std::abs(delta);
-    dir = freq >= lastFreq ? Direction::Up : Direction::Down;
     lastFreq = freq;
 
     switch (deltabs) {
@@ -122,6 +120,10 @@ static void eventCb(const Event& ev)
     freq += inc * powf(10, mulExp);
     freq = std::clamp(freq, minFreqInRange, 999_khz);
     freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
+
+    dir = freq >= lastFreq ? Direction::Up : Direction::Down;
+
+    
     break;
   }
     
@@ -165,18 +167,8 @@ static void eventCb(const Event& ev)
   freq = std::clamp(freq, 1_hz, 999_khz);
 
   //  DebugTrace("mulExp=%ld", mulExp);
-  
-  if (freq < 1_khz) {
-    snprintf(buf, sizeof(buf), "freq[%u] = %03ld Hz %c", ev.getIndex(), freq, char(dir));
-  } else if (freq < 10_khz) {
-    snprintf(buf, sizeof(buf), "freq[%u] = %04.2f KHz %c", ev.getIndex(), freq/1000.0f, char(dir)); 
-  } else if (freq < 100_khz) {
-      snprintf(buf, sizeof(buf), "freq[%u] = %04.1f KHz %c", ev.getIndex(), freq/1000.0f, char(dir));
-  } else  {
-      snprintf(buf, sizeof(buf), "freq[%u] = %03ld KHz %c", ev.getIndex(), freq/1000, char(dir)); 
-  }
-  DebugTrace("%s", buf);
-  lcd.write(ev.getIndex(), etl::string_view(buf, sizeof(buf)));
+  lcd.write(ev.getIndex(), 0, "freq[%u] = %s %c   ", ev.getIndex(),
+	    LCDDisplay::freq2Str(freq).c_str(), char(dir));
   // lcd.write(ev.getIndex(), 0, "FRAQ"); // to test the library
   lcd.draw();
   cg.setFreq(freq);

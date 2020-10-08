@@ -22,15 +22,18 @@ public:
   {}
 
   void draw(void);
-  void write(const uint8_t lineN, etl::string_view sv);
+  //  void write(const uint8_t lineN, etl::string_view sv);
   void write(const uint8_t lineN, const uint8_t posX, etl::string_view sv);
+  void write(const uint8_t lineN, const uint8_t posX, const char* fmt, ...);
   void enableCursor(const bool enable);
   void setCursorPos(uint8_t line, uint8_t posx);
+  static etl::string<10> freq2Str(uint32_t freq);
+  static etl::string<10> time2Str(uint32_t usec);
   
 private:
   friend WorkerThread<LCDDisplay>;
 
-  std::array<etl::string<DP::lcdWide>, DP::lcdHeight> fb{};
+  std::array<etl::string<DP::lcdWide+1>, DP::lcdHeight> fb{};
   signed char heartBeat = ' ';
   
   HD44780Driver lcdd;

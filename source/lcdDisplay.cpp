@@ -78,23 +78,30 @@ void LCDDisplay::draw()
 {
   DP::MutexRAII m(&mut);
   for (size_t lineN =0;lineN < DP::lcdHeight; lineN++) {
-    hd44780Write(&lcdd, DP::rowAddr[lineN], fb[lineN].c_str());
+    hd44780RawWrite(&lcdd, DP::rowAddr[lineN], fb[lineN].c_str());
   }
 }
 
-void LCDDisplay::write(const uint8_t lineN, etl::string_view sv)
-{
-  if (lineN < DP::lcdHeight) {
-    fb[lineN] = etl::string<DP::lcdWide>(sv);
-    std::fill(fb[lineN].begin() + strlen(sv.data()), fb[lineN].end(), ' ');
-  }
-}
 
 void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view sv)
 {
   if ((lineN < DP::lcdHeight) and (posX < DP::lcdWide)) {
     const size_t slen = strlen(sv.data());
     fb[lineN].replace(posX, slen, sv.data(), slen);
+  }
+}
+
+void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* fmt, ...)
+{
+  va_list ap;
+  char string[80];
+
+  if ((lineN < DP::lcdHeight) and (posX < DP::lcdWide)) {
+    va_start(ap, fmt);
+    vsnprintf(string, sizeof(string), fmt, ap);
+    va_end(ap);
+    const size_t slen = strlen(string);
+    fb[lineN].replace(posX, slen, string, slen);
   }
 }
 
@@ -116,3 +123,35 @@ constexpr uint8_t LCDDisplay::xy2pos(uint8_t line, uint8_t posx)
   posx = std::min(posx, static_cast<uint8_t>(DP::lcdWide -1U));
   return DP::rowAddr[line] + posx;
 }
+
+etl::string<10> LCDDisplay::freq2Str(uint32_t freq)
+{
+  char buf[10];
+  
+  if (freq < 1_khz) {
+    snprintf(buf, sizeof(buf), "%03ld Hz", freq);
+  } else if (freq < 10_khz) {
+    snprintf(buf, sizeof(buf), "%04.2f KHz", freq/1000.0f); 
+  } else if (freq < 100_khz) {
+    snprintf(buf, sizeof(buf), "%04.1f KHz", freq/1000.0f);
+  } else  {
+    snprintf(buf, sizeof(buf), "%03ld KHz", freq/1000); 
+  }
+  return etl::string<10>(buf);
+}
+
+etl::string<10> LCDDisplay::time2Str(uint32_t usec)
+{
+  char buf[10];
+  
+  if (usec < 1000) {
+    snprintf(buf, sizeof(buf), "%03ld uS", usec);
+  } else if (usec < 1000000) {
+    snprintf(buf, sizeof(buf), "%04.2f mS", usec / 1000.0f); 
+  } else {
+    snprintf(buf, sizeof(buf), "%04.2f S", usec / 1000000.0f);
+  } 
+  return etl::string<10>(buf);
+}
+ 
+ 
