@@ -4,7 +4,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "hd44780.h"
-#include "etl/cstring.h"
+#include "etl/string.h"
 #include "etl/string_view.h"
 #include <array>
 

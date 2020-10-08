@@ -9,7 +9,7 @@
 #include "stdutil.h"
 #include "printf.h"
 #include "ttyConsole.hpp"
-#include "etl/cstring.h"
+#include "etl/string.h"
 #include <etl/vector.h>
 
 

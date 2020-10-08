@@ -4,7 +4,7 @@
 #include <cmath>
 #include <utility>
 #include <algorithm>
-#include "etl/cstring.h"
+#include "etl/string.h"
 #include "stdutil.h"		// necessaire pour initHeap
 #ifndef NOSHELL
 #include "ttyConsole.hpp"       // fichier d'entête du shell
@@ -128,8 +128,8 @@ static void eventCb(const Event& ev)
   }
     
   case Events::ShortClick : {
-    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
-	       dir == Direction::Up ? "UP" : "DOWN");
+    //    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
+    //	       dir == Direction::Up ? "UP" : "DOWN");
     lastFreq = freq;
     if (dir == Direction::Up) {
       if (mulExp == 3) {

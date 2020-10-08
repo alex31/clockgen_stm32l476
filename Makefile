@@ -45,15 +45,15 @@ ifeq ($(EXECMODE),$(OPT_SPEED))
 	     $(GCC_DIAG)
 endif
 
+#            --specs=nano.specs \
 ifeq ($(EXECMODE),$(OPT_SIZE)) 
     USE_LTO = yes
     USE_OPT =  -Os  -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-            --specs=nano.specs \
             -DCH_DBG_STATISTICS=0 -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
 	    -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 -DCH_DBG_FILL_THREADS=0 \
 	    -DCH_DBG_THREADS_PROFILING=0 -DNOSHELL=1 \
-	     $(GCC_DIAG)
+	     $(GCC_DIAG) 
 endif
 
 
@@ -229,7 +229,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS = -lm
+ULIBS = -lm -lstdc++
 
 #
 # End of user defines
