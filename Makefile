@@ -45,7 +45,7 @@ ifeq ($(EXECMODE),$(OPT_SPEED))
 	     $(GCC_DIAG)
 endif
 
-#            --specs=nano.specs \
+#            --specs=nano.specs 
 ifeq ($(EXECMODE),$(OPT_SIZE)) 
     USE_LTO = yes
     USE_OPT =  -Os  -flto  -Wall -Wextra \
