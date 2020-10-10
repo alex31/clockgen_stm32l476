@@ -17,6 +17,7 @@
 #include "hardwareConf.hpp"
 //#include "freqCapture.hpp"
 #include "lcdDisplay.hpp"
+#include "adc.hpp"
 
 
 volatile uint32_t blinkWait=100;

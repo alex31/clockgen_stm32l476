@@ -1,6 +1,6 @@
 #include "lcdDisplay.hpp"
 #include "stdutil.h"
-
+#include "adc.hpp"
 
 /*
 adresse of rows :
@@ -64,6 +64,8 @@ bool LCDDisplay::loop()
   {
     DP::MutexRAII m(&mut);
     hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeat++);
+    hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f", ADC::getPowerSupplyVoltage());
+    hd44780Write(&lcdd, xy2pos(3U, 0U), "ps=%.2f", ADC::getLogicVoltage());
   }
   if (heartBeat < 0) {
     heartBeat = ' ';
