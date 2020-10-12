@@ -61,15 +61,14 @@ bool LCDDisplay::init()
 
 bool LCDDisplay::loop()
 {
-  {
-    DP::MutexRAII m(&mut);
-    hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeat++);
-    hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f", ADC::getPowerSupplyVoltage());
-    hd44780Write(&lcdd, xy2pos(3U, 0U), "ps=%.2f", ADC::getLogicVoltage());
-  }
-  if (heartBeat < 0) {
-    heartBeat = ' ';
-  }
+  DP::MutexRAII m(&mut);
+  
+  hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeatAnim[heartBeatIdx++]);
+  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f", ADC::getPowerSupplyVoltage());
+  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
+
+  heartBeatIdx %= heartBeatAnim.size();
+
   enableCursor(true);
   setCursorPos(0, 15);
 

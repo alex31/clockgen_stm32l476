@@ -34,7 +34,8 @@ private:
   friend WorkerThread<LCDDisplay>;
 
   std::array<etl::string<DP::lcdWide+1>, DP::lcdHeight> fb{};
-  signed char heartBeat = ' ';
+  uint8_t heartBeatIdx = 0;
+  static constexpr std::array heartBeatAnim = {'.', 'o', 'O', '@', '*'};
   
   HD44780Driver lcdd;
   MUTEX_DECL(mut);

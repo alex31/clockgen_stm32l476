@@ -60,6 +60,7 @@ LCDDisplay lcd(NORMALPRIO);
 int main (void)
 {
   Event::init(&eventCb);
+  ADC adc(NORMALPRIO);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
@@ -80,7 +81,8 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
 
-  lcd.run(TIME_MS2I(500));
+  adc.run(TIME_MS2I(100));
+  lcd.run(TIME_MS2I(100));
   f1.setFreq(1000U);
   f2.setFreq(2000U);
   rb1.run(TIME_MS2I(100));

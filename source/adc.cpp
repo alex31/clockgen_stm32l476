@@ -1,7 +1,7 @@
 #include "adc.hpp"
 #include "event.hpp"
 #include "hardwareConf.hpp"
-
+#include "stdutil.h"
 
 #define SMPR1_PS CONCAT(ADC_SMPR1_SMP_AN, SUPPLY_VOLTAGE_ADC_IN)
 #define SMPR1_LOGIC CONCAT(ADC_SMPR1_SMP_AN, LOGIC_VOLTAGE_ADC_IN)
@@ -11,7 +11,7 @@
 
 namespace {
   constexpr uint32_t CHANNELS = 2;
-  constexpr uint32_t DEPTH = 2;
+  constexpr uint32_t DEPTH = 128;
   constexpr uint32_t ADC_OVERSAMPLING = ADC_SMPR_SMP_640P5;
 
  constexpr ADCConversionGroup adcgrpcfg1 = {
@@ -19,7 +19,7 @@ namespace {
   .num_channels = CHANNELS,
   .end_cb = nullptr,
   .error_cb = nullptr,
-  .cfgr = 0U,
+  .cfgr = ADC_CFGR_CONT,
   .cfgr2 = 0U,
   .tr1 = ADC_TR_DISABLED,
   .tr2 = ADC_TR_DISABLED,
@@ -36,13 +36,14 @@ namespace {
 	    }
  };
 
-  adcsample_t adcSamples[CHANNELS * DEPTH];
+  adcsample_t IN_DMA_SECTION_NOINIT(adcSamples[CHANNELS * DEPTH]);
 }
 
 bool ADC::init()
 {
-   adcStart(&ADCD1, NULL);
-   return true;
+  DebugTrace("ADC::init()");
+  adcStart(&ADCD1, NULL);
+  return true;
 }
 
 
@@ -50,9 +51,15 @@ bool ADC::init()
 bool ADC::loop()
 {
   adcConvert(&ADCD1, &adcgrpcfg1, adcSamples, DEPTH);
-  psVolt = (adcSamples[0] + adcSamples[1]) * 3.3f / 4095.0f;
-  logicVolt = (adcSamples[1] + adcSamples[3]) * 3.3f / 4095.0f;
+  float mean[CHANNELS] {};
   
+  for (size_t d=0; d < CHANNELS * DEPTH; d += CHANNELS)
+    for (size_t c=0; c < CHANNELS; c++)
+      mean[c] += adcSamples[d+c];
+  
+  psVolt = mean[0] * VCC_33 * POWER_SUPPLY_VOLTAGE_RATIO / SAMPLE_MAX / DEPTH;
+  logicVolt = mean[1] * VCC_33 * LOGIC_VOLTAGE_RATIO / SAMPLE_MAX / DEPTH;
+
   return true;
 }
 
