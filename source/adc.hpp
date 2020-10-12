@@ -10,7 +10,7 @@ namespace {
 class ADC : public WorkerThread<ADC> {
 public:
   ADC(const tprio_t m_prio) :
-    WorkerThread("pushButton", threadStackSize, m_prio)
+    WorkerThread("adc", threadStackSize, m_prio)
   {};
   static float getPowerSupplyVoltage(void)  {return psVolt;}
   static float getLogicVoltage(void)  {return logicVolt;}

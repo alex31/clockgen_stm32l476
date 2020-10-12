@@ -1,7 +1,7 @@
 #include "lcdDisplay.hpp"
 #include "stdutil.h"
 #include "adc.hpp"
-
+#include "freqCapture.hpp"
 /*
 adresse of rows :
 00-19  
@@ -49,11 +49,11 @@ namespace DP {
 
 bool LCDDisplay::init()
 {
-  DebugTrace("LCDDisplay::init() start");
   hd44780ObjectInit(&lcdd);
   hd44780Start(&lcdd, &DP::lcdcfg);
   hd44780ClearDisplay(&lcdd);
-  DebugTrace("LCDDisplay::init() end");
+  for (auto &l : fb)
+    l.insert(0U, 20U, ' ');
   return true;
 }
 
@@ -64,13 +64,14 @@ bool LCDDisplay::loop()
   DP::MutexRAII m(&mut);
   
   hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeatAnim[heartBeatIdx++]);
-  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f", ADC::getPowerSupplyVoltage());
+  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
+	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
   hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
 
   heartBeatIdx %= heartBeatAnim.size();
 
-  enableCursor(true);
-  setCursorPos(0, 15);
+  //enableCursor(true);
+  //setCursorPos(0, 15);
 
   return true;
 }
@@ -101,7 +102,7 @@ void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* fmt,
     va_start(ap, fmt);
     vsnprintf(string, sizeof(string), fmt, ap);
     va_end(ap);
-    const size_t slen = strlen(string);
+    const size_t slen = std::min(DP::lcdWide-posX, strlen(string));
     fb[lineN].replace(posX, slen, string, slen);
   }
 }
@@ -129,7 +130,9 @@ etl::string<10> LCDDisplay::freq2Str(uint32_t freq)
 {
   char buf[10];
   
-  if (freq < 1_khz) {
+    if (freq == 0) {
+      strncpy(buf, "--------", sizeof(buf));
+  } else if (freq < 1_khz) {
     snprintf(buf, sizeof(buf), "%03ld Hz", freq);
   } else if (freq < 10_khz) {
     snprintf(buf, sizeof(buf), "%04.2f KHz", freq/1000.0f); 

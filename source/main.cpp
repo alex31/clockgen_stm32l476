@@ -18,7 +18,8 @@
 //#include "freqCapture.hpp"
 #include "lcdDisplay.hpp"
 #include "adc.hpp"
-
+#include "audio.hpp"
+#include "freqCapture.hpp"
 
 volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
@@ -60,7 +61,9 @@ LCDDisplay lcd(NORMALPRIO);
 int main (void)
 {
   Event::init(&eventCb);
+  ICU::init();
   ADC adc(NORMALPRIO);
+  AUDIO audio(NORMALPRIO);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
@@ -82,9 +85,10 @@ int main (void)
 #endif
 
   adc.run(TIME_MS2I(100));
+  audio.run(TIME_MS2I(100));
   lcd.run(TIME_MS2I(100));
-  f1.setFreq(1000U);
-  f2.setFreq(2000U);
+  (void) f1.setFreq(1U);
+  (void) f2.setFreq(1U);
   rb1.run(TIME_MS2I(100));
   rb2.run(TIME_MS2I(100));
   pb1.run(TIME_IMMEDIATE);
@@ -137,16 +141,12 @@ static void eventCb(const Event& ev)
     if (dir == Direction::Up) {
       if (mulExp == 3) {
 	freq = 1_hz;
-      } else if (freq < 1_khz) {
-	freq = 1_khz;
       } else {
 	freq = powf(10, ceilf(log10f(freq+1)));
       }
     } else { // dir == Direction::Down
       if (freq == 1)
 	freq = 100_khz;
-      else if (freq <= 1_khz) 
-	freq = 1_hz;
       else
 	freq = powf(10, floorf(log10f(freq-1)));
     }
@@ -167,13 +167,11 @@ static void eventCb(const Event& ev)
   default : break;
   }
 
-  freq = std::clamp(freq, 1_hz, 999_khz);
+  freq = cg.setFreq(std::clamp(freq, 1_hz, 999_khz));
 
   //  DebugTrace("mulExp=%ld", mulExp);
-  lcd.write(ev.getIndex(), 0, "freq[%u] = %s %c   ", ev.getIndex(),
+  lcd.write(1-ev.getIndex(), 5, "F%c = %s %c  ", ev.getIndex() + '1',
 	    LCDDisplay::freq2Str(freq).c_str(), char(dir));
-  // lcd.write(ev.getIndex(), 0, "FRAQ"); // to test the library
   lcd.draw();
-  cg.setFreq(freq);
 }
 

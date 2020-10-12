@@ -73,7 +73,7 @@ static constexpr float VCC_33 = 3.3f;
 static constexpr size_t ADC_RESOLUTION_IN_BITS = 12U;
 static constexpr uint32_t SAMPLE_MAX = (1<<ADC_RESOLUTION_IN_BITS) - 1;
 static constexpr float LOGIC_VOLTAGE_RATIO = 2.0f;
-static constexpr float POWER_SUPPLY_VOLTAGE_RATIO = 4.033;
+static constexpr float POWER_SUPPLY_VOLTAGE_RATIO = 5.55;
 
 
 

@@ -25,7 +25,7 @@ void ClockGenerator::start(void)
   pause();
 }
 
-void ClockGenerator::setFreq(uint32_t freq)
+uint32_t ClockGenerator::setFreq(uint32_t freq)
 {
   freq = std::clamp(freq, 1UL, 1_mhz);
   
@@ -36,12 +36,13 @@ void ClockGenerator::setFreq(uint32_t freq)
   uint16_t reload = divider / prescaler;
 
   if (reload < 4) {
-    DebugTrace("f=%lu prescaler=%u reload=%u width=%u",
+    DebugTrace("WARNING f=%lu prescaler=%u reload=%u width=%u",
 	       freq, prescaler, reload, reload / 2);
-  }
+  } 
 
   pwmd->tim->PSC = prescaler - 1;
-  pwmd->tim->ARR = reload - 1;
+  pwmd->tim->ARR = reload-1;
   pwmEnableChannel(pwmd, channel, (reload / 2));
   play();
+  return ((STM32_SYSCLK / prescaler) / reload);
 }

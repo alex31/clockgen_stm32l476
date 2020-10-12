@@ -21,7 +21,7 @@ static constexpr PWMConfig pwmcfgSkel = {
 class ClockGenerator {
 public:
   ClockGenerator(PWMDriver * const _pwmd, const uint32_t _channel);
-  void setFreq(uint32_t freq);
+  [[nodiscard]] uint32_t setFreq(uint32_t freq);
   void pause(void);
   void play(void);
 
