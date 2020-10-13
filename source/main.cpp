@@ -112,6 +112,7 @@ int main (void)
   pb2.run(TIME_IMMEDIATE);
   eventCb ({Events::Turn, 0, 0});
   eventCb ({Events::Turn, 1, 0});
+  lcd.enableCursor(false);
  
   chThdSleep(TIME_INFINITE);
 }
@@ -133,11 +134,10 @@ static void eventCb(const Event& ev)
 
     switch (deltabs) {
     case 0: break;
-    case 1 :
-    case 2 : inc = sign; break;
-    case 3 : 
-    case 4 : inc = 3*sign; break;
-    default : inc  = sign * powf((deltabs-3)*2, 1.0f+(deltabs/10.0f)); break;
+    case 1 : 
+    case 2 :  inc = sign; break;
+    case 3 :  inc = 3*sign; break;
+    default : inc  = sign * powf((deltabs-2)*2, 1.0f+(deltabs/6.0f)); break;
     }
 
     const uint32_t minFreqInRange = powf(10.0f, floorf(log10f(freq))) -1.0f;
