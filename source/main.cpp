@@ -18,9 +18,9 @@
 //#include "freqCapture.hpp"
 #include "lcdDisplay.hpp"
 #include "adc.hpp"
-#include "audio.hpp"
 #include "freqCapture.hpp"
 #include "fram.hpp"
+#include "beepIn.hpp"
 
 volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
@@ -50,7 +50,6 @@ void _init_chibios() {
   chSysInit();
   initHeap ();
 }
-
 namespace std {
   void __throw_bad_function_call() { chSysHalt("throw_bad_function_call"); while(true);};
 }
@@ -63,7 +62,7 @@ int main (void)
 {
   constexpr uint32_t MAGIC = 0xDEADBEEF;
   uint32_t magic;
-
+  
 #ifndef NOSHELL
   consoleInit();	// initialisation des objets liés au shell
 #endif
@@ -87,12 +86,11 @@ int main (void)
   Event::init(&eventCb);
   ICU::init();
   ADC adc(NORMALPRIO);
-  AUDIO audio(NORMALPRIO);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
   PushButton pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
-
+  BeepIn beepIn(NORMALPRIO);
   
   
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
@@ -104,7 +102,7 @@ int main (void)
 #endif
   
   adc.run(TIME_MS2I(100));
-  audio.run(TIME_MS2I(100));
+  beepIn.run(TIME_MS2I(1));
   lcd.run(TIME_MS2I(100));
   rb1.run(TIME_MS2I(100));
   rb2.run(TIME_MS2I(100));
@@ -113,7 +111,7 @@ int main (void)
   eventCb ({Events::Turn, 0, 0});
   eventCb ({Events::Turn, 1, 0});
   lcd.enableCursor(false);
- 
+
   chThdSleep(TIME_INFINITE);
 }
 

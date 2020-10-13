@@ -18,8 +18,6 @@ private:
   friend WorkerThread<ADC>;
   bool init(void) final;
   bool loop(void) final;
-  void proceedUp(void);
-  void proceedDown(void);
   static float psVolt;
   static float logicVolt;
 };
