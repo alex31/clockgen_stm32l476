@@ -20,6 +20,7 @@
 #include "adc.hpp"
 #include "audio.hpp"
 #include "freqCapture.hpp"
+#include "fram.hpp"
 
 volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
@@ -60,6 +61,29 @@ LCDDisplay lcd(NORMALPRIO);
 
 int main (void)
 {
+  constexpr uint32_t MAGIC = 0xDEADBEEF;
+  uint32_t magic;
+
+#ifndef NOSHELL
+  consoleInit();	// initialisation des objets liés au shell
+#endif
+
+  FRAM::init();
+  if (FRAM::read(magic, 0) == false) {
+    DebugTrace("I²C Failed");
+    (void) f1.setFreq(1U);
+    (void) f2.setFreq(1U);
+  } else if (magic == MAGIC) {
+    DebugTrace("fram initialized");
+    FRAM::read(frequencies[0].freq, 4);
+    FRAM::read(frequencies[1].freq, 8);
+    (void) f1.setFreq(frequencies[0].freq);
+    (void) f2.setFreq(frequencies[1].freq);
+  } else {
+    DebugTrace("first run : fram NOT initialized");
+    FRAM::write(MAGIC, 0);
+  }
+  
   Event::init(&eventCb);
   ICU::init();
   ADC adc(NORMALPRIO);
@@ -71,29 +95,23 @@ int main (void)
 
   
   
-#ifndef NOSHELL
-  consoleInit();	// initialisation des objets liés au shell
-#endif
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   chThdCreateStatic(waBlinker, sizeof(waBlinker),
 		    NORMALPRIO+2, &blinker, NULL);
 
-  //  initFreqCapture();
-  //  initDisplay();
 #ifndef NOSHELL
   consoleLaunch();  // lancement du shell
 #endif
-
+  
   adc.run(TIME_MS2I(100));
   audio.run(TIME_MS2I(100));
   lcd.run(TIME_MS2I(100));
-  (void) f1.setFreq(1U);
-  (void) f2.setFreq(1U);
   rb1.run(TIME_MS2I(100));
   rb2.run(TIME_MS2I(100));
   pb1.run(TIME_IMMEDIATE);
   pb2.run(TIME_IMMEDIATE);
-
+  eventCb ({Events::Turn, 0, 0});
+  eventCb ({Events::Turn, 1, 0});
  
   chThdSleep(TIME_INFINITE);
 }
@@ -168,6 +186,7 @@ static void eventCb(const Event& ev)
   }
 
   freq = cg.setFreq(std::clamp(freq, 1_hz, 999_khz));
+  FRAM::write(freq, 4+(ev.getIndex()*4));
 
   //  DebugTrace("mulExp=%ld", mulExp);
   lcd.write(1-ev.getIndex(), 5, "F%c = %s %c  ", ev.getIndex() + '1',
