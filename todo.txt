@@ -6,15 +6,6 @@ API LCD :
 
 * module permanentStorage au dessus du module FRAM
 
-1/ faire un firmware test_hardware pour valider la maquette de l'horloge
-
-  + module affichage : gestion de l'afficheur 4 lignes 
-
-  + module ADC : recuperer les tension
-
-  + module DAC : jouer un echantillon
-
-  + module mémoire I²C
 
 2/ étudier l'IHM (graphe d'état)
 
@@ -35,6 +26,7 @@ API LCD :
 Bouton appuyé à l'allumage :
   reglages : choix du son -> liste
              volume du son -> champ increment par 10 entre 0 et 100
+	     contraste ?
 	     
 	     
 

@@ -184,21 +184,22 @@ static void eventCb(const Event& ev)
   }
 
   freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));
+  
   if (freq > 200_khz) {
+    uint32_t mul = 1U;
     if (dir == Direction::Up)
-      while (freq <= lastFreq) {
-   	freq = cg.setFreq(std::clamp(freq + 1_khz, 1_hz, 980_khz));
-	DebugTrace("Iter freq UP = %lu", freq);
+      while ((freq < 980_khz) and (freq <= lastFreq)) {
+   	freq = cg.setFreq(std::clamp(freq + (1_khz*mul++), 1_hz, 980_khz));
+	//	DebugTrace("Iter freq UP = %lu", freq);
       }
-     else
-       while (freq >= lastFreq) {
-	 freq = cg.setFreq(std::clamp(freq - 1_khz, 1_hz, 980_khz));
-	 DebugTrace("Iter freq DOWN = %lu", freq);
-       }
+    else
+      while ((freq > 1_hz) and (freq >= lastFreq)) {
+	freq = cg.setFreq(std::clamp(freq - (1_khz*mul++), 1_hz, 980_khz));
+	//	DebugTrace("Iter freq DOWN = %lu", freq);
+      }
   }
-
   FRAM::write(freq, 4+(ev.getIndex()*4));
-
+  
   //  DebugTrace("mulExp=%ld", mulExp);
   lcd.write(1-ev.getIndex(), 5, "F%c = %s %c  ", ev.getIndex() + '1',
 	    LCDDisplay::freq2Str(freq).c_str(), char(dir));

@@ -35,8 +35,9 @@ float getFrequency(void)
 {
   if (overflow()) {
     return 0.0f;
-  } else
-    return static_cast<float>(ICU_FREQ) / icuGetPeriodX(&ICU_IN);    
+  } else {
+    //    DebugTrace("icuGetPeriodX = %lu", icuGetPeriodX(&ICU_IN));
+    return static_cast<float>(ICU_FREQ) / (icuGetPeriodX(&ICU_IN)+1U);
   }
 }
 
@@ -62,6 +63,7 @@ uint32_t getPulseWidthUsec(void)
   return RTC2US(STM32_SYSCLK, w);
 }
 
+}
 
 
 
