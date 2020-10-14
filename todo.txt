@@ -3,8 +3,10 @@ API LCD :
 
 
 * adc : stockage moyenne, alerte si eloigné de la moyenne au demarrage
+  faire une FFT sur les tensions pour detecter une instabilité des alims
 
-* module permanentStorage au dessus du module FRAM
+* module permanentStorage au dessus du module FRAM pour stocker le contexte
+  * frequences, volume, choix su son, temps d'utilisation, nombre de mises en route
 
 
 2/ étudier l'IHM (graphe d'état)
@@ -15,10 +17,7 @@ API LCD :
 
 * contexte en F-RAM
 
-* faire une FFT sur les tensions pour detecter une instabilité des alims
 
-
-* affichage d'une aide contextuelle sur double clic ?
 
 
 =======================================================
@@ -28,5 +27,14 @@ Bouton appuyé à l'allumage :
              volume du son -> champ increment par 10 entre 0 et 100
 	     contraste ?
 	     
-	     
+
+possibilité d'afficher des INFOS :
+  infos : compilo, version de firmware, date de compilation, temps d'utilisation, nombre de mise en route,
+          optimisé ou non, tensions, nombre d'alertes sur les tensions
+
+
+possibilité d'afficher un manuel en ligne defilant avec un bouton rotatif
+
+
+
 
