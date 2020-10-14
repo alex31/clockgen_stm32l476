@@ -43,7 +43,7 @@ void Audio::startDac(void)
   
   end_cb1(&DACD1);
   dacStartConversion(&DACD1, &dacgrpcfg1,
-		     (dacsample_t *) dmaBuff, sizeof(dmaBuff));
+		     (dacsample_t *) dmaBuff, sizeof(dmaBuff)/sizeof(dmaBuff[0]));
 }
 
 void Audio::stopDac(void)
@@ -70,12 +70,12 @@ void Audio::end_cb1(DACDriver *dacp)
   // volatile const dac8sample_t *loopPtr = nullptr;
   // const dac8sample_t dmaBuff[1024];
   // static constexpr halfBufferSize = sizeof(dmaBuff) / 2U;
-  const dac8sample_t *loopUpperBound = loops[loop].samples + loops[loop].len;
-  uint8_t *  const dmaBuf = (uint8_t *) (dmaBuff + (dacIsBufferComplete(dacp) ?
+  const source_dac_sample_t *loopUpperBound = loops[loop].samples + loops[loop].len;
+  custom_dac_sample_t  *  const dmaBuf = (custom_dac_sample_t *) (dmaBuff + (dacIsBufferComplete(dacp) ?
 						    halfBufferSize  :
 						    0U));
   if ((loopPtr+halfBufferSize) < loopUpperBound) {
-    audioCpy(dmaBuf, loopPtr, halfBufferSize * sizeof (dac8sample_t));
+    audioCpy(dmaBuf, loopPtr, halfBufferSize);
     loopPtr += halfBufferSize;
     if (loopPtr == loopUpperBound)
       loopPtr = loops[loop].samples;
@@ -89,13 +89,12 @@ void Audio::end_cb1(DACDriver *dacp)
 }
 
 
-void Audio::audioCpy(uint8_t *dest, const uint8_t *src, size_t n)
+void Audio::audioCpy(custom_dac_sample_t  *dest, const source_dac_sample_t *src, size_t n)
 {
   for (size_t i=0; i<n; i++) {
     const float attenuated = 128.0f + ((float(src[i]) - 128.0f) * attenuation);
-    dest[i] = static_cast<uint8_t>(std::clamp(attenuated, 0.0f, 255.0f));
+    dest[i] = static_cast<custom_dac_sample_t>(std::clamp(attenuated*16, 0.0f, 4095.0f));
   }
-  //  memcpy(dest, src, n);
 }
 
 
@@ -108,8 +107,8 @@ std::string_view Audio::getName(const size_t index)
 }
 
 const DACConfig Audio::dac1cfg1 = {
-  .init         = 127U,
-  .datamode     = DAC_DHRM_8BIT_RIGHT,
+  .init         = 2047U,
+  .datamode     = DAC_DHRM_12BIT_RIGHT,
   .cr           = 0
 };
 
@@ -130,5 +129,5 @@ const GPTConfig Audio::gpt6cfg1 = {
 size_t Audio::loop = std::numeric_limits<size_t>::max();
 size_t Audio::loopLen = 0;
 float Audio::attenuation = 1.0f;
-const dac8sample_t *Audio::loopPtr = nullptr;
-const dac8sample_t IN_DMA_SECTION(Audio::dmaBuff[1024]) = {};
+const source_dac_sample_t *Audio::loopPtr = nullptr;
+const custom_dac_sample_t IN_DMA_SECTION(Audio::dmaBuff[1024]) = {};

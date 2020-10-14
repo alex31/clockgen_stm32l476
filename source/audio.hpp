@@ -4,8 +4,8 @@
 #include <string_view>
 #include <algorithm>
 
-using dac8sample_t = uint8_t;
-
+using custom_dac_sample_t = uint16_t;
+using source_dac_sample_t = uint8_t;
 
 #define GENLOOPN(nme,file) AudioLoop {.name = nme, \
                               .samples = file##_raw, \
@@ -40,7 +40,7 @@ namespace {
 
 struct AudioLoop {
   const std::string_view name;
-  const dac8sample_t *samples;
+  const source_dac_sample_t *samples;
   const size_t len;
 };
 
@@ -62,14 +62,14 @@ private:
   void startTimer(void);
   void stopTimer(void);
   static void end_cb1(DACDriver *dacp);
-  static void audioCpy(uint8_t *dest, const uint8_t *src, size_t n);
+  static void audioCpy(custom_dac_sample_t  *dest, const source_dac_sample_t *src, size_t n);
   
   static size_t loop;
   static size_t loopLen;
   static float  attenuation;
-  static const dac8sample_t *loopPtr;
-  static const dac8sample_t dmaBuff[1024];
-  static constexpr size_t halfBufferSize = sizeof(dmaBuff) / 2U;
+  static const source_dac_sample_t *loopPtr;
+  static const custom_dac_sample_t dmaBuff[1024];
+  static constexpr size_t halfBufferSize = (sizeof(dmaBuff) / sizeof(dmaBuff[0])) / 2U;
   
   static constexpr std::array loops = {
 				       GENLOOPN("sine", tone500),
