@@ -183,7 +183,19 @@ static void eventCb(const Event& ev)
   default : break;
   }
 
-  freq = cg.setFreq(std::clamp(freq, 1_hz, 999_khz));
+  const uint32_t freqOrder = freq;
+  if (freq > 200_khz) {
+    if (dir == Direction::Up)
+      while (freq <= freqOrder)
+	freq = cg.setFreq(std::clamp(freq + 1_khz, 1_hz, 980_khz));
+    else
+      while (freq >= freqOrder)
+	freq = cg.setFreq(std::clamp(freq - 1_khz, 1_hz, 980_khz));
+  } else {
+    freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));
+  }
+
+
   FRAM::write(freq, 4+(ev.getIndex()*4));
 
   //  DebugTrace("mulExp=%ld", mulExp);

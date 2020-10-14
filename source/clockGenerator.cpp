@@ -41,7 +41,7 @@ uint32_t ClockGenerator::setFreq(uint32_t freq)
   } 
 
   pwmd->tim->PSC = prescaler - 1;
-  pwmd->tim->ARR = reload-1;
+  pwmd->tim->ARR = reload - freq < 200_khz ? 1 : 0;
   pwmEnableChannel(pwmd, channel, (reload / 2));
   play();
   return ((STM32_SYSCLK / prescaler) / reload);
