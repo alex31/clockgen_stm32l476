@@ -18,18 +18,18 @@ using source_dac_sample_t = uint8_t;
 namespace {
 #include "SOUNDS/C/tone500.c"
 #include "SOUNDS/C/tone500t10.c"
-#include "SOUNDS/C/uk-phone.c"
 #ifndef SMALL_AUDIO_SET
+#include "SOUNDS/C/nuclear-alarm.c"
+#include "SOUNDS/C/horn.c"
 #include "SOUNDS/C/enzotic_alarm.c"
 #include "SOUNDS/C/ahooga.c"
-#include "SOUNDS/C/horn.c"
 #include "SOUNDS/C/siren.c"
 #include "SOUNDS/C/trumpet.c"
 #include "SOUNDS/C/trumpet2.c"
 #include "SOUNDS/C/police-siren.c"
-#include "SOUNDS/C/nuclear-alarm.c"
 #include "SOUNDS/C/sweep.c"
 #include "SOUNDS/C/school-rings.c"
+#include "SOUNDS/C/uk-phone.c"
 #endif
 
   constexpr uint32_t DAC_MAX_FREQUENCY = 1e6; // hardware limitation
@@ -74,17 +74,17 @@ private:
   static constexpr std::array loops = {
 				       GENLOOPN("sine", tone500),
 				       GENLOOPN("sinemod", tone500t10),
-				       GENLOOP(uk_phone),
 #ifndef SMALL_AUDIO_SET
-				       GENLOOPN("enzotic", enzotic_alarm),
+				       GENLOOPN("nuclear", nuclear_alarm),
 				       GENLOOP(horn),
+				       GENLOOPN("enzotic", enzotic_alarm),
 				       GENLOOP(ahooga),
 				       GENLOOP(siren),
 				       GENLOOPN("school", school_rings),
 				       GENLOOP(trumpet),
 				       GENLOOP(trumpet2),
 				       GENLOOPN("police", police_siren),
-				       GENLOOPN("nuclear", nuclear_alarm),
+				       GENLOOP(uk_phone),
 				       GENLOOP(sweep),
 #endif
   };

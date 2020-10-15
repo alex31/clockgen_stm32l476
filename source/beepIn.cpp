@@ -13,7 +13,7 @@ bool BeepIn::init()
 {
   audio.start();
   audio.pause();
-  audio.setAttenuation(0.1f);
+  audio.setAttenuation(1.f);
   audio.select(1);
 
   return true;

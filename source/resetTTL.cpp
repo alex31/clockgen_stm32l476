@@ -2,7 +2,9 @@
 #include <hal.h>
 #include "resetTTL.hpp"
 
-static virtual_timer_t vt;
+namespace {
+  virtual_timer_t vt;
+}
 
 void releaseResetAfter(const sysinterval_t after)
 {

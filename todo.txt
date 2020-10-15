@@ -25,7 +25,7 @@ API LCD :
 Bouton appuyé à l'allumage :
   reglages : choix du son -> liste
              volume du son -> champ increment par 10 entre 0 et 100
-	     contraste ?
+
 	     
 
 possibilité d'afficher des INFOS :
