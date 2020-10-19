@@ -1,4 +1,5 @@
 #include <iostream>
+#include <array>
 #include "menuEntries.hpp"
 #include "hardwareConf.hpp"
 
@@ -32,27 +33,19 @@ int main(void)
 
   NumericEntry<20> ne(mainFb, 0, 0, 0, 10, {0, 100});
 
-
-  BaseWidget *be1 = &me;
-  BaseWidget *be2 = &ne;
-
-  for (int i=0; i<2; i++) {
-    be1->next();
-  }
+  std::array<BaseWidget*, 2> arr = {me, ne};
   
-  for (int i=0; i<2; i++) {
-    be1->prev();
+  for (auto &w : arr)  {
+    for (int i=0; i<2; i++) {
+      w->next();
+    }
+    
+    for (int i=0; i<2; i++) {
+      w->prev();
+    }
   }
-  
-  for (int i=0; i<2; i++) {
-    be2->next();
-  }
-  
-  for (int i=0; i<2; i++) {
-    be2->prev();
-  }
-  
 }
+
 
 
 
