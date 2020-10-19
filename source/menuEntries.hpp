@@ -93,15 +93,23 @@ struct Entry {
 };
 
 
+class BaseWidget {
+public:
+  virtual void next(void) = 0;
+  virtual void prev(void) = 0;
+};
+
+
+
 template <size_t SW, size_t SL>
-class BaseEntry {
+class BaseEntry : public BaseWidget {
 public:
   BaseEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 	    uint8_t _anchorx, uint8_t _anchory) : parentFb(fb),
 						  anchorx(_anchorx),
 						  anchory(_anchory) {}
-  virtual void next(void) = 0;
-  virtual void prev(void) = 0;
+  virtual void next(void) override = 0;
+  virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void draw(void);

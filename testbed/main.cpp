@@ -32,22 +32,25 @@ int main(void)
 
   NumericEntry<20> ne(mainFb, 0, 0, 0, 10, {0, 100});
 
-  for (int i=0; i<2; i++) {
-    me.next();
-  }
+
+  BaseWidget *be1 = &me;
+  BaseWidget *be2 = &ne;
 
   for (int i=0; i<2; i++) {
-    me.prev();
+    be1->next();
   }
-
+  
   for (int i=0; i<2; i++) {
-    ne.next();
+    be1->prev();
   }
-
+  
   for (int i=0; i<2; i++) {
-    ne.prev();
+    be2->next();
   }
-
+  
+  for (int i=0; i<2; i++) {
+    be2->prev();
+  }
   
 }
 
