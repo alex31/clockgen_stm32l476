@@ -114,6 +114,8 @@ static constexpr I2CConfig i2ccfg_1000 = {
   .cr2 = 0 // Only the ADD10 bit can eventually be specified here (10-bit addressing mode)
 } ;
 
+static constexpr size_t LCD_WIDTH = 20U;
+static constexpr size_t LCD_HEIGHT = 4U;
 
 
 /*

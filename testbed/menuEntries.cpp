@@ -1,6 +1,26 @@
+#include <cstdlib>
+static constexpr size_t LCD_WIDTH = 20U;
+static constexpr size_t LCD_HEIGHT = 4U;
+
 #include "menuEntries.hpp"
 #include <iostream>
 #include <algorithm>
+
+// g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.  menuEntries.cpp
+// g++-9 -Wall -std=c++2a -I../../../../../etl/include/ -I.  menuEntries.cpp
+
+
+FrameBuffer<MenuEntries::W, MenuEntries::L>::FbView MenuEntries::getView(const size_t index)
+{
+  int bgin = 0;
+  if (index < entries.size()) {
+    bgin = int(entries[index].line) - 1;
+    bgin = std::clamp(bgin, 0, int(LCD_HEIGHT) - 4);
+  }
+  std::cout << "DBG> bgin=" << bgin << std::endl;
+  return fb.getView(bgin, 4);
+}
+
 
 MenuEntries::MenuEntries(std::initializer_list<Entry> il)
 {
@@ -13,8 +33,13 @@ bool MenuEntries::addEntry(const Entry& e)
 {
   if (entries.full())
     return false;
-
-  entries.push_back(e);
+  
+  entries.push_back({
+		     .value = e.value,
+		     .str = (FixedStr(" ") += e.str) += " ",
+		     .line = e.line,
+		     .posx = e.posx
+    });
   return true;
 }
 
@@ -27,9 +52,14 @@ void MenuEntries::fill(const uint8_t margin, const etl::string_view sep)
       s.append(sep.data());
   }
 
-  for (auto& e : entries) {
-    //    std::cout << "DBG> str[" << e.str.length() << "]=" << e.str.data() << std::endl;
-    if (e.str.length() >= fb[line].available()) {
+  for (size_t index=0; auto& e : entries) {
+    std::cout << "DBG> str[" << e.str.length() << "]=" << e.str.data() << std::endl;
+    auto str = e.str;
+    if (index == selectedItem) {
+      str.replace(str.begin(),str.begin()+1, "("); 
+      str.replace(str.end()-1, str.end(), ")"); 
+    }
+    if (str.length() >= fb[line].available()) {
       line++;
       if (line >= fb.getHeight())
 	break;
@@ -40,20 +70,10 @@ void MenuEntries::fill(const uint8_t margin, const etl::string_view sep)
     //    std::cout << "DBG> posx=" << int(posx) << " fb[line].capacity()=" << fb[line].capacity()
     //	      << std::endl;
     fb[line].append(" ");
-    fb[line].append(e.str);
+    fb[line].append(str);
     //    std::cout << "fb[" << int(line) << "]='" << fb[line].data() << "'" << std::endl;
+    index++;
   }
-}
-
-FrameBuffer<MenuEntries::W, MenuEntries::L>::FbView MenuEntries::getView(const size_t index)
-{
-  int bgin = 0;
-  if (index < entries.size()) {
-    bgin = int(entries[index].line) - 1;
-    bgin = std::clamp(bgin, 0, int(DP::virtualHeight) - 4);
-  }
-  std::cout << "DBG> bgin=" << bgin << std::endl;
-  return fb.getView(bgin, 4);
 }
 
 
@@ -76,6 +96,34 @@ void MenuEntries::print(FrameBuffer<W, L>::FbView fbv)
   }
   std::cout << std::endl;
 }
+
+
+/* ********* */
+
+void NumericEntry::print(void) const
+{
+  for (const auto& s : fb) {
+    std::cout << s.data() << std::endl;
+  }
+}
+
+void NumericEntry::fill(const uint8_t margin, const etl::string_view sep)
+{
+  for (auto& s : fb) {
+    s.insert(s.begin(), margin, ' ');
+    if (sep.length())
+      s.append(sep.data());
+  }
+  // faut pouvoir imprimer dans un framebuffer
+
+}
+
+FrameBuffer<NumericEntry::W, NumericEntry::L>::FbView NumericEntry::getView()
+{
+  return fb.getView(0, 1);
+}
+
+
 
 
 int main(void)

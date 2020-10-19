@@ -63,7 +63,7 @@ bool LCDDisplay::loop()
 {
   DP::MutexRAII m(&mut);
   
-  hd44780Write(&lcdd, xy2pos(DP::lcdHeight - 1, DP::lcdWide - 1), "%c", heartBeatAnim[heartBeatIdx++]);
+  hd44780Write(&lcdd, xy2pos( LCD_HEIGHT - 1,  LCD_WIDTH - 1), "%c", heartBeatAnim[heartBeatIdx++]);
   hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
 	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
   hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
@@ -79,7 +79,7 @@ bool LCDDisplay::loop()
 void LCDDisplay::draw()
 {
   DP::MutexRAII m(&mut);
-  for (size_t lineN =0;lineN < DP::lcdHeight; lineN++) {
+  for (size_t lineN =0;lineN <  LCD_HEIGHT; lineN++) {
     hd44780RawWrite(&lcdd, DP::rowAddr[lineN], fb[lineN].c_str());
   }
 }
@@ -87,7 +87,7 @@ void LCDDisplay::draw()
 
 void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view sv)
 {
-  if ((lineN < DP::lcdHeight) and (posX < DP::lcdWide)) {
+  if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
     const size_t slen = strlen(sv.data());
     fb[lineN].replace(posX, slen, sv.data(), slen);
   }
@@ -98,11 +98,11 @@ void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* fmt,
   va_list ap;
   char string[80];
 
-  if ((lineN < DP::lcdHeight) and (posX < DP::lcdWide)) {
+  if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
     va_start(ap, fmt);
     vsnprintf(string, sizeof(string), fmt, ap);
     va_end(ap);
-    const size_t slen = std::min(DP::lcdWide-posX, strlen(string));
+    const size_t slen = std::min( LCD_WIDTH-posX, strlen(string));
     fb[lineN].replace(posX, slen, string, slen);
   }
 }
@@ -121,8 +121,8 @@ void LCDDisplay::setCursorPos(uint8_t line, uint8_t posx)
 
 constexpr uint8_t LCDDisplay::xy2pos(uint8_t line, uint8_t posx)
 {
-  line = std::min(line, static_cast<uint8_t>(DP::lcdHeight - 1U));
-  posx = std::min(posx, static_cast<uint8_t>(DP::lcdWide -1U));
+  line = std::min(line, static_cast<uint8_t>( LCD_HEIGHT - 1U));
+  posx = std::min(posx, static_cast<uint8_t>( LCD_WIDTH -1U));
   return DP::rowAddr[line] + posx;
 }
 

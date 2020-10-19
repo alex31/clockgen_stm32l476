@@ -1,13 +1,13 @@
 #include "ihmState.hpp"
 #include "ch.h"
 
-IhmState::IhmState(const StateId& stateId)
+IhmState::IhmState(const StateId stateId)
 {
   if (stateId != StateId::EndOfList)
     stateArray[+stateId] = this;
 }
 
-IhmState*   IhmState::push(const StateId& activeId)
+IhmState*   IhmState::push(const StateId activeId)
 {
   auto active = stateArray[+activeId];
   auto last = stack.top();

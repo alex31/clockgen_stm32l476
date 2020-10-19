@@ -67,6 +67,7 @@ int main (void)
   consoleInit();	// initialisation des objets liés au shell
 #endif
 
+  releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   FRAM::init();
   if (FRAM::read(magic, 0) == false) {
     DebugTrace("I²C Failed");
@@ -93,7 +94,6 @@ int main (void)
   BeepIn beepIn(NORMALPRIO);
   
   
-  releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   chThdCreateStatic(waBlinker, sizeof(waBlinker),
 		    NORMALPRIO+2, &blinker, NULL);
 

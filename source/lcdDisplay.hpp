@@ -10,8 +10,6 @@
 
 namespace DP {
   constexpr size_t threadStackSize = 1536U;
-  constexpr size_t lcdHeight = 4U;
-  constexpr size_t lcdWide = 20U;
 }
 
 
@@ -33,7 +31,7 @@ public:
 private:
   friend WorkerThread<LCDDisplay>;
 
-  std::array<etl::string<DP::lcdWide+1>, DP::lcdHeight> fb{};
+  std::array<etl::string<LCD_WIDTH>,  LCD_HEIGHT> fb{};
   uint8_t heartBeatIdx = 0;
   static constexpr std::array heartBeatAnim = {'.', 'o', 'O', '@', '*'};
   

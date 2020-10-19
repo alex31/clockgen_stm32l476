@@ -13,10 +13,10 @@ enum class StateId {Freq, FreqShortCut, Info, Readme, AudioVol, AudioChoice, End
 class IhmState
 {
 public:
-  IhmState(const StateId& stateId);
+  IhmState(const StateId stateId);
   virtual void enter(void) = 0;
   virtual void leave(void) = 0;
-  static IhmState* push(const StateId& active);
+  static IhmState* push(const StateId active);
   static IhmState* pop(void);
   static void transition(IhmState* from, IhmState* to);
 
