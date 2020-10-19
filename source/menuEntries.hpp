@@ -139,34 +139,33 @@ private:
   FrameBuffer<SW, SL> fb{};
 };
 
-#ifdef PLUS_TARD
-class NumericEntry : public BaseEntry {
-  static constexpr size_t W = 10;
-  static constexpr size_t L = 1;
+template <size_t SW>
+class NumericEntry : public BaseEntry<SW, LCD_HEIGHT> {
   
 public:
   NumericEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
-		uint8_t anchorx, uint8_t anchory,const int32_t _val, const int32_t _inc,
+		uint8_t anchorx, uint8_t anchory,
+	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
-	       BaseEntry(fb, anchorx, anchory),
+               BaseEntry<SW, LCD_HEIGHT>(fb, anchorx, anchory),
 	       val(_val),
 	       inc(_inc),
 	       interval(_interval) {};
-  void fill(const uint8_t margin = 0U, const etl::string_view sep = "");
+  void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
   uint8_t getVal(void) const {return val;}
-  void next(void) override {val += inc; val=std::clamp(val, interval.first, interval.second);}
-  void prev(void) override {val -=inc; val=std::clamp(val, interval.first, interval.second);}
 
-  void print(void) const;
-  FrameBuffer<W, L>::FbView getView();
+  void next(void) override {val += inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
+  void prev(void) override {val -=inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
+  FrameBuffer<SW, LCD_HEIGHT>::FbView getView(void) override;
+
 
 private:
   int32_t val = 0U;
   int32_t inc = 0U;
   const std::pair<int32_t, int32_t> interval;
-  FrameBuffer<W, L> fb{};
+  FrameBuffer<SW, LCD_HEIGHT> fb{};
 };
-#endif
+
 
 
 /*
@@ -292,3 +291,28 @@ void MenuEntries<SW, SL>::prev(void)
 }
  
 
+
+template <size_t SW>
+void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
+{
+  char buf[SW+1];
+  for (auto& s : fb) {
+    s.clear();
+    s.insert(s.begin(), margin, ' ');
+    if (sep.length())
+      s.append(sep.data());
+  }
+  snprintf(buf, sizeof(buf), "<%d>     ", interval.first);
+  fb[0].append(buf);
+  snprintf(buf, sizeof(buf), "V=%d       ", val);
+  fb[1].append(buf);
+  snprintf(buf, sizeof(buf), "<%d>     ", interval.second);
+  fb[2].append(buf);
+  //  std::cout << "fb[0] = " << fb[0].c_str() << std::endl;
+}
+
+template <size_t SW>
+FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView()
+{
+  return fb.getView(0, 4);
+}
