@@ -131,6 +131,7 @@ public:
 template <size_t SW, size_t SL>
 class BaseEntry : public BaseWidget {
 public:
+  using callback_t = void (*)(int32_t);
   BaseEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 	    uint8_t _anchorx, uint8_t _anchory) : parentFb(fb),
 						  anchorx(_anchorx),
@@ -138,16 +139,19 @@ public:
   virtual void next(void) override = 0;
   virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
-  void	       set(const int32_t v) {val = v; draw();}
-  int32_t     get(void) const {return val;}
+  void	       set(const int32_t v) {val = v; this->invoque(); draw();}
+  virtual int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void draw(void);
+  void bind(callback_t _cb) {cb = _cb;}
+  void invoque(void){cb(get());}
 protected:
   
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT>& parentFb;
   const uint8_t anchorx=0;
   const uint8_t anchory=0;
   int32_t      val=0;
+  callback_t cb = nullptr;
 };
 
 
@@ -166,7 +170,7 @@ public:
   void prev(void) override;
   FrameBuffer<SW, SL>::FbView getView(void) override;
   void print(void) const;
-
+  virtual int32_t     get(void) const override {return entries[this->val].value;}
 private:
 
   static constexpr size_t MaxEntries = 20;
@@ -319,6 +323,7 @@ template <size_t SW, size_t SL>
 void MenuEntries<SW, SL>::next(void)
 {
   selectedItem = (selectedItem+1U) % entries.size();
+  this->invoque();
   this->draw();
 }
 
@@ -327,6 +332,7 @@ void MenuEntries<SW, SL>::prev(void)
 {
   selectedItem = selectedItem==0U ? entries.size() - 1U :
     selectedItem - 1U ;
+  this->invoque();
   this->draw();
 }
  

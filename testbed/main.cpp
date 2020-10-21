@@ -24,7 +24,7 @@ int main(void)
 {
   MainTab mt(StateId::Freq);
   ShortcutTab sc(StateId::FreqShortCut);
-  
+ 
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
   LcdTab::propagate({.event = Events::LongClick, .idx=0, .load=0});

@@ -5,7 +5,11 @@
 
 class ShortcutTab : public LcdTab {
 public:
-  ShortcutTab (const StateId stateId) : LcdTab(stateId) {}
+  ShortcutTab (const StateId stateId) : LcdTab(stateId) {
+    me.bind([](int32_t val) {
+	      std::cout << "new ShortcutTab value = " << val << std::endl;
+	    });
+  }
   void enter(void) override;
   void leave(void) override ;
   void eventCb(const Event& ev) override;
