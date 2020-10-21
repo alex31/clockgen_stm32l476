@@ -25,6 +25,8 @@ public:
   void print(void);
   template<typename... Args>
   void write(const uint8_t lineN, const uint8_t posX, const char* fmt, Args... args);
+  template<typename... Args>
+  void append(const uint8_t lineN, const char* fmt, Args... args);
   FbView getView(size_t posy, size_t len);
   template<size_t WF, size_t HF>
   void copyRect(const FrameBuffer<WF, HF> &from, const uint8_t posx,
@@ -94,6 +96,13 @@ void FrameBuffer<W, H>::write(const uint8_t lineN, const uint8_t posX, const cha
   snprintf(buf, len, fmt, std::forward<Args&&>(args)...);
   const size_t slen = std::min(len-posX, strlen(buf));
   fbr[lineN].replace(posX, slen, buf, slen);
+}
+
+template<size_t W, size_t H>
+template<typename... Args>
+void FrameBuffer<W, H>::append(const uint8_t lineN, const char* fmt, Args... args)
+{
+  write(lineN, strlen(fbr[lineN].c_str()), fmt, std::forward<Args&&>(args)...);
 }
 
 
@@ -324,20 +333,15 @@ void MenuEntries<SW, SL>::prev(void)
 template <size_t SW>
 void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
 {
-  char buf[SW+1];
   for (auto& s : fb) {
     s.clear();
     s.insert(s.begin(), margin, ' ');
     if (sep.length())
       s.append(sep.data());
   }
-  snprintf(buf, sizeof(buf), "<%d>     ", interval.first);
-  fb[0].append(buf);
-  snprintf(buf, sizeof(buf), "V=%d       ", val);
-  fb[1].append(buf);
-  snprintf(buf, sizeof(buf), "<%d>     ", interval.second);
-  fb[2].append(buf);
-  //  std::cout << "fb[0] = " << fb[0].c_str() << std::endl;
+  fb.append(0, "<%d>     ", interval.first);
+  fb.append(1, "[%d]     ", val);
+  fb.append(2, "<%d>     ", interval.second);
 }
 
 template <size_t SW>
