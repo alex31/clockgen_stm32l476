@@ -2,7 +2,8 @@
 #include <array>
 #include "menuEntries.hpp"
 #include "hardwareConf.hpp"
-#include "lcdTab.hpp"
+#include "mainTab.hpp"
+#include "shortcutTab.hpp"
 
 // g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   *.cpp 
 
@@ -17,6 +18,57 @@
  */
 
 
+
+
+int main(void)
+{
+  MainTab mt(StateId::Freq);
+  ShortcutTab sc(StateId::FreqShortCut);
+  
+  LcdTab::push(StateId::Freq);
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
+  LcdTab::propagate({.event = Events::LongClick, .idx=0, .load=0});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=0});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=0});
+  LcdTab::propagate({.event = Events::ShortClick, .idx=0, .load=0});
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef LOW_LEVEL_TEST
 int main(void)
 {
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT> mainFb;
@@ -53,8 +105,6 @@ int main(void)
 
 
 }
-
-
-
+#endif
 
 

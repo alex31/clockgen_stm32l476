@@ -12,10 +12,13 @@
 
 template<size_t W, size_t H>
 class FrameBuffer {
+  using LineStr = etl::string<W>;
+  
   template<size_t WF, size_t HF>
   friend class FrameBuffer;
   
 public:
+  using Fb_t =  std::array<LineStr, H>;
   using FbView = etl::span<etl::string<W>>;
   std::array<etl::string<W>, H>::iterator begin(void)  {return fbr.begin();}
   std::array<etl::string<W>, H>::iterator end(void) {return fbr.end();}
@@ -24,9 +27,9 @@ public:
   etl::string<W>& operator[](const size_t index) {return fbr[index];}
   void print(void);
   template<typename... Args>
-  void write(const uint8_t lineN, const uint8_t posX, const char* fmt, Args... args);
+  FrameBuffer<W, H>& write(const uint8_t posX, const uint8_t posY, const char* fmt, Args... args);
   template<typename... Args>
-  void append(const uint8_t lineN, const char* fmt, Args... args);
+  FrameBuffer<W, H>& append(const uint8_t posY, const char* fmt, Args... args);
   FbView getView(size_t posy, size_t len);
   template<size_t WF, size_t HF>
   void copyRect(const FrameBuffer<WF, HF> &from, const uint8_t posx,
@@ -39,7 +42,7 @@ public:
   static constexpr size_t getWide(void) {return W;}
   
 private:
-  std::array<etl::string<W>, H> fbr;
+   Fb_t fbr;
 };
 
 
@@ -89,22 +92,22 @@ void FrameBuffer<W, H>::print(void)
 
 template<size_t W, size_t H>
 template<typename... Args>
-void FrameBuffer<W, H>::write(const uint8_t lineN, const uint8_t posX, const char* fmt, Args... args)
+FrameBuffer<W, H>& FrameBuffer<W, H>::write(const uint8_t posX, const uint8_t posY, const char* fmt, Args... args)
 {
   constexpr size_t len = LCD_WIDTH+1;
   char buf[len];
   snprintf(buf, len, fmt, std::forward<Args&&>(args)...);
   const size_t slen = std::min(len-posX, strlen(buf));
-  fbr[lineN].replace(posX, slen, buf, slen);
+  fbr[posY].replace(posX, slen, buf, slen);
+  return *this;
 }
 
 template<size_t W, size_t H>
 template<typename... Args>
-void FrameBuffer<W, H>::append(const uint8_t lineN, const char* fmt, Args... args)
+FrameBuffer<W, H>& FrameBuffer<W, H>::append(const uint8_t posY, const char* fmt, Args... args)
 {
-  write(lineN, strlen(fbr[lineN].c_str()), fmt, std::forward<Args&&>(args)...);
+  return write(posY, strlen(fbr[posY].c_str()), fmt, std::forward<Args&&>(args)...);
 }
-
 
 
 using FixedStr = etl::string<10>;
@@ -242,7 +245,6 @@ MenuEntries<SW, SL>::MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 {
   for (const auto& e : il)
     addEntry(e);
-  this->draw();
 }
 
 
