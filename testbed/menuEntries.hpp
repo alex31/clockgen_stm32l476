@@ -23,6 +23,8 @@ public:
   std::array<etl::string<W>, H>::const_iterator end(void) const {return fbr.cend();}
   etl::string<W>& operator[](const size_t index) {return fbr[index];}
   void print(void);
+  template<typename... Args>
+  void write(const uint8_t lineN, const uint8_t posX, const char* fmt, Args... args);
   FbView getView(size_t posy, size_t len);
   template<size_t WF, size_t HF>
   void copyRect(const FrameBuffer<WF, HF> &from, const uint8_t posx,
@@ -41,22 +43,22 @@ private:
 
 template<size_t W, size_t H>
 FrameBuffer<W, H>::FbView FrameBuffer<W, H>::getView(size_t posy, size_t len) {
-    if (posy < H)
-      return FbView{&fbr[posy], std::min(len, H-posy)};
-    else
-      return FbView{&fbr[0], 0};
-  }
+  if (posy >= H)
+    abort();
+  
+  return FbView{&fbr[posy], std::min(len, H-posy)};
+}
 
 template<size_t W, size_t H>
 template<size_t WF, size_t HF>
 void FrameBuffer<W, H>::copyRect(const FrameBuffer<WF, HF>& from, const uint8_t posx,
 		const uint8_t posy) {
-  if ((posx >= H) or (posx >= W))
-    return;
-  size_t fromPosx =0U;
-  for (size_t l = posx; l < std::min(posx + HF, H); l++) {
-    fbr[l].append(W, ' ');
-    fbr[l].replace(posx, WF, from.fbr[fromPosx++]);
+  if ((posx >= W) or (posy >= H))
+    abort();
+  size_t fromPosy =0U;
+  for (size_t y = posy; y < std::min(posy + HF, H); y++) {
+    fbr[y].append(W, ' ');
+    fbr[y].replace(posx, WF, from.fbr[fromPosy++]);
   }
 }
 
@@ -64,12 +66,12 @@ template<size_t W, size_t H>
 template<size_t WF>
 void FrameBuffer<W, H>::copyRect(const etl::span<etl::string<WF>> from, const uint8_t posx,
 		const uint8_t posy) {
-  if ((posx >= H) or (posx >= W))
-    return;
-  size_t fromPosx =0U;
-  for (size_t l = posx; l < std::min(posx + from.size(), H); l++) {
-    fbr[l].append(W, ' ');
-    fbr[l].replace(posx, WF, from[fromPosx++]);
+  if ((posx >= W) or (posy >= H))
+    abort();
+  size_t fromPosy =0U;
+  for (size_t y = posy; y < std::min(posy + from.size(), H); y++) {
+    fbr[y].append(W, ' ');
+    fbr[y].replace(posx, WF, from[fromPosy++]);
   }
 }
 
@@ -81,6 +83,19 @@ void FrameBuffer<W, H>::print(void)
   }
   std::cout << std::endl;
 }
+
+
+template<size_t W, size_t H>
+template<typename... Args>
+void FrameBuffer<W, H>::write(const uint8_t lineN, const uint8_t posX, const char* fmt, Args... args)
+{
+  constexpr size_t len = LCD_WIDTH+1;
+  char buf[len];
+  snprintf(buf, len, fmt, std::forward<Args&&>(args)...);
+  const size_t slen = std::min(len-posX, strlen(buf));
+  fbr[lineN].replace(posX, slen, buf, slen);
+}
+
 
 
 using FixedStr = etl::string<10>;
@@ -111,6 +126,8 @@ public:
   virtual void next(void) override = 0;
   virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
+  void	       set(const int32_t v) {val = v; draw();}
+  int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void draw(void);
 protected:
@@ -118,6 +135,7 @@ protected:
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT>& parentFb;
   const uint8_t anchorx=0;
   const uint8_t anchory=0;
+  int32_t      val=0;
 };
 
 
@@ -132,8 +150,6 @@ public:
   bool addEntry(const Entry& e);
   const Entry& operator[](const size_t index) const {return entries[index];}
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
-  void setSelect(uint8_t s) {selectedItem = s;}
-  uint8_t getSelect(void) const {return selectedItem;}
   void next(void) override;
   void prev(void) override;
   FrameBuffer<SW, SL>::FbView getView(void) override;
@@ -143,7 +159,7 @@ private:
 
   static constexpr size_t MaxEntries = 20;
   etl::vector<Entry, MaxEntries> entries{};
-  uint8_t selectedItem = 0U;
+  int32_t &selectedItem = BaseEntry<SW, SL>::val;
   FrameBuffer<SW, SL> fb{};
 };
 
@@ -162,8 +178,12 @@ public:
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
   uint8_t getVal(void) const {return val;}
 
-  void next(void) override {val += inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
-  void prev(void) override {val -=inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
+  void next(void) override {val += inc;
+    val=std::clamp(val, interval.first, interval.second);
+    this->draw();}
+  void prev(void) override {val -=inc;
+    val=std::clamp(val, interval.first, interval.second);
+    this->draw();}
   FrameBuffer<SW, LCD_HEIGHT>::FbView getView(void) override;
 
 
@@ -196,7 +216,7 @@ template <size_t SW, size_t SL>
 FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 {
   int bgin = 0;
-  if (selectedItem < entries.size()) {
+  if (selectedItem < int(entries.size())) {
     bgin = int(entries[selectedItem].posy) - 1;
     bgin = std::clamp(bgin, 0, entries.back().posy - (int(LCD_HEIGHT) - 1));
   }
@@ -208,11 +228,12 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 template <size_t SW, size_t SL>
 MenuEntries<SW, SL>::MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 			  uint8_t anchorx, uint8_t anchory,
-				 std::initializer_list<Entry> il) : BaseEntry<SW, SL>(fb, anchorx, anchory)
+			 std::initializer_list<Entry> il) :
+  BaseEntry<SW, SL>(fb, anchorx, anchory)
 {
   for (const auto& e : il)
     addEntry(e);
-  BaseEntry<SW, SL>::draw();
+  this->draw();
 }
 
 
@@ -243,7 +264,7 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
       s.append(sep.data());
   }
 
-  for (size_t index=0; auto& e : entries) {
+  for (int index=0; auto& e : entries) {
     auto str = e.str;
     if (index == selectedItem) {
       str.replace(str.begin(),str.begin()+1, "("); 
@@ -287,7 +308,7 @@ template <size_t SW, size_t SL>
 void MenuEntries<SW, SL>::next(void)
 {
   selectedItem = (selectedItem+1U) % entries.size();
-  BaseEntry<SW, SL>::draw();
+  this->draw();
 }
 
 template <size_t SW, size_t SL>
@@ -295,7 +316,7 @@ void MenuEntries<SW, SL>::prev(void)
 {
   selectedItem = selectedItem==0U ? entries.size() - 1U :
     selectedItem - 1U ;
-  BaseEntry<SW, SL>::draw();
+  this->draw();
 }
  
 

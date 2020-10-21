@@ -2,16 +2,17 @@
 #include <array>
 #include "menuEntries.hpp"
 #include "hardwareConf.hpp"
+#include "lcdTab.hpp"
 
-// g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   main.cpp
-// g++-9 -Wall -std=c++2a -I../../../../../etl/include/ -I.   main.cpp
-
+// g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   *.cpp 
 
 /*
- -> * methode print au niveau de framebuffer
+
    + la version PC utilise std::cout, la version MCU devra utiliser hd44780 et avoir un pointeur sur un driver lcd
- * up et down appellent fill et copyrect
- * le main appelle le print de framebuffer
+
+   * ajouter une callback qui soit un callable qui fasse un truc sur up et down
+
+   * tester avec un menuEntry à gauche et un mix menuEntries et NumericEntry à droite
 
  */
 
@@ -19,7 +20,7 @@
 int main(void)
 {
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT> mainFb;
-  MenuEntries<20, 16> me (mainFb, 0, 0, {{1, "1_Hz"},
+  MenuEntries<10, 16> me (mainFb, 0, 0, {{1, "1_Hz"},
 					 {20, "20_Hz"},
 					 {300, "300_hz"},
 					 {400, "400_hz"},
@@ -31,19 +32,26 @@ int main(void)
 					 {36400, "36.4_Khz"}
     });
 
-  NumericEntry<20> ne(mainFb, 0, 0, 0, 10, {0, 100});
+  NumericEntry<10> ne(mainFb, 10, 0, 30, 10, {0, 100});
 
-  std::array<BaseWidget*, 2> arr = {me, ne};
+  std::array<BaseWidget*, 2> arr = {&me, &ne};
   
   for (auto &w : arr)  {
     for (int i=0; i<2; i++) {
       w->next();
     }
-    
+  
     for (int i=0; i<2; i++) {
       w->prev();
     }
   }
+
+  mainFb.write(1,0, "toto est %s", "rentré");
+  mainFb.print();
+  // arr[0]->next();
+  // arr[1]->next();
+
+
 }
 
 
