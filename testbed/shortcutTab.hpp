@@ -6,7 +6,7 @@
 class ShortcutTab : public LcdTab {
 public:
   ShortcutTab (const StateId stateId) : LcdTab(stateId) {
-    me.bind([](int32_t val, [[maybe_unused]] BaseWidget *ths) {
+    me.bind([](int32_t val) {
 	      std::cout << "new ShortcutTab value = " << val << std::endl;
 	    });
   }

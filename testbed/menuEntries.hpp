@@ -8,7 +8,7 @@
 #include "etl/vector.h"
 #include "etl/string_view.h"
 #include "etl/span.h"
-
+#include <functional>
 
 template<size_t W, size_t H>
 class FrameBuffer {
@@ -63,7 +63,10 @@ void FrameBuffer<W, H>::copyRect(const FrameBuffer<WF, HF>& from, const uint8_t 
   size_t fromPosy =0U;
   for (size_t y = posy; y < std::min(posy + HF, H); y++) {
     fbr[y].append(W, ' ');
-    fbr[y].replace(posx, WF, from.fbr[fromPosy++]);
+    auto fstr =  from.fbr[fromPosy];
+    fstr.append(WF, ' ');
+    fbr[y].replace(posx, WF, fstr);
+    fromPosy++;
   }
 }
 
@@ -76,7 +79,10 @@ void FrameBuffer<W, H>::copyRect(const etl::span<etl::string<WF>> from, const ui
   size_t fromPosy =0U;
   for (size_t y = posy; y < std::min(posy + from.size(), H); y++) {
     fbr[y].append(W, ' ');
-    fbr[y].replace(posx, WF, from[fromPosy++]);
+    auto fstr =  from[fromPosy];
+    fstr.append(WF, ' ');
+    fbr[y].replace(posx, WF, fstr);
+    fromPosy++;
   }
 }
 
@@ -106,7 +112,7 @@ template<size_t W, size_t H>
 template<typename... Args>
 FrameBuffer<W, H>& FrameBuffer<W, H>::append(const uint8_t posY, const char* fmt, Args... args)
 {
-  return write(posY, strlen(fbr[posY].c_str()), fmt, std::forward<Args&&>(args)...);
+  return write(strlen(fbr[posY].c_str()), posY, fmt, std::forward<Args&&>(args)...);
 }
 
 
@@ -122,7 +128,7 @@ struct Entry {
 
 class BaseWidget {
 public:
-  using callback_t = void (*)(int32_t, BaseWidget*);
+  using callback_t = std::function<void(int32_t)>;
 
   virtual void next(void) = 0;
   virtual void prev(void) = 0;
@@ -150,7 +156,7 @@ public:
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void draw(void) override;
   void bind(callback_t _cb) override {cb = _cb;}
-  void invoque(void){if (cb) cb(get(), this);}
+  void invoque(void){if (cb) cb(get());}
   const FixedStr& getName(void) override {return name;}
 protected:
   
@@ -361,10 +367,11 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
   fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
   fb.append(1, "[%d]%*c", val, LCD_WIDTH, ' ');
   fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
+  fb.append(3, "%*c", LCD_WIDTH, ' ');
 }
 
 template <size_t SW>
 FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView()
 {
-  return fb.getView(0, 4);
+  return fb.getView(0, LCD_HEIGHT);
 }

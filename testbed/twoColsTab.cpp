@@ -5,11 +5,9 @@ TwoColsTab::TwoColsTab (const StateId stateId) : LcdTab(stateId)
   for (size_t i=0; i< rights.size(); i++)
     left.addEntry({int(i), rights[i]->getName()});
 
-  left.bind([] (int32_t val, BaseWidget *ths) {
-	      TwoColsTab *obj = reinterpret_cast<TwoColsTab *>(ths);
-	      std::cout << "val = " << val << "obj = " << obj << std::endl;
-	      obj->right =  obj->rights[val];
-	      obj->right->draw();
+  left.bind([this] (int32_t val) {
+	      right =  rights[val];
+	      right->draw();
 	    });
 }
 
