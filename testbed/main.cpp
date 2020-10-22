@@ -4,14 +4,13 @@
 #include "hardwareConf.hpp"
 #include "mainTab.hpp"
 #include "shortcutTab.hpp"
+#include "twoColsTab.hpp"
 
 // g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   *.cpp 
 
 /*
 
    + la version PC utilise std::cout, la version MCU devra utiliser hd44780 et avoir un pointeur sur un driver lcd
-
-   * ajouter une callback qui soit un callable qui fasse un truc sur up et down
 
    * tester avec un menuEntry à gauche et un mix menuEntries et NumericEntry à droite
 
@@ -24,14 +23,23 @@ int main(void)
 {
   MainTab mt(StateId::Freq);
   ShortcutTab sc(StateId::FreqShortCut);
+  TwoColsTab tc(StateId::Info);
+  std::cout << "tc obj = " << &tc << std::endl;
  
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
   LcdTab::propagate({.event = Events::LongClick, .idx=0, .load=0});
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
-  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=0});
-  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=0});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=-1});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=-1});
+  LcdTab::propagate({.event = Events::ShortClick, .idx=0, .load=0});
+
+  LcdTab::propagate({.event = Events::DoubleClick, .idx=0, .load=0});
+  LcdTab::propagate({.event = Events::Turn, .idx=1, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=1, .load=-1});
+  LcdTab::propagate({.event = Events::Turn, .idx=0, .load=-1});
   LcdTab::propagate({.event = Events::ShortClick, .idx=0, .load=0});
 }
 

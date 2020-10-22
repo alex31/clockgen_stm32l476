@@ -122,8 +122,13 @@ struct Entry {
 
 class BaseWidget {
 public:
+  using callback_t = void (*)(int32_t, BaseWidget*);
+
   virtual void next(void) = 0;
   virtual void prev(void) = 0;
+  virtual void draw(void) = 0;
+  virtual void bind(callback_t _cb) = 0;
+  virtual const FixedStr& getName(void) =0;
 };
 
 
@@ -131,20 +136,22 @@ public:
 template <size_t SW, size_t SL>
 class BaseEntry : public BaseWidget {
 public:
-  using callback_t = void (*)(int32_t);
-  BaseEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+  BaseEntry(const FixedStr& _name,
+	    FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 	    uint8_t _anchorx, uint8_t _anchory) : parentFb(fb),
 						  anchorx(_anchorx),
-						  anchory(_anchory) {}
+						  anchory(_anchory),
+						  name(_name) {}
   virtual void next(void) override = 0;
   virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
   void	       set(const int32_t v) {val = v; this->invoque(); draw();}
   virtual int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
-  void draw(void);
-  void bind(callback_t _cb) {cb = _cb;}
-  void invoque(void){cb(get());}
+  void draw(void) override;
+  void bind(callback_t _cb) override {cb = _cb;}
+  void invoque(void){if (cb) cb(get(), this);}
+  const FixedStr& getName(void) override {return name;}
 protected:
   
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT>& parentFb;
@@ -152,6 +159,7 @@ protected:
   const uint8_t anchory=0;
   int32_t      val=0;
   callback_t cb = nullptr;
+  FixedStr name;
 };
 
 
@@ -160,7 +168,8 @@ class MenuEntries : public BaseEntry<SW, SL> {
 
   
 public:
-  MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+  MenuEntries(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
 	      uint8_t _anchorx, uint8_t _anchory,
 	      std::initializer_list<Entry> il);
   bool addEntry(const Entry& e);
@@ -183,11 +192,12 @@ template <size_t SW>
 class NumericEntry : public BaseEntry<SW, LCD_HEIGHT> {
   
 public:
-  NumericEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
-		uint8_t anchorx, uint8_t anchory,
+  NumericEntry(const FixedStr& name,
+	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+	       uint8_t anchorx, uint8_t anchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
-               BaseEntry<SW, LCD_HEIGHT>(fb, anchorx, anchory),
+    BaseEntry<SW, LCD_HEIGHT>(name, fb, anchorx, anchory),
 	       val(_val),
 	       inc(_inc),
 	       interval(_interval) {};
@@ -234,7 +244,7 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
   int bgin = 0;
   if (selectedItem < int(entries.size())) {
     bgin = int(entries[selectedItem].posy) - 1;
-    bgin = std::clamp(bgin, 0, entries.back().posy - (int(LCD_HEIGHT) - 1));
+    bgin = std::clamp(bgin, 0, std::max(entries.back().posy - (int(LCD_HEIGHT) - 1), 0));
   }
   //  std::cout << "DBG> LAST (" << entries.back().str.c_str() << ") y=" << int(entries.back().posy) << std::endl;
   //  std::cout << "DBG> bgin=" << bgin << std::endl;
@@ -242,10 +252,11 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 }
 
 template <size_t SW, size_t SL>
-MenuEntries<SW, SL>::MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
-			  uint8_t anchorx, uint8_t anchory,
-			 std::initializer_list<Entry> il) :
-  BaseEntry<SW, SL>(fb, anchorx, anchory)
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
+				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+				 uint8_t anchorx, uint8_t anchory,
+				 std::initializer_list<Entry> il) :
+  BaseEntry<SW, SL>(name, fb, anchorx, anchory)
 {
   for (const auto& e : il)
     addEntry(e);
@@ -347,9 +358,9 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
     if (sep.length())
       s.append(sep.data());
   }
-  fb.append(0, "<%d>     ", interval.first);
-  fb.append(1, "[%d]     ", val);
-  fb.append(2, "<%d>     ", interval.second);
+  fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
+  fb.append(1, "[%d]%*c", val, LCD_WIDTH, ' ');
+  fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
 }
 
 template <size_t SW>

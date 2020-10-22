@@ -2,10 +2,10 @@
 
 void MainTab::enter(void)
 {
-  fb.write(0,0, "F1  = %d%*s", 10, LCD_WIDTH, " ");
-  fb.write(0,1, "F2  = %d%*s", 20, LCD_WIDTH, " ");
-  fb.write(0,2, "Fin = %d%*s", 100, LCD_WIDTH, " ");
-  fb.write(0,3, "Vlc = %.2f%*s", 4.97f, LCD_WIDTH, " ");
+  fb.write(0,0, "F1  = %d%*c", 10, LCD_WIDTH, ' ');
+  fb.write(0,1, "F2  = %d%*c", 20, LCD_WIDTH, ' ');
+  fb.write(0,2, "Fin = %d%*c", 100, LCD_WIDTH, ' ');
+  fb.write(0,3, "Vlc = %.2f%*c", 4.97f, LCD_WIDTH, ' ');
   print();
 }
 
@@ -33,6 +33,10 @@ void MainTab::eventCb(const Event& ev)
     
   case Events::LongClick :
     IhmState::push(StateId::FreqShortCut);
+    break;
+
+  case Events::DoubleClick :
+    IhmState::push(StateId::Info);
     break;
     
   default: break;

@@ -15,7 +15,7 @@ void ShortcutTab::eventCb(const Event& ev)
 {
   switch(ev.getEvent())  {
   case Events::Turn : {
-    if (ev.getLoad() == 1)
+    if (ev.getLoad() > 0)
       me.next();
     else
       me.prev();

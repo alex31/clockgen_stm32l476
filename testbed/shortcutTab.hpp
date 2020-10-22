@@ -6,7 +6,7 @@
 class ShortcutTab : public LcdTab {
 public:
   ShortcutTab (const StateId stateId) : LcdTab(stateId) {
-    me.bind([](int32_t val) {
+    me.bind([](int32_t val, [[maybe_unused]] BaseWidget *ths) {
 	      std::cout << "new ShortcutTab value = " << val << std::endl;
 	    });
   }
@@ -14,7 +14,7 @@ public:
   void leave(void) override ;
   void eventCb(const Event& ev) override;
 private:
-  MenuEntries<20, 16> me{fb, 0, 0, {{1, "1_Hz"},
+  MenuEntries<20, 16> me{"freq.", fb, 0, 0, {{1, "1_Hz"},
 	                            {20, "20_Hz"},
 				    {300, "300_hz"},
 				    {400, "400_hz"},
