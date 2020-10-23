@@ -78,6 +78,20 @@ int main(void)
 int main(void)
 {
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT> mainFb;
+  //                                   02345678901234567890
+  FrameBuffer<LCD_WIDTH, 12U> readme{{"-------README-------",
+				      "tourner pour augmen-",
+				      "-er ou baisser la   ",
+				      "fréquence pour      ",
+				      "F1 en haut et F2 en ",
+				      "bas. Un appui court ",
+				      "permet de parcourir ",
+				      "rapidement la gamme ",
+				      "dans le sens de la  ",
+				      "fleche. Un appui    ",
+				      "long donne acces au ",
+				      "menu des raccourcis "}};
+  
   MenuEntries<10, 16> me ("freq", &mainFb, 0, 0, {{1, "1_Hz"},
 					 {20, "20_Hz"},
 					 {300, "300_hz"},
@@ -92,7 +106,16 @@ int main(void)
 
   NumericEntry<10> ne("vol", &mainFb, 10, 0, 30, 10, {0, 100});
   std::array<BaseWidget*, 2> arr = {&me, &ne};
+  ScrollText st("readme", &mainFb, &readme);
   
+  st.draw();
+  for (size_t i=0; i< 10; i++)
+    st.next();
+  for (size_t i=0; i< 10; i++)
+    st.prev();
+
+
+
   for (int i=0; i<2; i++) {
     for (auto &w : arr)  {
       w->next();

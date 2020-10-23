@@ -18,8 +18,9 @@ class FrameBuffer {
   friend class FrameBuffer;
   
 public:
-  using Fb_t =  std::array<LineStr, H>;
   using FbView = etl::span<etl::string<W>>;
+  FrameBuffer() = default;
+  FrameBuffer(std::initializer_list<const etl::string<W>> il);
   std::array<etl::string<W>, H>::iterator begin(void)  {return fbr.begin();}
   std::array<etl::string<W>, H>::iterator end(void) {return fbr.end();}
   std::array<etl::string<W>, H>::const_iterator begin(void) const {return fbr.cbegin();}
@@ -42,8 +43,17 @@ public:
   static constexpr size_t getWide(void) {return W;}
   
 private:
-   Fb_t fbr;
+    std::array<LineStr, H> fbr;
 };
+
+template<size_t W, size_t H>
+FrameBuffer<W, H>::FrameBuffer(std::initializer_list<const etl::string<W>> il)
+{
+  size_t i=0U;
+  for (const auto& s : il) {
+    fbr[i++] = s;
+  }
+}
 
 
 template<size_t W, size_t H>
@@ -241,6 +251,39 @@ private:
 
 
 
+
+
+template <size_t SH>
+class ScrollText : public BaseEntry<LCD_WIDTH, SH> {
+  
+public:
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	      FrameBuffer<LCD_WIDTH, SH> *_content) :
+    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+	       content(_content) {};
+  ScrollText(const FixedStr& name,
+	      const FrameBuffer<LCD_WIDTH, SH> *_content)
+	      :
+    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+	      content(_content) {};
+  void fill(const uint8_t margin = 0U, const etl::string_view sep = "") {};
+
+  void next(void) override {this->val = std::clamp(this->val+1UL,
+						   0UL, SH-LCD_HEIGHT);
+    this->draw();}
+  void prev(void) override {if (this->val != 0) this->val--;
+    this->draw();}
+  FrameBuffer<LCD_WIDTH, SH>::FbView getView(void) override;
+
+
+private:
+  FrameBuffer<LCD_WIDTH, SH> *content;
+};
+
+
+
+
 /*
 #                 _____               _ __    _          
 #                |_   _|             | '_ \  | |         
@@ -394,7 +437,14 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
 }
 
 template <size_t SW>
-FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView()
+FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView(void)
 {
   return fb.getView(0, LCD_HEIGHT);
+}
+
+
+template <size_t SH>
+FrameBuffer<LCD_WIDTH, SH>::FbView ScrollText<SH>::getView(void)
+{
+  return content->getView(this->val, LCD_HEIGHT);
 }
