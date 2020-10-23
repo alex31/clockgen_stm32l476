@@ -3,8 +3,8 @@
 #include "menuEntries.hpp"
 #include "hardwareConf.hpp"
 #include "mainTab.hpp"
-#include "shortcutTab.hpp"
 #include "twoColsTab.hpp"
+#include "oneColTab.hpp"
 
 // g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   *.cpp 
 
@@ -38,9 +38,20 @@ int main(void)
 				   {3, "events"}
 					       }};
 
-
+  MenuEntries<20, 16> frequencies{"freq.", 0, 0, {{1, "1_Hz"},
+					 {20, "20_Hz"},
+					 {300, "300_hz"},
+					 {400, "400_hz"},
+					 {2400, "2.4_Khz"},
+					 {5000, "5_Khz"},
+					 {8000, "8_Khz"},
+					 {10000, "10_Khz"},
+					 {19200, "19.2_Khz"},
+					 {36400, "36.4_Khz"}
+					 }};
+ 
   MainTab mt(StateId::Freq);
-  ShortcutTab sc(StateId::FreqShortCut);
+  OneColTab sc(StateId::FreqShortCut, &frequencies);
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
  
   LcdTab::push(StateId::Freq);

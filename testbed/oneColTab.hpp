@@ -3,17 +3,19 @@
 #include "menuEntries.hpp"
 
 
-class ShortcutTab : public LcdTab {
+class OneColTab : public LcdTab {
 public:
-  ShortcutTab (const StateId stateId) : LcdTab(stateId) {
-    me.bind([](int32_t val) {
-	      std::cout << "new ShortcutTab value = " << val << std::endl;
-	    });
-  }
+  OneColTab (const StateId stateId, BaseWidget* w) : LcdTab(stateId),
+						     widget(w) {widget->setParentFb(&fb);}
   void enter(void) override;
   void leave(void) override ;
   void eventCb(const Event& ev) override;
 private:
+  BaseWidget* widget;
+};
+
+
+#ifdef PR
   MenuEntries<20, 16> me{"freq.", &fb, 0, 0, {{1, "1_Hz"},
 	                            {20, "20_Hz"},
 				    {300, "300_hz"},
@@ -25,5 +27,4 @@ private:
 				    {19200, "19.2_Khz"},
 				    {36400, "36.4_Khz"}
     }};
-  
-};
+#endif
