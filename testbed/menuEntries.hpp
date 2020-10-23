@@ -259,14 +259,14 @@ class ScrollText : public BaseEntry<LCD_WIDTH, SH> {
 public:
   ScrollText(const FixedStr& name,
 	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
-	      FrameBuffer<LCD_WIDTH, SH> *_content) :
+	      FrameBuffer<LCD_WIDTH, SH> &&_content) :
     BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
-	       content(_content) {};
+    content(std::move(_content)) {};
   ScrollText(const FixedStr& name,
-	      const FrameBuffer<LCD_WIDTH, SH> *_content)
+	      FrameBuffer<LCD_WIDTH, SH> &&_content)
 	      :
     BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
-	      content(_content) {};
+    content(std::move(_content)) {};
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") {};
 
   void next(void) override {this->val = std::clamp(this->val+1UL,
@@ -278,7 +278,7 @@ public:
 
 
 private:
-  FrameBuffer<LCD_WIDTH, SH> *content;
+  FrameBuffer<LCD_WIDTH, SH> content;
 };
 
 
@@ -446,5 +446,5 @@ FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView(void)
 template <size_t SH>
 FrameBuffer<LCD_WIDTH, SH>::FbView ScrollText<SH>::getView(void)
 {
-  return content->getView(this->val, LCD_HEIGHT);
+  return content.getView(this->val, LCD_HEIGHT);
 }

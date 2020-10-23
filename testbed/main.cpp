@@ -6,13 +6,13 @@
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
 
-// g++-10 -Wall -std=c++20 -I../../../../../etl/include/ -I.   *.cpp 
+// g++-10 -DHIGH_LEVEL_TEST -Wall -std=c++20 -I../../../../../etl/include/ -I. *.cpp 
 
 /*
 
    + la version PC utilise std::cout, la version MCU devra utiliser hd44780 et avoir un pointeur sur un driver lcd
 
-   * tester avec un menuEntry à gauche et un mix menuEntries et NumericEntry à droite
+   
 
  */
 
@@ -49,11 +49,28 @@ int main(void)
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
 					 }};
- 
+  ScrollText st("readme",
+		FrameBuffer<LCD_WIDTH, 12U>
+		{"-------README-------",
+		 "tourner pour augmen-",
+		 "-er ou baisser la   ",
+		 "fréquence pour      ",
+		 "F1 en haut et F2 en ",
+		 "bas. Un appui court ",
+		 "permet de parcourir ",
+		 "rapidement la gamme ",
+		 "dans le sens de la  ",
+		 "fleche. Un appui    ",
+		 "long donne acces au ",
+		 "menu des raccourcis "}
+		);
+  
+  
   MainTab mt(StateId::Freq);
   OneColTab sc(StateId::FreqShortCut, &frequencies);
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
- 
+  OneColTab rm(StateId::Readme, &st);
+  
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
   LcdTab::propagate({.event = Events::LongClick, .idx=0, .load=0});
@@ -68,6 +85,12 @@ int main(void)
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=1});
   LcdTab::propagate({.event = Events::Turn, .idx=1, .load=-1});
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=-1});
+  LcdTab::propagate({.event = Events::ShortClick, .idx=0, .load=0});
+
+  LcdTab::propagate({.event = Events::DoubleClick, .idx=1, .load=0});
+  LcdTab::propagate({.event = Events::Turn, .idx=1, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=1, .load=1});
+  LcdTab::propagate({.event = Events::Turn, .idx=1, .load=1});
   LcdTab::propagate({.event = Events::ShortClick, .idx=0, .load=0});
 }
 #endif

@@ -36,7 +36,10 @@ void MainTab::eventCb(const Event& ev)
     break;
 
   case Events::DoubleClick :
-    IhmState::push(StateId::Info);
+    if (ev.getIndex() == 0)
+      IhmState::push(StateId::Info);
+    else
+      IhmState::push(StateId::Readme);
     break;
     
   default: break;
