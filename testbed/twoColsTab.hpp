@@ -12,8 +12,7 @@ template<typename ...Args> auto sum2(Args ...args)
 
 class TwoColsTab : public LcdTab {
 public:
-  template<typename ...Args> 
-  TwoColsTab (const StateId stateId, Args ...args);
+  TwoColsTab (const StateId stateId, std::initializer_list<BaseWidget *> il);
   void enter(void) override;
   void leave(void) override ;
   void eventCb(const Event& ev) override;
@@ -25,23 +24,6 @@ private:
 };
 
 
-template<typename ...Args>
-TwoColsTab::TwoColsTab (const StateId stateId, Args ...args) : LcdTab(stateId)
-{
-  (..., rights.push_back(args));
-  static_assert(sizeof...(args) != 0);
-  
-  right = rights[0];
-  
-  for (size_t i=0; i< rights.size(); i++) {
-    rights[i]->setParentFb(&fb);
-    left.addEntry({int(i), rights[i]->getName()});
-  }
-  left.bind([this] (int32_t val) {
-	      right =  rights[val];
-	      right->draw();
-	    });
-}
 
 
 

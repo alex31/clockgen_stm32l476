@@ -1,5 +1,22 @@
 #include "twoColsTab.hpp"
 
+TwoColsTab::TwoColsTab (const StateId stateId, std::initializer_list<BaseWidget *> il) :
+  LcdTab(stateId)
+{
+  for (const auto& e : il)
+      rights.push_back(e);
+    
+  right = rights[0];
+  
+  for (size_t i=0; i< rights.size(); i++) {
+    rights[i]->setParentFb(&fb);
+    left.addEntry({int(i), rights[i]->getName()});
+  }
+  left.bind([this] (int32_t val) {
+	      right =  rights[val];
+	      right->draw();
+	    });
+}
 
 
 void TwoColsTab::enter(void)

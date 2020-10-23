@@ -41,7 +41,7 @@ int main(void)
 
   MainTab mt(StateId::Freq);
   ShortcutTab sc(StateId::FreqShortCut);
-  TwoColsTab tc(StateId::Info, &audioSample, &audioVol, &info);
+  TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
  
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
