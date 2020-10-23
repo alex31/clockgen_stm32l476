@@ -135,6 +135,7 @@ public:
   virtual void draw(void) = 0;
   virtual void bind(callback_t _cb) = 0;
   virtual const FixedStr& getName(void) =0;
+  virtual void  setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) = 0;
 };
 
 
@@ -143,7 +144,7 @@ template <size_t SW, size_t SL>
 class BaseEntry : public BaseWidget {
 public:
   BaseEntry(const FixedStr& _name,
-	    FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+	    FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	    uint8_t _anchorx, uint8_t _anchory) : parentFb(fb),
 						  anchorx(_anchorx),
 						  anchory(_anchory),
@@ -154,13 +155,14 @@ public:
   void	       set(const int32_t v) {val = v; this->invoque(); draw();}
   virtual int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
+  void    setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) override {parentFb =fb;}
   void draw(void) override;
   void bind(callback_t _cb) override {cb = _cb;}
   void invoque(void){if (cb) cb(get());}
   const FixedStr& getName(void) override {return name;}
 protected:
   
-  FrameBuffer<LCD_WIDTH, LCD_HEIGHT>& parentFb;
+  FrameBuffer<LCD_WIDTH, LCD_HEIGHT>* parentFb = nullptr;
   const uint8_t anchorx=0;
   const uint8_t anchory=0;
   int32_t      val=0;
@@ -175,7 +177,10 @@ class MenuEntries : public BaseEntry<SW, SL> {
   
 public:
   MenuEntries(const FixedStr& name,
-	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	      uint8_t _anchorx, uint8_t _anchory,
+	      std::initializer_list<Entry> il);
+  MenuEntries(const FixedStr& name,
 	      uint8_t _anchorx, uint8_t _anchory,
 	      std::initializer_list<Entry> il);
   bool addEntry(const Entry& e);
@@ -199,11 +204,19 @@ class NumericEntry : public BaseEntry<SW, LCD_HEIGHT> {
   
 public:
   NumericEntry(const FixedStr& name,
-	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	       uint8_t anchorx, uint8_t anchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
     BaseEntry<SW, LCD_HEIGHT>(name, fb, anchorx, anchory),
+	       val(_val),
+	       inc(_inc),
+	       interval(_interval) {};
+  NumericEntry(const FixedStr& name,
+	       uint8_t anchorx, uint8_t anchory,
+	       const int32_t _val, const int32_t _inc,
+	       const std::pair<int32_t, int32_t>& _interval) :
+    BaseEntry<SW, LCD_HEIGHT>(name, nullptr, anchorx, anchory),
 	       val(_val),
 	       inc(_inc),
 	       interval(_interval) {};
@@ -240,8 +253,8 @@ template <size_t SW, size_t SL>
 void BaseEntry<SW, SL>::draw(void)
 {
   fill();
-  parentFb.copyRect(getView(), anchorx, anchory);
-  parentFb.print();
+  parentFb->copyRect(getView(), anchorx, anchory);
+  parentFb->print();
 }
 
 template <size_t SW, size_t SL>
@@ -259,10 +272,20 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 
 template <size_t SW, size_t SL>
 MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
-				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 				 uint8_t anchorx, uint8_t anchory,
 				 std::initializer_list<Entry> il) :
   BaseEntry<SW, SL>(name, fb, anchorx, anchory)
+{
+  for (const auto& e : il)
+    addEntry(e);
+}
+
+template <size_t SW, size_t SL>
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
+				 uint8_t anchorx, uint8_t anchory,
+				 std::initializer_list<Entry> il) :
+  BaseEntry<SW, SL>(name, nullptr, anchorx, anchory)
 {
   for (const auto& e : il)
     addEntry(e);

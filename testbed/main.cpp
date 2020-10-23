@@ -21,9 +21,27 @@
 #ifdef HIGH_LEVEL_TEST
 int main(void)
 {
+  MenuEntries<10, 16> audioSample{"sample", 10, 0, {
+				    {1, "hoorn"},
+	                            {2, "tone"},
+				    {3, "alarm"},
+				    {4, "drift"},
+				    {5, "siren"},
+				    {6, "nuclear"},
+				    {7, "fire"}
+    }};
+  NumericEntry<10> audioVol{"volume", 10, 0, 30, 10, {0, 100}};
+
+  MenuEntries<10, 16> info{"info", 10, 0, {
+				   {1, "manuel"},
+				   {2, "readme"},
+				   {3, "events"}
+					       }};
+
+
   MainTab mt(StateId::Freq);
   ShortcutTab sc(StateId::FreqShortCut);
-  TwoColsTab tc(StateId::Info);
+  TwoColsTab tc(StateId::Info, &audioSample, &audioVol, &info);
  
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});
@@ -49,7 +67,7 @@ int main(void)
 int main(void)
 {
   FrameBuffer<LCD_WIDTH, LCD_HEIGHT> mainFb;
-  MenuEntries<10, 16> me ("freq", mainFb, 0, 0, {{1, "1_Hz"},
+  MenuEntries<10, 16> me ("freq", &mainFb, 0, 0, {{1, "1_Hz"},
 					 {20, "20_Hz"},
 					 {300, "300_hz"},
 					 {400, "400_hz"},
@@ -61,7 +79,7 @@ int main(void)
 					 {36400, "36.4_Khz"}
     });
 
-  NumericEntry<10> ne("vol", mainFb, 10, 0, 30, 10, {0, 100});
+  NumericEntry<10> ne("vol", &mainFb, 10, 0, 30, 10, {0, 100});
   std::array<BaseWidget*, 2> arr = {&me, &ne};
   
   for (int i=0; i<2; i++) {

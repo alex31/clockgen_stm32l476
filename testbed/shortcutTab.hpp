@@ -14,7 +14,7 @@ public:
   void leave(void) override ;
   void eventCb(const Event& ev) override;
 private:
-  MenuEntries<20, 16> me{"freq.", fb, 0, 0, {{1, "1_Hz"},
+  MenuEntries<20, 16> me{"freq.", &fb, 0, 0, {{1, "1_Hz"},
 	                            {20, "20_Hz"},
 				    {300, "300_hz"},
 				    {400, "400_hz"},

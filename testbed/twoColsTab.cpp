@@ -1,16 +1,5 @@
 #include "twoColsTab.hpp"
 
-TwoColsTab::TwoColsTab (const StateId stateId) : LcdTab(stateId)
-{
-  for (size_t i=0; i< rights.size(); i++)
-    left.addEntry({int(i), rights[i]->getName()});
-
-  left.bind([this] (int32_t val) {
-	      right =  rights[val];
-	      right->draw();
-	    });
-}
-
 
 
 void TwoColsTab::enter(void)
