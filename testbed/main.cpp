@@ -10,9 +10,15 @@
 
 /*
 
-   + la version PC utilise std::cout, la version MCU devra utiliser hd44780 et avoir un pointeur sur un driver lcd
+ *  fonction d'affichage par callback au niveau de la classe Framebuffer
+    + fonction statique setPrintFun(void(*)(uint8_t posx, uint8_t posy, char*)
+      variable statique de pointeur sur la fonction
 
-   
+ *  choix entre display PC (iostream, std::cout) et HD44780 par une macro à la compilation
+
+ *  en cas de mauvaise tension -> deroutage sur un ihmState avec à gauche
+    (----), clear alarm, admin -> (logic 5V), logic 3V [en fonction de la valeur en mémoire]
+
 
  */
 

@@ -11,7 +11,7 @@ IhmState*   IhmState::push(const StateId activeId)
 {
   auto active = stateArray[+activeId];
   auto last = stack.top();
-  if (not stack.full()) {
+  if ((active != last) && (not stack.full())) {
     stack.push(active);
     transition(last, active);
   }
