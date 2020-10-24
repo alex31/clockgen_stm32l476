@@ -6,13 +6,9 @@
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
 
-// g++-10 -DHIGH_LEVEL_TEST -Wall -std=c++20 -I../../../../../etl/include/ -I. *.cpp 
+// g++-10 -DSIM_PC -DHIGH_LEVEL_TEST -Wall -std=c++20 -I../../../../../etl/include/ -I. *.cpp 
 
 /*
-
- *  fonction d'affichage par callback au niveau de la classe Framebuffer
-    + fonction statique setPrintFun(void(*)(uint8_t posx, uint8_t posy, char*)
-      variable statique de pointeur sur la fonction
 
  *  choix entre display PC (iostream, std::cout) et HD44780 par une macro à la compilation
 
@@ -27,6 +23,11 @@
 #ifdef HIGH_LEVEL_TEST
 int main(void)
 {
+  FrameBufferBase::setPrintFn([]([[maybe_unused]] uint8_t posx,
+				 [[maybe_unused]] uint8_t posy,
+				 const char* str) {
+				std::cout << str << std::endl;
+			      });
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {
 				    {1, "hoorn"},
 	                            {2, "tone"},

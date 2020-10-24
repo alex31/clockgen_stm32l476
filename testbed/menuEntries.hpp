@@ -3,15 +3,33 @@
 #include "hardwareConf.hpp"
 #include <array>
 #include <cstdint>
-#include <iostream>
 #include "etl/string.h"
 #include "etl/vector.h"
 #include "etl/string_view.h"
 #include "etl/span.h"
 #include <functional>
 
+#ifdef SIM_PC
+#include <iostream>
+#else
+#include "hd44780.h"
+#endif
+
+class FrameBufferBase {
+public:
+  using printFn_t = void(*)(uint8_t posx, uint8_t posy, const char* str);
+  static void setPrintFn(printFn_t fun) {printFn = fun;};
+  
+protected:
+  static void doprint(uint8_t posx, uint8_t posy, const char*);
+  
+private:
+  static printFn_t	printFn;
+};
+
+
 template<size_t W, size_t H>
-class FrameBuffer {
+class FrameBuffer : public FrameBufferBase {
   using LineStr = etl::string<W>;
   
   template<size_t WF, size_t HF>
@@ -19,6 +37,7 @@ class FrameBuffer {
   
 public:
   using FbView = etl::span<etl::string<W>>;
+  
   FrameBuffer() = default;
   FrameBuffer(std::initializer_list<const etl::string<W>> il);
   std::array<etl::string<W>, H>::iterator begin(void)  {return fbr.begin();}
@@ -26,7 +45,7 @@ public:
   std::array<etl::string<W>, H>::const_iterator begin(void) const {return fbr.cbegin();}
   std::array<etl::string<W>, H>::const_iterator end(void) const {return fbr.cend();}
   etl::string<W>& operator[](const size_t index) {return fbr[index];}
-  void print(void);
+  void print(void) const;
   template<typename... Args>
   FrameBuffer<W, H>& write(const uint8_t posX, const uint8_t posY, const char* fmt, Args... args);
   template<typename... Args>
@@ -43,7 +62,7 @@ public:
   static constexpr size_t getWide(void) {return W;}
   
 private:
-    std::array<LineStr, H> fbr;
+  std::array<LineStr, H> fbr;
 };
 
 template<size_t W, size_t H>
@@ -97,12 +116,13 @@ void FrameBuffer<W, H>::copyRect(const etl::span<etl::string<WF>> from, const ui
 }
 
 template<size_t W, size_t H>
-void FrameBuffer<W, H>::print(void) 
+void FrameBuffer<W, H>::print(void) const
 {
+  size_t i=0;
   for (const auto& s : fbr) {
-    std::cout << s.data() << std::endl;
+    doprint(0, i++, s.data());
   }
-  std::cout << std::endl;
+  doprint(0, i++, "\n");
 }
 
 
@@ -201,7 +221,6 @@ public:
   void next(void) override;
   void prev(void) override;
   FrameBuffer<SW, SL>::FbView getView(void) override;
-  void print(void) const;
   virtual int32_t     get(void) const override {return entries[this->val].value;}
 private:
 
@@ -387,20 +406,6 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
     
     //    std::cout << "DBG> selectedItem = " << int(selectedItem) << "  str[" << str.length() << "]=" << str.data() << std::endl;
 
-  }
-}
-
-
-template <size_t SW, size_t SL>
-void MenuEntries<SW, SL>::print(void) const
-{
-  for (const auto& s : fb) {
-    std::cout << s.data() << std::endl;
-  }
-  std::cout << std::endl;
-
-   for (const auto& e : entries) {
-     std::cout << e.str.data() << " posy=" << int(e.posy) << " posx=" << int(e.posx) << std::endl;
   }
 }
 
