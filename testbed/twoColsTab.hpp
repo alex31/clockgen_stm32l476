@@ -1,6 +1,7 @@
 #pragma once
 #include "etl/vector.h"
 #include "lcdTab.hpp"
+#include "hardwareConf.hpp"
 
 /*
 template<typename ...Args> auto sum2(Args ...args) 
@@ -18,9 +19,8 @@ public:
   void eventCb(const Event& ev) override;
 private:
   BaseWidget *right = nullptr;
-  //  std::array rights{&audioSample, &audioVol, &info};
-  etl::vector<BaseWidget*, 16> rights;
-  MenuEntries<10, 16> left{"left", &fb, 0, 0, {}};
+  etl::vector<BaseWidget*, TWO_COLS_MAX_LEFT_ENTRIES> rights;
+  MenuEntries<10, TWO_COLS_MAX_LEFT_ENTRIES> left{"left", &fb, 0, 0, {}};
 };
 
 

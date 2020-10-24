@@ -7,7 +7,7 @@
 
 template <typename ENM>
 constexpr auto operator+(ENM e) {return static_cast<std::underlying_type_t<ENM>>(e);}
-enum class StateId {Freq, FreqShortCut, Info, Readme, Param, EndOfList};
+enum class StateId {Freq, FreqShortCut, Info, Readme, Param, VoltageAlert, EndOfList};
 
 
 class IhmState
