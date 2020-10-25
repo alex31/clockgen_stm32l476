@@ -56,7 +56,7 @@ int main(void)
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
 					 }};
-  ScrollText st("readme",
+  ScrollText st1("readme",
 		FrameBuffer<LCD_WIDTH, 12U>
 		{"-------README-------",
 		 "tourner pour augmen-",
@@ -71,12 +71,22 @@ int main(void)
 		 "long donne acces au ",
 		 "menu des raccourcis "}
 		);
+
+  ScrollText<6U> st2("readme",
+   		 [](FrameBuffer<LCD_WIDTH, 6U> &fb) {
+   		   fb.write(0, 0, "mon nouveau %c", ' ');
+   		   fb.write(0, 1, "contenu 1%c", ' ');
+   		   fb.write(0, 2, "contenu 2%c", ' ');
+   		   fb.write(0, 3, "contenu 3%c", ' ');
+   		   fb.write(0, 4, "contenu 4%c", ' ');
+   		   fb.write(0, 5, "contenu 5%c", ' ');
+   		 });
   
   
   MainTab mt(StateId::Freq);
   OneColTab sc(StateId::FreqShortCut, &frequencies);
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
-  OneColTab rm(StateId::Readme, &st);
+  OneColTab rm(StateId::Readme, &st2);
   
   LcdTab::push(StateId::Freq);
   LcdTab::propagate({.event = Events::Turn, .idx=0, .load=142});

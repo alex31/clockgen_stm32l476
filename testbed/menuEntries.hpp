@@ -187,7 +187,7 @@ public:
   virtual int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void    setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) override {parentFb =fb;}
-  void draw(void) override;
+  virtual void draw(void) override;
   virtual void refresh(void) override {};
   void bind(callback_t _cb) override {cb = _cb;}
   void invoque(void){if (cb) cb(get());}
@@ -288,8 +288,17 @@ public:
 	      :
     BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
     content(std::move(_content)) {};
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
+    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    drawFn(_drawFn) {};
+  ScrollText(const FixedStr& name,
+	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
+    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    drawFn(_drawFn) {};
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") {};
-
+  void draw(void) override;
   void next(void) override {this->val = std::clamp(this->val+1UL,
 						   0UL, SH-LCD_HEIGHT);
     this->draw();}
@@ -300,8 +309,8 @@ public:
 
 private:
   FrameBuffer<LCD_WIDTH, SH> content;
+  std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> drawFn = nullptr;
 };
-
 
 
 
@@ -455,3 +464,12 @@ FrameBuffer<LCD_WIDTH, SH>::FbView ScrollText<SH>::getView(void)
 {
   return content.getView(this->val, LCD_HEIGHT);
 }
+
+template <size_t SH>
+void ScrollText<SH>::draw(void)
+{
+  if (drawFn != nullptr)
+    drawFn(content);
+  BaseEntry<LCD_WIDTH, SH>::draw();
+}
+
