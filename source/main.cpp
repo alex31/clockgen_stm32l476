@@ -15,38 +15,16 @@
 #include "rotaryButton.hpp"
 #include "pushButton.hpp"
 #include "hardwareConf.hpp"
-//#include "freqCapture.hpp"
-#include "lcdDisplay.hpp"
-#include "adc.hpp"
-#include "freqCapture.hpp"
-#include "fram.hpp"
 #include "beepIn.hpp"
 #include "menuEntries.hpp"
 #include "mainTab.hpp"
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
+#include "commonRessource.hpp"
 
 static void eventCb(const Event& ev);
 
-enum class Direction {Up=0x7E, Down=0x7F};
-struct Frequency {
-  uint32_t lastFreq;
-  uint32_t freq;
-  ClockGenerator &cg;
-  Direction dir;
-};
 
-static THD_WORKING_AREA(waBlinker, 256);	// declaration de la pile du thread blinker
-[[noreturn]]
-static void blinker ([[maybe_unused]] void *arg)
-{
-  chRegSetThreadName("blinker");		
-  
-  while (true) {
-    palToggleLine(LINE_LED_GREEN);
-    chThdSleepMilliseconds(500);
-  }
-}
    
 void _init_chibios() __attribute__ ((constructor(101)));
 void _init_chibios() {
@@ -58,36 +36,15 @@ namespace std {
   void __throw_bad_function_call() { chSysHalt("throw_bad_function_call"); while(true);};
 }
 
-ClockGenerator f1(&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1), f2(&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1);
-Frequency frequencies[2] = {{1, 1, f1, Direction::Up}, {1, 1, f2, Direction::Up}};
-LCDDisplay lcd(NORMALPRIO);
-
 int main (void)
 {
-  constexpr uint32_t MAGIC = 0xDEADBEEF;
-  uint32_t magic;
-  
 #ifndef NOSHELL
   consoleInit();	// initialisation des objets liés au shell
 #endif
 
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   FRAM::init();
-  if (FRAM::read(magic, 0) == false) {
-    DebugTrace("I²C Failed");
-    (void) f1.setFreq(1U);
-    (void) f2.setFreq(1U);
-  } else if (magic == MAGIC) {
-    DebugTrace("fram initialized");
-    FRAM::read(frequencies[0].freq, 4);
-    FRAM::read(frequencies[1].freq, 8);
-    (void) f1.setFreq(frequencies[0].freq);
-    (void) f2.setFreq(frequencies[1].freq);
-  } else {
-    DebugTrace("first run : fram NOT initialized");
-    FRAM::write(MAGIC, 0);
-  }
-  
+ 
   Event::init(&eventCb);
   ICU::init();
   ADC adc(NORMALPRIO);
@@ -98,9 +55,6 @@ int main (void)
   BeepIn beepIn(NORMALPRIO);
   
   
-  chThdCreateStatic(waBlinker, sizeof(waBlinker),
-		    NORMALPRIO+2, &blinker, NULL);
-
 #ifndef NOSHELL
   consoleLaunch();  // lancement du shell
 #endif
@@ -181,10 +135,12 @@ int main (void)
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
   OneColTab rm(StateId::Readme, &st2);
   LcdTab::push(StateId::Freq);
-  eventCb ({Events::Turn, 0, 0});
-  eventCb ({Events::Turn, 1, 0});
-  
-  chThdSleep(TIME_INFINITE);
+
+   while (true) {
+    palToggleLine(LINE_LED_GREEN);
+    chThdSleepMilliseconds(500);
+    LcdTab::propagate({Events::Periodic, 0, 0});
+  }
 }
 
 

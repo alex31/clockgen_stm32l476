@@ -1,5 +1,8 @@
 
-API LCD :
+TODO:
+
+
+* continuer de coder l'IHM (dans un module IHM plutot que dans le main ?)
 
 
 * adc : stockage moyenne, alerte si eloigné de la moyenne au demarrage
@@ -9,22 +12,11 @@ API LCD :
   * frequences, volume, choix su son, temps d'utilisation, nombre de mises en route
 
 
-2/ étudier l'IHM (graphe d'état)
-
-* coder l'IHM
-
-* heartbeat sur l'afficheur (pacman ?)
-
-* contexte en F-RAM
 
 
 
 
 =======================================================
-
-Bouton appuyé à l'allumage :
-  reglages : choix du son -> liste
-             volume du son -> champ increment par 10 entre 0 et 100
 
 	     
 
