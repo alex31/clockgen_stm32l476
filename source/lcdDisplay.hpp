@@ -19,11 +19,7 @@ public:
     WorkerThread("lcdDisplay", DP::threadStackSize, m_prio)
   {}
 
-  void draw(void);
-  //  void write(const uint8_t lineN, etl::string_view sv);
-  void write(const uint8_t lineN, const uint8_t posX, etl::string_view sv);
-  void write(const uint8_t lineN, const uint8_t posX, const char* fmt, ...);
-  void writeImmediate(const uint8_t lineN, const uint8_t posX, const char* str);
+  void write(const uint8_t lineN, const uint8_t posX, const char* str);
   void enableCursor(const bool enable);
   void setCursorPos(uint8_t line, uint8_t posx);
   static etl::string<10> freq2Str(uint32_t freq);
@@ -32,9 +28,8 @@ public:
 private:
   friend WorkerThread<LCDDisplay>;
 
-  std::array<etl::string<LCD_WIDTH>,  LCD_HEIGHT> fb{};
   uint8_t heartBeatIdx = 0;
-  static constexpr std::array heartBeatAnim = {'.', 'o', 'O', '@', '*'};
+  static constexpr std::array heartBeatAnim = {'.', 'o', 'O', '0', 'O', 'o', '.'};
   
   HD44780Driver lcdd;
   MUTEX_DECL(mut);

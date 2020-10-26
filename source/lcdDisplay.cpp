@@ -52,8 +52,7 @@ bool LCDDisplay::init()
   hd44780ObjectInit(&lcdd);
   hd44780Start(&lcdd, &DP::lcdcfg);
   hd44780ClearDisplay(&lcdd);
-  for (auto &l : fb)
-    l.insert(0U, 20U, ' ');
+
   return true;
 }
 
@@ -76,24 +75,8 @@ bool LCDDisplay::loop()
   return true;
 }
 
-void LCDDisplay::draw()
-{
-  DP::MutexRAII m(&mut);
-  for (size_t lineN =0;lineN <  LCD_HEIGHT; lineN++) {
-    hd44780RawWrite(&lcdd, DP::rowAddr[lineN], fb[lineN].c_str());
-  }
-}
 
-
-void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view sv)
-{
-  if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
-    const size_t slen = strlen(sv.data());
-    fb[lineN].replace(posX, slen, sv.data(), slen);
-  }
-}
-
-void LCDDisplay::writeImmediate(const uint8_t lineN, const uint8_t posX, const char* str)
+void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* str)
 {
   if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
     DP::MutexRAII m(&mut);
@@ -101,19 +84,6 @@ void LCDDisplay::writeImmediate(const uint8_t lineN, const uint8_t posX, const c
   }
 }
 
-void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* fmt, ...)
-{
-  va_list ap;
-  char string[80];
-
-  if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
-    va_start(ap, fmt);
-    vsnprintf(string, sizeof(string), fmt, ap);
-    va_end(ap);
-    const size_t slen = std::min( LCD_WIDTH-posX, strlen(string));
-    fb[lineN].replace(posX, slen, string, slen);
-  }
-}
 
 void LCDDisplay::enableCursor(const bool enable)
 {

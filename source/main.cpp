@@ -26,7 +26,6 @@
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
 
-volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
 
 enum class Direction {Up=0x7E, Down=0x7F};
@@ -37,14 +36,15 @@ struct Frequency {
   Direction dir;
 };
 
-static THD_WORKING_AREA(waBlinker, 304);	// declaration de la pile du thread blinker
+static THD_WORKING_AREA(waBlinker, 256);	// declaration de la pile du thread blinker
+[[noreturn]]
 static void blinker ([[maybe_unused]] void *arg)
 {
   chRegSetThreadName("blinker");		
   
   while (true) {
     palToggleLine(LINE_LED_GREEN);
-    chThdSleepMilliseconds(blinkWait);
+    chThdSleepMilliseconds(500);
   }
 }
    
@@ -117,7 +117,7 @@ int main (void)
   FrameBufferBase::setPrintFn([](uint8_t posx,
 				 uint8_t posy,
 				 const char* str) {
-				lcd.writeImmediate(posy, posx, str);
+				lcd.write(posy, posx, str);
 			      });
 
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {
