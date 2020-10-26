@@ -3,7 +3,7 @@
 #include "hal.h"
 
 enum class Events : uint8_t {None, Turn, ShortClick, LongClick, DoubleClick,
-			     SetFreq}; 
+			     SetFreq, Periodic}; 
 class Event;
 using callback_t = void(*) (const Event&);
 

@@ -3,7 +3,6 @@
 #include "menuEntries.hpp"
 #include "hardwareConf.hpp"
 #include "event.hpp"
-#include "lcdDisplay.hpp"
 
 class LcdTab : public IhmState {
   public:
@@ -11,5 +10,10 @@ class LcdTab : public IhmState {
   virtual void enter(void) override = 0 ;
   virtual void leave(void) override = 0 ;
   virtual void eventCb(const Event& ev) = 0;
-private:
+  void print(void) {fb.print();}
+  static void propagate(const Event& ev);
+  static LcdTab* push(const StateId active);
+  
+protected:
+  static FrameBuffer<LCD_WIDTH, LCD_HEIGHT> fb;
 };

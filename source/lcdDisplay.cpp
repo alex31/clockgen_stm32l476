@@ -64,9 +64,9 @@ bool LCDDisplay::loop()
   DP::MutexRAII m(&mut);
   
   hd44780Write(&lcdd, xy2pos( LCD_HEIGHT - 1,  LCD_WIDTH - 1), "%c", heartBeatAnim[heartBeatIdx++]);
-  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
-	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
-  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
+  //  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
+  //	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
+  //  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
 
   heartBeatIdx %= heartBeatAnim.size();
 
@@ -90,6 +90,14 @@ void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, etl::string_view
   if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
     const size_t slen = strlen(sv.data());
     fb[lineN].replace(posX, slen, sv.data(), slen);
+  }
+}
+
+void LCDDisplay::writeImmediate(const uint8_t lineN, const uint8_t posX, const char* str)
+{
+  if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
+    DP::MutexRAII m(&mut);
+    hd44780RawWrite(&lcdd, DP::rowAddr[lineN], str);
   }
 }
 

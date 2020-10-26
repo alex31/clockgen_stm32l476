@@ -3,26 +3,53 @@
 #include "hardwareConf.hpp"
 #include <array>
 #include <cstdint>
-#include <iostream>
 #include "etl/string.h"
 #include "etl/vector.h"
 #include "etl/string_view.h"
 #include "etl/span.h"
+#include <functional>
+
+#ifdef SIM_PC
+#include <iostream>
+#else
+#include "lcdDisplay.hpp"
+#endif
+
+class FrameBufferBase {
+public:
+  using printFn_t = void(*)(uint8_t posx, uint8_t posy, const char* str);
+  static void setPrintFn(printFn_t fun) {printFn = fun;};
+  
+protected:
+  static void doprint(uint8_t posx, uint8_t posy, const char*);
+  
+private:
+  static printFn_t	printFn;
+};
 
 
 template<size_t W, size_t H>
-class FrameBuffer {
+class FrameBuffer : public FrameBufferBase {
+  using LineStr = etl::string<W>;
+  
   template<size_t WF, size_t HF>
   friend class FrameBuffer;
   
 public:
   using FbView = etl::span<etl::string<W>>;
+  
+  FrameBuffer() = default;
+  FrameBuffer(std::initializer_list<const etl::string<W>> il);
   std::array<etl::string<W>, H>::iterator begin(void)  {return fbr.begin();}
   std::array<etl::string<W>, H>::iterator end(void) {return fbr.end();}
   std::array<etl::string<W>, H>::const_iterator begin(void) const {return fbr.cbegin();}
   std::array<etl::string<W>, H>::const_iterator end(void) const {return fbr.cend();}
   etl::string<W>& operator[](const size_t index) {return fbr[index];}
-  void print(void);
+  void print(void) const;
+  template<typename... Args>
+  FrameBuffer<W, H>& write(const uint8_t posX, const uint8_t posY, const char* fmt, Args... args);
+  template<typename... Args>
+  FrameBuffer<W, H>& append(const uint8_t posY, const char* fmt, Args... args);
   FbView getView(size_t posy, size_t len);
   template<size_t WF, size_t HF>
   void copyRect(const FrameBuffer<WF, HF> &from, const uint8_t posx,
@@ -35,28 +62,40 @@ public:
   static constexpr size_t getWide(void) {return W;}
   
 private:
-  std::array<etl::string<W>, H> fbr;
+  std::array<LineStr, H> fbr;
 };
+
+template<size_t W, size_t H>
+FrameBuffer<W, H>::FrameBuffer(std::initializer_list<const etl::string<W>> il)
+{
+  size_t i=0U;
+  for (const auto& s : il) {
+    fbr[i++] = s;
+  }
+}
 
 
 template<size_t W, size_t H>
 FrameBuffer<W, H>::FbView FrameBuffer<W, H>::getView(size_t posy, size_t len) {
-    if (posy < H)
-      return FbView{&fbr[posy], std::min(len, H-posy)};
-    else
-      return FbView{&fbr[0], 0};
-  }
+  if (posy >= H)
+    abort();
+  
+  return FbView{&fbr[posy], std::min(len, H-posy)};
+}
 
 template<size_t W, size_t H>
 template<size_t WF, size_t HF>
 void FrameBuffer<W, H>::copyRect(const FrameBuffer<WF, HF>& from, const uint8_t posx,
 		const uint8_t posy) {
-  if ((posx >= H) or (posx >= W))
-    return;
-  size_t fromPosx =0U;
-  for (size_t l = posx; l < std::min(posx + HF, H); l++) {
-    fbr[l].append(W, ' ');
-    fbr[l].replace(posx, WF, from.fbr[fromPosx++]);
+  if ((posx >= W) or (posy >= H))
+    abort();
+  size_t fromPosy =0U;
+  for (size_t y = posy; y < std::min(posy + HF, H); y++) {
+    fbr[y].append(W, ' ');
+    auto fstr =  from.fbr[fromPosy];
+    fstr.append(WF, ' ');
+    fbr[y].replace(posx, WF, fstr);
+    fromPosy++;
   }
 }
 
@@ -64,22 +103,46 @@ template<size_t W, size_t H>
 template<size_t WF>
 void FrameBuffer<W, H>::copyRect(const etl::span<etl::string<WF>> from, const uint8_t posx,
 		const uint8_t posy) {
-  if ((posx >= H) or (posx >= W))
-    return;
-  size_t fromPosx =0U;
-  for (size_t l = posx; l < std::min(posx + from.size(), H); l++) {
-    fbr[l].append(W, ' ');
-    fbr[l].replace(posx, WF, from[fromPosx++]);
+  if ((posx >= W) or (posy >= H))
+    abort();
+  size_t fromPosy =0U;
+  for (size_t y = posy; y < std::min(posy + from.size(), H); y++) {
+    fbr[y].append(W, ' ');
+    auto fstr =  from[fromPosy];
+    fstr.append(WF, ' ');
+    fbr[y].replace(posx, WF, fstr);
+    fromPosy++;
   }
 }
 
 template<size_t W, size_t H>
-void FrameBuffer<W, H>::print(void) 
+void FrameBuffer<W, H>::print(void) const
 {
+  size_t i=0;
   for (const auto& s : fbr) {
-    std::cout << s.data() << std::endl;
+    doprint(0, i++, s.data());
   }
-  std::cout << std::endl;
+  doprint(0, i++, "\n");
+}
+
+
+template<size_t W, size_t H>
+template<typename... Args>
+FrameBuffer<W, H>& FrameBuffer<W, H>::write(const uint8_t posX, const uint8_t posY, const char* fmt, Args... args)
+{
+  constexpr size_t len = LCD_WIDTH+1;
+  char buf[len];
+  snprintf(buf, len, fmt, std::forward<Args&&>(args)...);
+  const size_t slen = std::min(len-posX, strlen(buf));
+  fbr[posY].replace(posX, slen, buf, slen);
+  return *this;
+}
+
+template<size_t W, size_t H>
+template<typename... Args>
+FrameBuffer<W, H>& FrameBuffer<W, H>::append(const uint8_t posY, const char* fmt, Args... args)
+{
+  return write(strlen(fbr[posY].c_str()), posY, fmt, std::forward<Args&&>(args)...);
 }
 
 
@@ -95,8 +158,15 @@ struct Entry {
 
 class BaseWidget {
 public:
+  using callback_t = std::function<void(int32_t)>;
+
   virtual void next(void) = 0;
   virtual void prev(void) = 0;
+  virtual void draw(void) = 0;
+  virtual void bind(callback_t _cb) = 0;
+  virtual void refresh(void) =0;
+  virtual const FixedStr& getName(void) =0;
+  virtual void  setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) = 0;
 };
 
 
@@ -104,20 +174,32 @@ public:
 template <size_t SW, size_t SL>
 class BaseEntry : public BaseWidget {
 public:
-  BaseEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+  BaseEntry(const FixedStr& _name,
+	    FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	    uint8_t _anchorx, uint8_t _anchory) : parentFb(fb),
 						  anchorx(_anchorx),
-						  anchory(_anchory) {}
+						  anchory(_anchory),
+						  name(_name) {}
   virtual void next(void) override = 0;
   virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
+  void	       set(const int32_t v) {val = v; this->invoque(); draw();}
+  virtual int32_t     get(void) const {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
-  void draw(void);
+  void    setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) override {parentFb =fb;}
+  virtual void draw(void) override;
+  virtual void refresh(void) override {};
+  void bind(callback_t _cb) override {cb = _cb;}
+  void invoque(void){if (cb) cb(get());}
+  const FixedStr& getName(void) override {return name;}
 protected:
   
-  FrameBuffer<LCD_WIDTH, LCD_HEIGHT>& parentFb;
+  FrameBuffer<LCD_WIDTH, LCD_HEIGHT>* parentFb = nullptr;
   const uint8_t anchorx=0;
   const uint8_t anchory=0;
+  int32_t      val=0;
+  callback_t cb = nullptr;
+  FixedStr name;
 };
 
 
@@ -126,24 +208,25 @@ class MenuEntries : public BaseEntry<SW, SL> {
 
   
 public:
-  MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
+  MenuEntries(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	      uint8_t _anchorx, uint8_t _anchory,
+	      std::initializer_list<Entry> il);
+  MenuEntries(const FixedStr& name,
 	      uint8_t _anchorx, uint8_t _anchory,
 	      std::initializer_list<Entry> il);
   bool addEntry(const Entry& e);
   const Entry& operator[](const size_t index) const {return entries[index];}
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
-  void setSelect(uint8_t s) {selectedItem = s;}
-  uint8_t getSelect(void) const {return selectedItem;}
   void next(void) override;
   void prev(void) override;
   FrameBuffer<SW, SL>::FbView getView(void) override;
-  void print(void) const;
-
+  virtual int32_t     get(void) const override {return entries[this->val].value;}
 private:
 
   static constexpr size_t MaxEntries = 20;
   etl::vector<Entry, MaxEntries> entries{};
-  uint8_t selectedItem = 0U;
+  int32_t &selectedItem = BaseEntry<SW, SL>::val;
   FrameBuffer<SW, SL> fb{};
 };
 
@@ -151,19 +234,32 @@ template <size_t SW>
 class NumericEntry : public BaseEntry<SW, LCD_HEIGHT> {
   
 public:
-  NumericEntry(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
-		uint8_t anchorx, uint8_t anchory,
+  NumericEntry(const FixedStr& name,
+	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	       uint8_t anchorx, uint8_t anchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
-               BaseEntry<SW, LCD_HEIGHT>(fb, anchorx, anchory),
+    BaseEntry<SW, LCD_HEIGHT>(name, fb, anchorx, anchory),
+	       val(_val),
+	       inc(_inc),
+	       interval(_interval) {};
+  NumericEntry(const FixedStr& name,
+	       uint8_t anchorx, uint8_t anchory,
+	       const int32_t _val, const int32_t _inc,
+	       const std::pair<int32_t, int32_t>& _interval) :
+    BaseEntry<SW, LCD_HEIGHT>(name, nullptr, anchorx, anchory),
 	       val(_val),
 	       inc(_inc),
 	       interval(_interval) {};
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
   uint8_t getVal(void) const {return val;}
 
-  void next(void) override {val += inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
-  void prev(void) override {val -=inc; val=std::clamp(val, interval.first, interval.second); BaseEntry<SW, LCD_HEIGHT>::draw();}
+  void next(void) override {val += inc;
+    val=std::clamp(val, interval.first, interval.second);
+    this->draw();}
+  void prev(void) override {val -=inc;
+    val=std::clamp(val, interval.first, interval.second);
+    this->draw();}
   FrameBuffer<SW, LCD_HEIGHT>::FbView getView(void) override;
 
 
@@ -172,6 +268,49 @@ private:
   int32_t inc = 0U;
   const std::pair<int32_t, int32_t> interval;
   FrameBuffer<SW, LCD_HEIGHT> fb{};
+};
+
+
+
+
+
+template <size_t SH>
+class ScrollText : public BaseEntry<LCD_WIDTH, SH> {
+  
+public:
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	      FrameBuffer<LCD_WIDTH, SH> &&_content) :
+    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    content(std::move(_content)) {};
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, SH> &&_content)
+	      :
+    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    content(std::move(_content)) {};
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
+    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    drawFn(_drawFn) {};
+  ScrollText(const FixedStr& name,
+	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
+    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    drawFn(_drawFn) {};
+  void fill([[maybe_unused]] const uint8_t margin = 0U,
+	    [[maybe_unused]] const etl::string_view sep = "") {};
+  void draw(void) override;
+  void next(void) override {this->val = std::clamp(this->val+1UL,
+						   0UL, SH-LCD_HEIGHT-0UL);
+    this->draw();}
+  void prev(void) override {if (this->val != 0) this->val--;
+    this->draw();}
+  FrameBuffer<LCD_WIDTH, SH>::FbView getView(void) override;
+
+
+private:
+  FrameBuffer<LCD_WIDTH, SH> content;
+  std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> drawFn = nullptr;
 };
 
 
@@ -188,17 +327,17 @@ template <size_t SW, size_t SL>
 void BaseEntry<SW, SL>::draw(void)
 {
   fill();
-  parentFb.copyRect(getView(), anchorx, anchory);
-  parentFb.print();
+  parentFb->copyRect(getView(), anchorx, anchory);
+  parentFb->print();
 }
 
 template <size_t SW, size_t SL>
 FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 {
   int bgin = 0;
-  if (selectedItem < entries.size()) {
+  if (selectedItem < int(entries.size())) {
     bgin = int(entries[selectedItem].posy) - 1;
-    bgin = std::clamp(bgin, 0, entries.back().posy - (int(LCD_HEIGHT) - 1));
+    bgin = std::clamp(bgin, 0, std::max(entries.back().posy - (int(LCD_HEIGHT) - 1), 0));
   }
   //  std::cout << "DBG> LAST (" << entries.back().str.c_str() << ") y=" << int(entries.back().posy) << std::endl;
   //  std::cout << "DBG> bgin=" << bgin << std::endl;
@@ -206,13 +345,24 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 }
 
 template <size_t SW, size_t SL>
-MenuEntries<SW, SL>::MenuEntries(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> &fb,
-			  uint8_t anchorx, uint8_t anchory,
-				 std::initializer_list<Entry> il) : BaseEntry<SW, SL>(fb, anchorx, anchory)
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
+				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+				 uint8_t anchorx, uint8_t anchory,
+				 std::initializer_list<Entry> il) :
+  BaseEntry<SW, SL>(name, fb, anchorx, anchory)
 {
   for (const auto& e : il)
     addEntry(e);
-  BaseEntry<SW, SL>::draw();
+}
+
+template <size_t SW, size_t SL>
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
+				 uint8_t anchorx, uint8_t anchory,
+				 std::initializer_list<Entry> il) :
+  BaseEntry<SW, SL>(name, nullptr, anchorx, anchory)
+{
+  for (const auto& e : il)
+    addEntry(e);
 }
 
 
@@ -243,7 +393,7 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
       s.append(sep.data());
   }
 
-  for (size_t index=0; auto& e : entries) {
+  for (int index=0; auto& e : entries) {
     auto str = e.str;
     if (index == selectedItem) {
       str.replace(str.begin(),str.begin()+1, "("); 
@@ -269,25 +419,12 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
   }
 }
 
-
-template <size_t SW, size_t SL>
-void MenuEntries<SW, SL>::print(void) const
-{
-  for (const auto& s : fb) {
-    std::cout << s.data() << std::endl;
-  }
-  std::cout << std::endl;
-
-   for (const auto& e : entries) {
-     std::cout << e.str.data() << " posy=" << int(e.posy) << " posx=" << int(e.posx) << std::endl;
-  }
-}
-
 template <size_t SW, size_t SL>
 void MenuEntries<SW, SL>::next(void)
 {
   selectedItem = (selectedItem+1U) % entries.size();
-  BaseEntry<SW, SL>::draw();
+  this->invoque();
+  this->draw();
 }
 
 template <size_t SW, size_t SL>
@@ -295,7 +432,8 @@ void MenuEntries<SW, SL>::prev(void)
 {
   selectedItem = selectedItem==0U ? entries.size() - 1U :
     selectedItem - 1U ;
-  BaseEntry<SW, SL>::draw();
+  this->invoque();
+  this->draw();
 }
  
 
@@ -303,24 +441,36 @@ void MenuEntries<SW, SL>::prev(void)
 template <size_t SW>
 void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
 {
-  char buf[SW+1];
   for (auto& s : fb) {
     s.clear();
     s.insert(s.begin(), margin, ' ');
     if (sep.length())
       s.append(sep.data());
   }
-  snprintf(buf, sizeof(buf), "<%d>     ", interval.first);
-  fb[0].append(buf);
-  snprintf(buf, sizeof(buf), "V=%d       ", val);
-  fb[1].append(buf);
-  snprintf(buf, sizeof(buf), "<%d>     ", interval.second);
-  fb[2].append(buf);
-  //  std::cout << "fb[0] = " << fb[0].c_str() << std::endl;
+  fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
+  fb.append(1, "[%d]%*c", val, LCD_WIDTH, ' ');
+  fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
+  fb.append(3, "%*c", LCD_WIDTH, ' ');
 }
 
 template <size_t SW>
-FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView()
+FrameBuffer<SW, LCD_HEIGHT>::FbView NumericEntry<SW>::getView(void)
 {
-  return fb.getView(0, 4);
+  return fb.getView(0, LCD_HEIGHT);
 }
+
+
+template <size_t SH>
+FrameBuffer<LCD_WIDTH, SH>::FbView ScrollText<SH>::getView(void)
+{
+  return content.getView(this->val, LCD_HEIGHT);
+}
+
+template <size_t SH>
+void ScrollText<SH>::draw(void)
+{
+  if (drawFn != nullptr)
+    drawFn(content);
+  BaseEntry<LCD_WIDTH, SH>::draw();
+}
+

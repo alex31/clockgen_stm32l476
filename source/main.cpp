@@ -21,6 +21,10 @@
 #include "freqCapture.hpp"
 #include "fram.hpp"
 #include "beepIn.hpp"
+#include "menuEntries.hpp"
+#include "mainTab.hpp"
+#include "twoColsTab.hpp"
+#include "oneColTab.hpp"
 
 volatile uint32_t blinkWait=100;
 static void eventCb(const Event& ev);
@@ -108,101 +112,84 @@ int main (void)
   rb2.run(TIME_MS2I(100));
   pb1.run(TIME_IMMEDIATE);
   pb2.run(TIME_IMMEDIATE);
+  lcd.enableCursor(false);
+  
+  FrameBufferBase::setPrintFn([](uint8_t posx,
+				 uint8_t posy,
+				 const char* str) {
+				lcd.writeImmediate(posy, posx, str);
+			      });
+
+  MenuEntries<10, 16> audioSample{"sample", 10, 0, {
+				    {1, "hoorn"},
+	                            {2, "tone"},
+				    {3, "alarm"},
+				    {4, "drift"},
+				    {5, "siren"},
+				    {6, "nuclear"},
+				    {7, "fire"}
+    }};
+
+  NumericEntry<10> audioVol{"volume", 10, 0, 30, 10, {0, 100}};
+
+  MenuEntries<10, 16> info{"info", 10, 0, {
+				   {1, "manuel"},
+				   {2, "readme"},
+				   {3, "events"}
+					       }};
+
+  MenuEntries<20, 16> frequencies{"freq.", 0, 0, {{1, "1_Hz"},
+					 {20, "20_Hz"},
+					 {300, "300_hz"},
+					 {400, "400_hz"},
+					 {2400, "2.4_Khz"},
+					 {5000, "5_Khz"},
+					 {8000, "8_Khz"},
+					 {10000, "10_Khz"},
+					 {19200, "19.2_Khz"},
+					 {36400, "36.4_Khz"}
+					 }};
+  ScrollText st1("readme",
+		FrameBuffer<LCD_WIDTH, 12U>
+		{"-------README-------",
+		 "tourner pour augmen-",
+		 "-er ou baisser la   ",
+		 "fréquence pour      ",
+		 "F1 en haut et F2 en ",
+		 "bas. Un appui court ",
+		 "permet de parcourir ",
+		 "rapidement la gamme ",
+		 "dans le sens de la  ",
+		 "fleche. Un appui    ",
+		 "long donne acces au ",
+		 "menu des raccourcis "}
+		);
+
+  ScrollText<6U> st2("readme",
+   		 [](FrameBuffer<LCD_WIDTH, 6U> &fb) {
+   		   fb.write(0, 0, "mon nouveau %c", ' ');
+   		   fb.write(0, 1, "contenu 1%c", ' ');
+   		   fb.write(0, 2, "contenu 2%c", ' ');
+   		   fb.write(0, 3, "contenu 3%c", ' ');
+   		   fb.write(0, 4, "contenu 4%c", ' ');
+   		   fb.write(0, 5, "contenu 5%c", ' ');
+   		 });
+  
+  
+  MainTab mt(StateId::Freq);
+  OneColTab sc(StateId::FreqShortCut, &frequencies);
+  TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
+  OneColTab rm(StateId::Readme, &st2);
+  LcdTab::push(StateId::Freq);
   eventCb ({Events::Turn, 0, 0});
   eventCb ({Events::Turn, 1, 0});
-  lcd.enableCursor(false);
-
+  
   chThdSleep(TIME_INFINITE);
 }
 
 
 static void eventCb(const Event& ev)
 {
-  auto & [lastFreq, freq, cg, dir] = frequencies[ev.getIndex()];
-  int32_t inc=0;
-
-  const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
- 
-  switch (ev.getEvent()) {
-  case  Events::Turn : {
-    const int32_t delta = ev.getLoad();
-    const int32_t sign = delta > 0 ? 1 : -1;
-    const int32_t deltabs = std::abs(delta);
-    lastFreq = freq;
-
-    switch (deltabs) {
-    case 0: break;
-    case 1 : 
-    case 2 :  inc = sign; break;
-    case 3 :  inc = 3*sign; break;
-    default : inc  = sign * powf((deltabs-2)*2, 1.0f+(deltabs/6.0f)); break;
-    }
-
-    const uint32_t minFreqInRange = powf(10.0f, floorf(log10f(freq))) -1.0f;
-    inc = std::clamp(inc, -200L, 200L);
-    freq += inc * powf(10, mulExp);
-    freq = std::clamp(freq, minFreqInRange, 999_khz);
-    freq -= freq % static_cast<uint32_t>(powf(10, mulExp));
-
-    dir = freq >= lastFreq ? Direction::Up : Direction::Down;
-
-    
-    break;
-  }
-    
-  case Events::ShortClick : {
-    //    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
-    //	       dir == Direction::Up ? "UP" : "DOWN");
-    lastFreq = freq;
-    if (dir == Direction::Up) {
-      if (mulExp == 3) {
-	freq = 1_hz;
-      } else {
-	freq = powf(10, ceilf(log10f(freq+1)));
-      }
-    } else { // dir == Direction::Down
-      if (freq == 1)
-	freq = 100_khz;
-      else
-	freq = powf(10, floorf(log10f(freq-1)));
-    }
-    break;
-  }
-
-  case Events::LongClick : {
-    DebugTrace("ignoring Long Click");
-    break;
-  }
-    
- case Events::DoubleClick : {
-    DebugTrace("Double Click : undo");
-    freq = lastFreq;
-    break;
-  }
-
-  default : break;
-  }
-
-  freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));
-  
-  if (freq > 200_khz) {
-    uint32_t mul = 1U;
-    if (dir == Direction::Up)
-      while ((freq < 980_khz) and (freq <= lastFreq)) {
-   	freq = cg.setFreq(std::clamp(freq + (1_khz*mul++), 1_hz, 980_khz));
-	//	DebugTrace("Iter freq UP = %lu", freq);
-      }
-    else
-      while ((freq > 1_hz) and (freq >= lastFreq)) {
-	freq = cg.setFreq(std::clamp(freq - (1_khz*mul++), 1_hz, 980_khz));
-	//	DebugTrace("Iter freq DOWN = %lu", freq);
-      }
-  }
-  FRAM::write(freq, 4+(ev.getIndex()*4));
-  
-  //  DebugTrace("mulExp=%ld", mulExp);
-  lcd.write(1-ev.getIndex(), 5, "F%c = %s %c  ", ev.getIndex() + '1',
-	    LCDDisplay::freq2Str(freq).c_str(), char(dir));
-  lcd.draw();
+ LcdTab::propagate(ev); 
 }
 
