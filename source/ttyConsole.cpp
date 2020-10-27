@@ -11,7 +11,7 @@
 #include "ttyConsole.hpp"
 #include "etl/string.h"
 #include <etl/vector.h>
-
+#include "commonRessource.hpp"
 
 #ifdef CONSOLE_DEV_SD
 
@@ -22,7 +22,7 @@
 // declaration des prototypes de fonction
 // ces declarations sont necessaires pour remplir le tableau commands[] ci-dessous
 using cmd_func_t =  void  (BaseSequentialStream *lchp, int argc,const char * const argv[]);
-static cmd_func_t cmd_mem, cmd_uid, cmd_restart, cmd_param;
+static cmd_func_t cmd_mem, cmd_uid, cmd_restart, cmd_param, cmd_storage;
 #if CH_DBG_THREADS_PROFILING
 static cmd_func_t cmd_threads;
 #endif
@@ -39,6 +39,7 @@ static const ShellCommand commands[] = {
 				//   paramètres qui lui sont passés
 
   {"restart", cmd_restart},	// reboot MCU
+  {"storage", cmd_storage},
   {NULL, NULL}			// marqueur de fin de tableau
 };
 
@@ -104,6 +105,14 @@ static void cmd_restart(BaseSequentialStream *lchp, int argc,const char* const a
   (void) argc;
   (void) argv;
   systemReset();
+}
+
+static void cmd_storage(BaseSequentialStream *lchp, int argc,const char* const argv[])
+{
+  (void) lchp;
+  (void) argc;
+  (void) argv;
+  storage.print();
 }
 
 

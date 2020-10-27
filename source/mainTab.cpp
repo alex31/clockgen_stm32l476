@@ -1,28 +1,15 @@
 #include "mainTab.hpp"
 #include "adc.hpp"
-#include "fram.hpp"
 #include "stdutil.h"
 #include "commonRessource.hpp"
 
-MainTab:: MainTab(const StateId stateId) : LcdTab(stateId)
+MainTab::MainTab(const StateId stateId) : LcdTab(stateId)
 {
-  constexpr uint32_t MAGIC = 0xDEADBEEF;
-  uint32_t magic;
-
-  if (FRAM::read(magic, 0) == false) {
-    DebugTrace("I²C Failed");
-    (void) f1.setFreq(1U);
-    (void) f2.setFreq(1U);
-  } else if (magic == MAGIC) {
-    DebugTrace("fram initialized");
-    FRAM::read(frequencies[0].freq, 4);
-    FRAM::read(frequencies[1].freq, 8);
-    (void) f1.setFreq(frequencies[0].freq);
-    (void) f2.setFreq(frequencies[1].freq);
-  } else {
-    DebugTrace("first run : fram NOT initialized");
-    FRAM::write(MAGIC, 0);
-  }
+  storage.load();
+  frequencies[0].freq = storage.getFrequencies()[0];
+  frequencies[1].freq = storage.getFrequencies()[1];
+  (void) f1.setFreq(frequencies[0].freq);
+  (void) f2.setFreq(frequencies[1].freq);
 }
 
 void MainTab::enter(void)
@@ -40,7 +27,11 @@ void MainTab::draw(void)
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
 	   LCD_WIDTH-7, ' ');
 
-  fb.write(0,1, "%*c", 10, ' ');
+  if (storage.hasFailed() == true) {
+    fb.write(0,1, "sto fail%*c", 10, ' ');
+  } else {
+    fb.write(0,1, "%*c", 10, ' ');
+  }
   fb.write(7,1, "F2=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[1].freq).c_str(), char(frequencies[1].dir),
 	   LCD_WIDTH-7, ' ');
@@ -173,7 +164,7 @@ void MainTab::eventCb(const Event& ev)
 	  //	DebugTrace("Iter freq DOWN = %lu", freq);
 	}
     }
-    FRAM::write(freq, 4+(ev.getIndex()*4));
+    storage.setFrequency(ev.getIndex(), freq);
   }
 
   draw();

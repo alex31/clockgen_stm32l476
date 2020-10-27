@@ -3,7 +3,7 @@
 #include "hal.h" 
 #include "hardwareConf.hpp"
 #include <array>
-
+#include <string.h>
 
 namespace FRAM {
   bool init(void) ;
