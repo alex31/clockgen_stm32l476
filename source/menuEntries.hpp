@@ -241,31 +241,29 @@ public:
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
     BaseEntry<SW, LCD_HEIGHT>(name, fb, anchorx, anchory),
-	       val(_val),
 	       inc(_inc),
-	       interval(_interval) {};
+    interval(_interval) {this->val = _val;}
   NumericEntry(const FixedStr& name,
 	       uint8_t anchorx, uint8_t anchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
     BaseEntry<SW, LCD_HEIGHT>(name, nullptr, anchorx, anchory),
-	       val(_val),
 	       inc(_inc),
-	       interval(_interval) {};
+	       interval(_interval) {this->val = _val;};
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
-  uint8_t getVal(void) const {return val;}
 
-  void next(void) override {val += inc;
-    val=std::clamp(val, interval.first, interval.second);
+  void next(void) override {this->val += inc;
+    this->val=std::clamp(this->val, interval.first, interval.second);
+    this->invoque();
     this->draw();}
-  void prev(void) override {val -=inc;
-    val=std::clamp(val, interval.first, interval.second);
+  void prev(void) override {this->val -=inc;
+    this->val=std::clamp(this->val, interval.first, interval.second);
+    this->invoque();
     this->draw();}
   FrameBuffer<SW, LCD_HEIGHT>::FbView getView(void) override;
 
 
 private:
-  int32_t val = 0U;
   int32_t inc = 0U;
   const std::pair<int32_t, int32_t> interval;
   FrameBuffer<SW, LCD_HEIGHT> fb{};
@@ -449,7 +447,7 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
       s.append(sep.data());
   }
   fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
-  fb.append(1, "[%d]%*c", val, LCD_WIDTH, ' ');
+  fb.append(1, "[%d]%*c", this->val, LCD_WIDTH, ' ');
   fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
   fb.append(3, "%*c", LCD_WIDTH, ' ');
 }

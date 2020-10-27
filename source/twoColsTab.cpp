@@ -23,11 +23,13 @@ void TwoColsTab::enter(void)
 {
   left.draw();
   right->draw();
+  invoque(Enter);
 }
 
 
 void TwoColsTab::leave(void) 
 {
+  invoque(Leave);
 }
 
 
@@ -42,9 +44,11 @@ void TwoColsTab::eventCb(const Event& ev)
 	left.prev();
 	} else {
       if (ev.getLoad() > 0)
-	right->next();
+	for(int i=0; i< ev.getLoad(); i++)
+	  right->next();
       else
-	right->prev();
+	for(int i=0; i> ev.getLoad(); i--)
+	  right->prev();
     }
     break;
   }

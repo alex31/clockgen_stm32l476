@@ -54,8 +54,10 @@ void Audio::stopDac(void)
 
 void Audio::startTimer(void)
 {
-  if (GPTD6.state == GPT_READY)
+  if (GPTD6.state == GPT_READY) {
+    gptStopTimer(&GPTD6);
     gptStartContinuous(&GPTD6, GPT_COUNT);
+  }
 }
 
 void Audio::stopTimer(void)

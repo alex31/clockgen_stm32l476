@@ -3,14 +3,17 @@ TODO:
 
 
 * continuer de coder l'IHM (dans un module IHM plutot que dans le main ?)
+
+  selection du volume : echelle log
+
   double clic (bt haut) :
          quand on clique sur manuel ou info : rentrer dans le tab correspondant au lieu de sortir,
 	 pour sortir de la plage : simple clic sur le bouton de la colonne de gauche
 
   double clic bouton du bas : menu tension logique : 3.3 ou 5V
   
-* adc : stockage moyenne, alerte si eloigné de la moyenne au demarrage
-  faire une FFT sur les tensions pour detecter une instabilité des alims
+* adc : alerte si eloigné de la consigne au demarrage et en fonctionnement
+  (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims
 
 
   * infos : compilo, version de firmware, date de compilation, temps d'utilisation,

@@ -8,7 +8,8 @@
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
 #include "commonRessource.hpp"
-
+#include "beepIn.hpp"
+#include "stdutil.h"
 
 namespace {
   LCDDisplay lcd(NORMALPRIO);
@@ -22,20 +23,12 @@ namespace {
   PushButton pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
 
-  MenuEntries<10, 16> audioSample{"sample", 10, 0, {
-						    {1, "hoorn"},
-						    {2, "tone"},
-						    {3, "alarm"},
-						    {4, "drift"},
-						    {5, "siren"},
-						    {6, "nuclear"},
-						    {7, "fire"}
-						    }};
-  NumericEntry<10> audioVol{"volume", 10, 0, 30, 10, {0, 100}};
+  MenuEntries<10, 16> audioSample{"sample", 10, 0, {}}; // build dynamically
+  NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 100}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
 				   {1, "manuel"},
-				   {2, "readme"},
+				   {2, "system"},
 				   {3, "events"}
 					       }};
 
@@ -95,7 +88,30 @@ void IHM::init()
   pb2.run(TIME_IMMEDIATE);
   lcd.enableCursor(false);
 
-  FrameBufferBase::setPrintFn([](uint8_t posx,
+  Audio& audio = BeepIn::getAudio();
+
+  for (size_t i=0; i< audio.getLoopsNumber(); i++) {
+    audioSample.addEntry(Entry{.value = int(i),
+			       .str = FixedStr(audio.getName(i).data()),
+			       .posx=0, .posy=0});
+  }
+
+  audioVol.bind([&audio] (uint32_t val) {
+		  storage.setVolume(val);
+		  const float att = val / 100.0f;
+		  audio.setAttenuation(att);
+		  audio.play();
+		});
+
+  audioSample.bind([&audio] (uint32_t val) {
+		  storage.setSampleIndex(val);
+		  audio.select(val);
+		  audio.play();
+		});
+  tc.bind(LcdTab::Leave, [&audio]{
+			   audio.pause();
+			 });
+  FrameBufferBase::setPrintFn([](uint8_t posx, 
 				 uint8_t posy,
 				 const char* str) {
 				lcd.write(posy, posx, str);

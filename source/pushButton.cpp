@@ -60,8 +60,10 @@ void PushButton::proceedDown(void)
 	      if (chTimeIsInRangeX(chVTGetSystemTimeX(),
 				   pb->ts, 
 				   pb->ts + TIME_MS2I(DOUBLE_CLIC_INTERVAL_MS))) {
-		Event ev(Events::DoubleClick, pb->index);
-		chMBPostI(&EVT::mb, ev.getEventAsMsg());
+		Event ev1(Events::Undo, pb->index);
+		Event ev2(Events::DoubleClick, pb->index);
+		chMBPostI(&EVT::mb, ev1.getEventAsMsg());
+		chMBPostI(&EVT::mb, ev2.getEventAsMsg());
 		pb->state = PBState::DoubleClick;
 	      } else {
 		chVTResetI(&pb->vt);

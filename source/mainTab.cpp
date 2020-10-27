@@ -76,6 +76,11 @@ void MainTab::eventCb(const Event& ev)
   const uint32_t mulExp = std::clamp(static_cast<uint32_t>(log10f(freq)), 2UL, 5UL) -2UL;
  
   switch (ev.getEvent()) {
+  case  Events::Undo : {
+    freq = lastFreq;
+    break;
+  }
+    
   case  Events::Turn : {
     const int32_t delta = ev.getLoad();
     const int32_t sign = delta > 0 ? 1 : -1;
@@ -101,7 +106,6 @@ void MainTab::eventCb(const Event& ev)
     
     break;
   }
-    
   case  Events::SetFreq : {
     lastFreq = freq;
     freq = ev.getLoad();
@@ -113,7 +117,6 @@ void MainTab::eventCb(const Event& ev)
     //    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
     //	       dir == Direction::Up ? "UP" : "DOWN");
     lastFreq = freq;
-    DebugTrace("DBG> selFreq = %u", selFreq);
     if (dir == Direction::Up) {
       if (mulExp == 3) {
 	freq = 1_hz;
@@ -148,6 +151,7 @@ void MainTab::eventCb(const Event& ev)
 
   if ((ev.getEvent() == Events::Turn) or
       (ev.getEvent() == Events::ShortClick) or
+      (ev.getEvent() == Events::Undo) or
       (ev.getEvent() == Events::SetFreq)) {
     
     freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));

@@ -11,7 +11,6 @@ public:
   static bool hasFailed(void) {return failure;}
 
   void setFrequency(const uint8_t idx, const uint32_t f) {
-    print();
     frequencies[idx] = f;
     store();
   }

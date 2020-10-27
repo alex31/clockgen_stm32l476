@@ -1,21 +1,15 @@
 #include "beepIn.hpp"
 #include "hardwareConf.hpp"
-#include "audio.hpp"
+#include "commonRessource.hpp"
 //#include "stdutil.h"
 
-
-namespace {
-  Audio audio;
-  bool  lastState = false;
-}
 
 bool BeepIn::init()
 {
   audio.start();
   audio.pause();
-  audio.setAttenuation(1.f);
-  audio.select(1);
-
+  audio.setAttenuation(storage.getVolume()/100.0f);
+  audio.select(storage.getSampleIndex());
   return true;
 }
 
@@ -39,3 +33,5 @@ bool BeepIn::loop()
 
 
 
+Audio BeepIn::audio;
+bool  BeepIn::lastState = false;
