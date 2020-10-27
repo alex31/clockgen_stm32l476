@@ -17,6 +17,7 @@ bool Storage::load(void)
       voltageRef = 5.0f;
       age = 0;
       voltageAlert = 0;
+      powerOn = 0;
       store();
     }
   } else {
@@ -43,6 +44,7 @@ void Storage::print(void)
   DebugTrace("frq = %lu, %lu", frequencies[0], frequencies[1]);
   DebugTrace("voltageRef = %.2f", voltageRef);
   DebugTrace("age = %lu", age);
+  DebugTrace("power on = %lu", powerOn);
   DebugTrace("voltageAlert = %lu", voltageAlert);
   DebugTrace("volume = %u", volume);
   DebugTrace("sampleIndex = %u", sampleIndex);

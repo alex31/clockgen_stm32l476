@@ -12,6 +12,7 @@
 #include "freqCapture.hpp"
 #include "fram.hpp"
 #include "timeCount.hpp"
+#include "commonRessource.hpp"
 
    
 void _init_chibios() __attribute__ ((constructor(101)));
