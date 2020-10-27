@@ -48,10 +48,12 @@ int main (void)
   Event::init(&eventCb);
   ICU::init();
   ADC adc(NORMALPRIO);
-  RotaryButton rb1(NORMALPRIO, ENCODER_F1);
+
+  // order of declaration matters
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
-  PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
+  RotaryButton rb1(NORMALPRIO, ENCODER_F1);
   PushButton pb2(NORMALPRIO, LINE_BOUTON_F2_SW);
+  PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
   BeepIn beepIn(NORMALPRIO);
   
   
@@ -129,18 +131,17 @@ int main (void)
    		   fb.write(0, 5, "contenu 5%c", ' ');
    		 });
   
-  
+
   MainTab mt(StateId::Freq);
+  frequencies.bind([&mt] (uint32_t val) {
+		     mt.setFreq(val);
+		   });
   OneColTab sc(StateId::FreqShortCut, &frequencies);
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
   OneColTab rm(StateId::Readme, &st2);
   LcdTab::push(StateId::Freq);
 
-   while (true) {
-    palToggleLine(LINE_LED_GREEN);
-    chThdSleepMilliseconds(500);
-    LcdTab::propagate({Events::Periodic, 0, 0});
-  }
+  chThdSleep(TIME_INFINITE);
 }
 
 

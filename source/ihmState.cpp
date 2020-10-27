@@ -7,6 +7,11 @@ IhmState::IhmState(const StateId stateId)
     stateArray[+stateId] = this;
 }
 
+IhmState* IhmState::getTabObject(const StateId query)
+{
+  return stateArray[+query];
+}
+
 IhmState*   IhmState::push(const StateId activeId)
 {
   auto active = stateArray[+activeId];

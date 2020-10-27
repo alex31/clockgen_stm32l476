@@ -8,7 +8,7 @@ class Event;
 using callback_t = void(*) (const Event&);
 
 namespace EVT {
-  constexpr size_t threadStackSize = 1024U;
+  constexpr size_t threadStackSize = 2048U;
   constexpr size_t MB_LEN = 8U;
   extern msg_t msgBuf[MB_LEN];
   extern mailbox_t mb;

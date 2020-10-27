@@ -23,7 +23,6 @@ MainTab:: MainTab(const StateId stateId) : LcdTab(stateId)
     DebugTrace("first run : fram NOT initialized");
     FRAM::write(MAGIC, 0);
   }
- 
 }
 
 void MainTab::enter(void)
@@ -33,13 +32,16 @@ void MainTab::enter(void)
 
 void MainTab::draw(void)
 {
+  if (IhmState::top() != this)
+    return;
+
   fb.write(0,0, "V=%.2f   ", adc.getLogicVoltage());
-  fb.write(8,0, "F1= %s %c%*c",
+  fb.write(7,0, "F1=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
 	   LCD_WIDTH-8, ' ');
 
   fb.write(0,1, "%*c", 10, ' ');
-  fb.write(8,1, "F2= %s %c%*c",
+  fb.write(7,1, "F2=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[1].freq).c_str(), char(frequencies[1].dir),
 	   LCD_WIDTH-8, ' ');
 
@@ -65,6 +67,14 @@ void MainTab::draw(void)
 
 void MainTab::leave(void) 
 {
+}
+
+void MainTab::setFreq(const uint32_t freq)
+{
+  if (selFreq < 2) {
+    frequencies[selFreq].dir = freq >= frequencies[selFreq].freq ? Direction::Up : Direction::Down;
+    frequencies[selFreq].freq = freq;
+  }
 }
 
 
@@ -106,6 +116,7 @@ void MainTab::eventCb(const Event& ev)
     //    DebugTrace("lastFreq=%lu freq=%lu mulExp=%lu dir=%s", lastFreq, freq, mulExp,
     //	       dir == Direction::Up ? "UP" : "DOWN");
     lastFreq = freq;
+    DebugTrace("DBG> selFreq = %u", selFreq);
     if (dir == Direction::Up) {
       if (mulExp == 3) {
 	freq = 1_hz;
@@ -123,6 +134,7 @@ void MainTab::eventCb(const Event& ev)
 
  
   case Events::LongClick :
+    selFreq =  ev.getIndex();
     IhmState::push(StateId::FreqShortCut);
     break;
 
@@ -155,7 +167,7 @@ void MainTab::eventCb(const Event& ev)
     }
     FRAM::write(freq, 4+(ev.getIndex()*4));
   }
-  
+
   draw();
 }
 

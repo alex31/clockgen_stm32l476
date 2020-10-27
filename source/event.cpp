@@ -19,8 +19,10 @@ namespace EVT {
     Event ev;
     callback_t cb = (callback_t) arg;
     while (true) {
-      chMBFetchTimeout(&mb, (msg_t *) &ev, TIME_INFINITE);
-      cb(ev);
+      if (chMBFetchTimeout(&mb, (msg_t *) &ev, TIME_MS2I(200)) == MSG_OK)
+	cb(ev);
+      else
+	cb({Events::Periodic, 0, 0});
     }
   }
 }

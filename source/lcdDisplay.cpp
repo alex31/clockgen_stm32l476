@@ -62,7 +62,7 @@ bool LCDDisplay::loop()
 {
   DP::MutexRAII m(&mut);
   
-  hd44780Write(&lcdd, xy2pos(2,  0), "%c", heartBeatAnim[heartBeatIdx++]);
+  hd44780Write(&lcdd, xy2pos(3,  19), "%c", heartBeatAnim[heartBeatIdx++]);
   //  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
   //	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
   //  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());

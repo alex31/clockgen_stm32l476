@@ -164,6 +164,7 @@ public:
   virtual void prev(void) = 0;
   virtual void draw(void) = 0;
   virtual void bind(callback_t _cb) = 0;
+  virtual void invoque(void) = 0;
   virtual void refresh(void) =0;
   virtual const FixedStr& getName(void) =0;
   virtual void  setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) = 0;
@@ -190,7 +191,7 @@ public:
   virtual void draw(void) override;
   virtual void refresh(void) override {};
   void bind(callback_t _cb) override {cb = _cb;}
-  void invoque(void){if (cb) cb(get());}
+  void invoque(void) override {if (cb) cb(get());}
   const FixedStr& getName(void) override {return name;}
 protected:
   

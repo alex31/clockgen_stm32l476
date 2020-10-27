@@ -19,6 +19,7 @@ public:
   static IhmState* push(const StateId active);
   static IhmState* pop(void);
   static IhmState* top(void);
+  static IhmState* getTabObject(const StateId query);
 
 private:
   static void transition(IhmState* from, IhmState* to);

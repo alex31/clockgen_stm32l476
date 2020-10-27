@@ -3,6 +3,7 @@
 void OneColTab::enter(void)
 {
   widget->draw();
+  widget->invoque();
 }
 
 
