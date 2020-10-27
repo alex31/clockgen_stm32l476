@@ -12,9 +12,6 @@ TODO:
 * adc : stockage moyenne, alerte si eloigné de la moyenne au demarrage
   faire une FFT sur les tensions pour detecter une instabilité des alims
 
-* module permanentStorage au dessus du module FRAM pour stocker le contexte
-  * frequences, volume, choix du son, temps d'utilisation, nombre de mises en route
-
 
   * infos : compilo, version de firmware, date de compilation, temps d'utilisation,
            nombre de mise en route,

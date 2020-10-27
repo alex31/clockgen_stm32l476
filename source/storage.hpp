@@ -18,12 +18,14 @@ public:
   const std::array<uint32_t, 2>& getFrequencies(void) {return frequencies;}
   void setVoltageRef(const float v) {voltageRef = v; store();}
   void incAge(void) {age++; store();}
+  void incPowerOn(void) {powerOn++; store();}
   void setVoltageAlert(const uint32_t a) {voltageAlert = a; store();}
   void setVolume(const uint8_t v) {volume = v; store();}
   void setSampleIndex(const uint8_t i) {sampleIndex = i; store();}
   
   float getVoltageRef(void) const {return voltageRef;}
   uint32_t getAge(void) const {return age;}
+  uint32_t getPowerOn(void) const {return powerOn;}
   uint32_t getVoltageAlert(void) const {return voltageAlert;}
   uint8_t getVolume(void) const {return volume;}
   uint8_t getSampleIndex(void) const {return sampleIndex;}
@@ -38,6 +40,7 @@ private:
   std::array<uint32_t, 2> frequencies;
   float voltageRef;
   uint32_t age; // seconds
+  uint32_t powerOn; // number of occurences
   uint32_t voltageAlert;
   uint8_t volume;
   uint8_t sampleIndex;

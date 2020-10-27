@@ -35,6 +35,7 @@ int main (void)
   ADC adc(NORMALPRIO);
   BeepIn beepIn(NORMALPRIO);
 
+  storage.incPowerOn();
   tc.run(TIME_S2I(1));
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   IHM::init();
