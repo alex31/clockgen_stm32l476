@@ -20,7 +20,7 @@ class Event {
 public:
   Event() :
     event(Events::None), idx(0), load(0) {}
-  Event(const Events _event, const int _idx, const int16_t _load = 0) :
+  Event(const Events _event, const int _idx, const int32_t _load = 0) :
     event(_event), idx(_idx), load(_load) {}
   int  getLoad(void) const {return load;}
   int  getIndex(void) const {return idx;}
@@ -32,8 +32,8 @@ private:
   union {
     struct {
       const Events  event;
-      const uint8_t idx:4;
-      int32_t       load:20;
+      const uint8_t idx:3;
+      int32_t       load:21;
     };
     msg_t msg;
   };

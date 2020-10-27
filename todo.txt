@@ -2,8 +2,6 @@
 TODO:
 
 
-* frequenceShortCut -> setFreq
-
 * continuer de coder l'IHM (dans un module IHM plutot que dans le main ?)
 
 
@@ -11,23 +9,15 @@ TODO:
   faire une FFT sur les tensions pour detecter une instabilité des alims
 
 * module permanentStorage au dessus du module FRAM pour stocker le contexte
-  * frequences, volume, choix su son, temps d'utilisation, nombre de mises en route
+  * frequences, volume, choix du son, temps d'utilisation, nombre de mises en route
 
 
+  * infos : compilo, version de firmware, date de compilation, temps d'utilisation,
+           nombre de mise en route,
+           optimisé ou non, tensions, nombre d'alertes sur les tensions
 
 
-
-
-=======================================================
-
-	     
-
-possibilité d'afficher des INFOS :
-  infos : compilo, version de firmware, date de compilation, temps d'utilisation, nombre de mise en route,
-          optimisé ou non, tensions, nombre d'alertes sur les tensions
-
-
-possibilité d'afficher un manuel en ligne defilant avec un bouton rotatif
+  * manuel en ligne defilant avec un bouton rotatif
 
 
 

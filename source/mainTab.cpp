@@ -38,12 +38,12 @@ void MainTab::draw(void)
   fb.write(0,0, "V=%.2f   ", adc.getLogicVoltage());
   fb.write(7,0, "F1=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
-	   LCD_WIDTH-8, ' ');
+	   LCD_WIDTH-7, ' ');
 
   fb.write(0,1, "%*c", 10, ' ');
   fb.write(7,1, "F2=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[1].freq).c_str(), char(frequencies[1].dir),
-	   LCD_WIDTH-8, ' ');
+	   LCD_WIDTH-7, ' ');
 
 
   if (ICU::getFrequency() == 0) {
@@ -51,14 +51,14 @@ void MainTab::draw(void)
     fb.write(0,3, "%*c", LCD_WIDTH, ' ');
   } else {
     fb.write(0,2, "%*c", LCD_WIDTH, ' ');
-    fb.write(8,2, "FIn= %s%*c",
+    fb.write(7,2, "FIn= %s%*c",
 	     LCDDisplay::freq2Str(ICU::getFrequency()).c_str(),
-	     LCD_WIDTH-8, ' ');
+	     LCD_WIDTH-7, ' ');
     fb.write(0,3, "D=%.2f%*c", ICU::getDuty(),
-	     8, ' ');
-    fb.write(8,3, "W=%s%*c",
+	     7, ' ');
+    fb.write(7,3, "W=%s%*c",
 	     LCDDisplay::time2Str(ICU::getPulseWidthUsec()).c_str(),
-	     LCD_WIDTH-8, ' ');
+	     LCD_WIDTH-7, ' ');
   }
   
   print();
@@ -72,8 +72,7 @@ void MainTab::leave(void)
 void MainTab::setFreq(const uint32_t freq)
 {
   if (selFreq < 2) {
-    frequencies[selFreq].dir = freq >= frequencies[selFreq].freq ? Direction::Up : Direction::Down;
-    frequencies[selFreq].freq = freq;
+    eventCb({Events::SetFreq, selFreq, int(freq)});
   }
 }
 
@@ -109,6 +108,13 @@ void MainTab::eventCb(const Event& ev)
     dir = freq >= lastFreq ? Direction::Up : Direction::Down;
 
     
+    break;
+  }
+    
+  case  Events::SetFreq : {
+    lastFreq = freq;
+    freq = ev.getLoad();
+    dir = freq >= lastFreq ? Direction::Up : Direction::Down;
     break;
   }
     
@@ -149,9 +155,11 @@ void MainTab::eventCb(const Event& ev)
   default : break;
   }
 
-  if ((ev.getEvent() == Events::Turn) or (ev.getEvent() == Events::ShortClick)) {
-    freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));
+  if ((ev.getEvent() == Events::Turn) or
+      (ev.getEvent() == Events::ShortClick) or
+      (ev.getEvent() == Events::SetFreq)) {
     
+    freq = cg.setFreq(std::clamp(freq, 1_hz, 980_khz));
     if (freq > 200_khz) {
       uint32_t mul = 1U;
       if (dir == Direction::Up)
