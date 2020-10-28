@@ -43,23 +43,48 @@ namespace {
 					 {10000, "10_Khz"},
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
-					 }};
+				 }};
   ScrollText stManuel("manuel",
-		      FrameBuffer<LCD_WIDTH, 12U>
+		      FrameBuffer<LCD_WIDTH, 36U>
 		      {"-------MANUEL-------",
-			 "tourner pour augmen-",
-			 "-er ou baisser la   ",
-			 "fréquence pour      ",
-			 "F1 en haut et F2 en ",
-			 "bas. Un appui court ",
-			 "permet de parcourir ",
-			 "rapidement la gamme ",
-			 "dans le sens de la  ",
-			 "fleche. Un appui    ",
-			 "long donne acces au ",
-			 "menu des raccourcis "}
+		       "*tourner pour augm- ",
+		       "-enter ou baisser la",
+		       "frequence pour F1 en",
+		       "haut et F2 en bas.  ",
+		       "* Un appui court    ",
+		       "permet de parcourir ",
+		       "rapidement la gamme ",
+		       "dans le sens de la  ",
+		       "fleche.             ",
+		       "* Un appui          ",
+		       "long donne acces au ",
+		       "menu des raccourcis ",
+		       "pour les frequences ",
+		       "usuelles.           ",
+		       "* Un double clic sur",
+		       "le bouton du haut   ",
+		       "permet de regler le ",
+		       "volume, et le type  ",
+		       "de son, et d'avoir  ",
+		       "acces au pages      ",
+		       "d'information syste-",
+		       "me.                 ",
+		       "* Un appui sur le   ",
+		       "bouton du haut a la ",
+		       "mise sous tension   ",
+		       "permet de selectio- ",
+		       "nner la tension     ",
+		       "attendue de la      ",
+		       "logique (3V ou 5V)  ",
+		       "* Une sous tension  ",
+		       "ou une surtension   ",
+		       "sur la tension logi-",
+		       "que declenche une   ",
+		       "alarme sonore.      ",
+			 }
 		      );
-  
+
+						  
   ScrollText<6U> st2("manuel",
    		 [](FrameBuffer<LCD_WIDTH, 6U> &fb) {
    		   fb.write(0, 0, "mon nouveau %c", ' ');
@@ -77,15 +102,10 @@ namespace {
   OneColTab rm(StateId::Manuel, &stManuel);
 }
 
-
-void IHM::init()
+ void IHM::init()
 {
   Event::init(&eventCb);
   lcd.run(TIME_MS2I(100));
-  rb1.run(TIME_MS2I(100));
-  rb2.run(TIME_MS2I(100));
-  pb1.run(TIME_IMMEDIATE);
-  pb2.run(TIME_IMMEDIATE);
   lcd.enableCursor(false);
 
   Audio& audio = BeepIn::getAudio();
@@ -120,5 +140,9 @@ void IHM::init()
 		   });
   
   LcdTab::push(StateId::Freq);
+  rb1.run(TIME_MS2I(100));
+  rb2.run(TIME_MS2I(100));
+  pb1.run(TIME_IMMEDIATE);
+  pb2.run(TIME_IMMEDIATE);
 }
 

@@ -16,7 +16,8 @@ bool Storage::load(void)
       sampleIndex = 0U;
       voltageRef = 5.0f;
       age = 0;
-      voltageAlert = 0;
+      underVoltageAlert = 0;
+      overVoltageAlert = 0;
       powerOn = 0;
       store();
     }
@@ -45,7 +46,8 @@ void Storage::print(void)
   DebugTrace("voltageRef = %.2f", voltageRef);
   DebugTrace("age = %lu", age);
   DebugTrace("power on = %lu", powerOn);
-  DebugTrace("voltageAlert = %lu", voltageAlert);
+  DebugTrace("underVoltageAlert = %lu", underVoltageAlert);
+  DebugTrace("overVoltageAlert = %lu", overVoltageAlert);
   DebugTrace("volume = %u", volume);
   DebugTrace("sampleIndex = %u", sampleIndex);
 #endif

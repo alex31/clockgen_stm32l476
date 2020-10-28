@@ -1,23 +1,19 @@
 
 TODO:
 
-* FixedStr = etl::string<20>
-* TESTER timing HD44780 (10 µs au lieu de 100) + systick less scheduler
-
-
-* continuer de coder l'IHM (dans un module IHM plutot que dans le main ?)
-
   selection du volume : echelle log
 
   double clic (bt haut) :
-         quand on clique sur manuel ou info : rentrer dans le tab correspondant au lieu de sortir,
-	 pour sortir de la plage : simple clic sur le bouton de la colonne de gauche
+     manuel -> manuel d'utilisation
+     info ->  compilo, version de firmware, date de compilation,
+     status (tensions, temps d'utilisation, nombre de mise en route, nombre d'alertes sur les tensions)
+	
 
   click maintenu bouton du haut à l'allumage :
   menu tension logique : 3.3 ou 5V (ajout d'un nouvel Event : LongClickAtStart)
 
-  alerte tension (surtension ou sous tension (court circuit) :
-  + entrer des des menus correspondant
+  alerte tension (surtension ou sous tension (court circuit) ):
+  + entrer dans des menus correspondant
   + alarme sonore
   + increment compteur d'alertes
   + sortir seulement si condition d'alarme disparait
@@ -25,14 +21,9 @@ TODO:
 
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
 
-  + possibilité de frequences "custom" dans les raccourcis
-
-  * infos : compilo, version de firmware, date de compilation, temps d'utilisation,
-           nombre de mise en route,
-           optimisé ou non, tensions, nombre d'alertes sur les tensions
+  + possibilité de frequences "custom" dans les raccourcis ?
 
 
-  * manuel en ligne defilant avec un bouton rotatif
 
 
 
