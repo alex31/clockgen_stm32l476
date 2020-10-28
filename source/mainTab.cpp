@@ -144,8 +144,11 @@ void MainTab::eventCb(const Event& ev)
     else
       IhmState::push(StateId::Manual);
     break;
- 
-   
+
+  case Events::ClickAtPowerOn :
+    IhmState::push(StateId::VoltageChoice);
+    break;
+    
   default : break;
   }
 

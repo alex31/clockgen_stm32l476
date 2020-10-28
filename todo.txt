@@ -1,8 +1,6 @@
 
 TODO:
 
-  click maintenu bouton du haut à l'allumage :
-     menu tension logique : 3.3 ou 5V (ajout d'un nouvel Event : LongClickAtStart)
 
   alerte tension (surtension ou sous tension (court circuit) ):
   + entrer dans des menus correspondant

@@ -7,6 +7,10 @@
 
 bool PushButton::init()
 {
+  if (palReadLine(line) == PAL_LOW) {
+    Event ev(Events::ClickAtPowerOn, index);
+    chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+  }
   palEnableLineEvent(line, PAL_EVENT_MODE_BOTH_EDGES);
   chVTObjectInit(&vt);
   return true;

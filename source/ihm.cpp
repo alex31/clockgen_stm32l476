@@ -18,7 +18,7 @@ namespace {
     LcdTab::propagate(ev); 
   }
   constexpr size_t lineOfDisplaySystem = 9U;
-  constexpr size_t lineOfDisplayStatus = 7U;
+  constexpr size_t lineOfDisplayStatus = 8U;
   void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
   void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb);
   
@@ -49,6 +49,12 @@ namespace {
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
 				 }};
+
+  MenuEntries<20, 4> logicVoltage{"logic Vcc", 0, 0,
+				   {{33, "Logic 3.3V [Func]"},
+				    {50, "Logic 5.0V [74xx]"}
+				   }};
+
   ScrollText stManual("manual",
 		      FrameBuffer<LCD_WIDTH, 36U>
 		      {"-------MANUAL-------",
@@ -96,6 +102,7 @@ namespace {
 
   MainTab mainTab(StateId::Freq);
   OneColTab freqShortCut(StateId::FreqShortCut, &frequencies);
+  OneColTab voltageChoice(StateId::VoltageChoice, &logicVoltage);
   TwoColsTab param(StateId::Param, {&audioSample, &audioVol, &info});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
@@ -137,8 +144,13 @@ void IHM::init()
  				 const char* str) {
  				lcd.write(posy, posx, str);
  			      });
+   
    frequencies.bind([] (uint32_t val) {
 		     mainTab.setFreq(val);
+		   });
+
+   logicVoltage.bind([] (uint32_t val) {
+		     storage.setVoltageRef(val/10.0f);
 		   });
   
   LcdTab::push(StateId::Freq);
@@ -186,6 +198,7 @@ namespace {
     fb.write(0, i++, "Vlogic= %.2f", adc.getLogicVoltage());
     fb.write(0, i++, "Age= %dd, %dh, %dm", day, hour, min);
     fb.write(0, i++, "Cycles= %d", storage.getPowerOn());
+    fb.write(0, i++, "Logic Voltage = %.2f", storage.getVoltageRef());
     fb.write(0, i++, "OverVoltage= %d", storage.getOverVoltageAlert());
     fb.write(0, i++, "UnderVoltage= %d", storage.getUnderVoltageAlert());
     fb.write(0, i++, "Systime= %d:%d:%d", h, m, s);
