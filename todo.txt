@@ -1,14 +1,6 @@
 
 TODO:
 
-  selection du volume : echelle log
-
-  double clic (bt haut) :
-     manual -> manuel d'utilisation
-     system ->  kernel, hal, compilo, version de firmware, date de compilation,
-     status (tensions, temps d'utilisation, nombre de mise en route, nombre d'alertes sur les tensions, systime)
-	
-
   click maintenu bouton du haut à l'allumage :
      menu tension logique : 3.3 ou 5V (ajout d'un nouvel Event : LongClickAtStart)
 

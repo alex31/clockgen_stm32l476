@@ -9,6 +9,7 @@
 #include "oneColTab.hpp"
 #include "commonRessource.hpp"
 #include "beepIn.hpp"
+#include "commonRessource.hpp"
 #include "stdutil.h"
 
 namespace {
@@ -17,7 +18,9 @@ namespace {
     LcdTab::propagate(ev); 
   }
   constexpr size_t lineOfDisplaySystem = 9U;
+  constexpr size_t lineOfDisplayStatus = 7U;
   void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
+  void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb);
   
   // order of declaration matters
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
@@ -26,12 +29,12 @@ namespace {
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
 
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {}}; // build dynamically
-  NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 100}};
+  NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 25}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
 					   {1, "manual", StateId::Manual}, 
 					   {2, "system", StateId::System},
-					   {3, "events"}
+					   {3, "status", StateId::Status}
 					   }};
 
   MenuEntries<20, 16> frequencies{"freq.", 0, 0, {{1, "1_Hz"},
@@ -88,6 +91,7 @@ namespace {
 
 						  
   ScrollText<lineOfDisplaySystem> stSystem("system", &displaySystemCb);
+  ScrollText<lineOfDisplayStatus> stStatus("status", &displayStatusCb);
   
 
   MainTab mainTab(StateId::Freq);
@@ -95,6 +99,7 @@ namespace {
   TwoColsTab param(StateId::Param, {&audioSample, &audioVol, &info});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
+  OneColTab status(StateId::Status, &stStatus);
 }
 
 void IHM::init()
@@ -111,9 +116,11 @@ void IHM::init()
   }
 
   audioVol.bind([&audio] (uint32_t val) {
-		  storage.setVolume(val);
-		  const float att = val / 100.0f;
-		  audio.setAttenuation(att);
+		  const uint32_t attn = 25 - val;
+		  storage.setVolume(attn);
+
+		  const float logAttn = powf(10, attn / 10.0f);
+		  audio.setAttenuation(1.0f/logAttn);
 		  audio.play();
 		});
 
@@ -157,6 +164,31 @@ namespace {
     fb.write(0, i++, "Build Time%c",':');
     fb.write(0, i++, "%s", __DATE__);
     fb.write(0, i++, "%s", __TIME__);
+  }
+
+
+  void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb)
+  {
+    size_t i=0;
+    uint32_t min = storage.getAge() / 60;
+    uint32_t hour = min / 60;
+    const uint32_t day = hour / 24;
+    min %= 60;
+    hour %= 24;
+
+    uint32_t s = TIME_I2S(chVTGetSystemTimeX());
+    uint32_t m = s / 60;
+    uint32_t h = m / 60;
+    s %= 60;
+    m %= 60;
+    
+    fb.write(0, i++, "Vpower= %.2f", adc.getPowerSupplyVoltage());
+    fb.write(0, i++, "Vlogic= %.2f", adc.getLogicVoltage());
+    fb.write(0, i++, "Age= %dd, %dh, %dm", day, hour, min);
+    fb.write(0, i++, "Cycles= %d", storage.getPowerOn());
+    fb.write(0, i++, "OverVoltage= %d", storage.getOverVoltageAlert());
+    fb.write(0, i++, "UnderVoltage= %d", storage.getUnderVoltageAlert());
+    fb.write(0, i++, "Systime= %d:%d:%d", h, m, s);
   }
 }
 
