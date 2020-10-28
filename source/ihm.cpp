@@ -27,10 +27,10 @@ namespace {
   NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 100}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
-					   {1, "manuel"},
-				   {2, "system"},
-				   {3, "events"}
-					       }};
+					   {1, "manuel", StateId::Manuel}, 
+					   {2, "system"},
+					   {3, "events"}
+					   }};
 
   MenuEntries<20, 16> frequencies{"freq.", 0, 0, {{1, "1_Hz"},
 					 {20, "20_Hz"},
@@ -44,23 +44,23 @@ namespace {
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
 					 }};
-  ScrollText st1("readme",
-		FrameBuffer<LCD_WIDTH, 12U>
-		{"-------README-------",
-		 "tourner pour augmen-",
-		 "-er ou baisser la   ",
-		 "fréquence pour      ",
-		 "F1 en haut et F2 en ",
-		 "bas. Un appui court ",
-		 "permet de parcourir ",
-		 "rapidement la gamme ",
-		 "dans le sens de la  ",
-		 "fleche. Un appui    ",
-		 "long donne acces au ",
-		 "menu des raccourcis "}
-		);
-
-  ScrollText<6U> st2("readme",
+  ScrollText stManuel("manuel",
+		      FrameBuffer<LCD_WIDTH, 12U>
+		      {"-------MANUEL-------",
+			 "tourner pour augmen-",
+			 "-er ou baisser la   ",
+			 "fréquence pour      ",
+			 "F1 en haut et F2 en ",
+			 "bas. Un appui court ",
+			 "permet de parcourir ",
+			 "rapidement la gamme ",
+			 "dans le sens de la  ",
+			 "fleche. Un appui    ",
+			 "long donne acces au ",
+			 "menu des raccourcis "}
+		      );
+  
+  ScrollText<6U> st2("manuel",
    		 [](FrameBuffer<LCD_WIDTH, 6U> &fb) {
    		   fb.write(0, 0, "mon nouveau %c", ' ');
    		   fb.write(0, 1, "contenu 1%c", ' ');
@@ -74,7 +74,7 @@ namespace {
   MainTab mt(StateId::Freq);
   OneColTab sc(StateId::FreqShortCut, &frequencies);
   TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
-  OneColTab rm(StateId::Readme, &st2);
+  OneColTab rm(StateId::Manuel, &stManuel);
 }
 
 

@@ -142,7 +142,7 @@ void MainTab::eventCb(const Event& ev)
     if (ev.getIndex() == 0)
       IhmState::push(StateId::Info);
     else
-      IhmState::push(StateId::Readme);
+      IhmState::push(StateId::Manuel);
     break;
  
    

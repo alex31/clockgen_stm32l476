@@ -56,6 +56,12 @@ void TwoColsTab::eventCb(const Event& ev)
     
   case Events::ShortClick : {
     IhmState::pop();
+    break;
+  }
+
+  case Events::LongClick : {
+    right->goSubMenu();
+    break;
   }
     
     

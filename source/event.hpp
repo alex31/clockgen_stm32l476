@@ -2,7 +2,7 @@
 #include "ch.h"
 #include "hal.h"
 
-enum class Events : uint8_t {None, Turn, ShortClick, LongClick, DoubleClick,
+enum class Events : uint8_t {None, Turn, ShortClick, LongClick, ClickAtPowerOn, DoubleClick,
 			     SetFreq, Periodic, Undo}; 
 class Event;
 using callback_t = void(*) (const Event&);

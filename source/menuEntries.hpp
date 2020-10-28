@@ -252,7 +252,7 @@ bool MenuEntries<SW, SL>::addEntry(const Entry& e)
   entries.push_back({
 		     .value = e.value,
 		     .str = (FixedStr(" ") += e.str) += " ",
-		     .nextState = StateId::None,
+		     .nextState = e.nextState,
 		     .posx = e.posx,
 		     .posy = e.posy
     });
