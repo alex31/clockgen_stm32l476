@@ -20,15 +20,17 @@ void OneColTab::eventCb(const Event& ev)
       widget->next();
     else
       widget->prev();
-
-    // setFreq(widget->get()); (en fonction de l'id)
-    // via la callback du widget
     break;
   }
     
-    
   case Events::ShortClick : {
     IhmState::pop();
+    break;
+  }
+
+  case Events::Periodic : {
+    widget->refresh();
+    break;
   }
     
   default: break;

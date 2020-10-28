@@ -2,6 +2,9 @@
 # Build global options
 # NOTE: Can be overridden externally.
 #
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD) 
+GIT_SHA := $(shell git rev-parse --short HEAD)
+GIT_TAG := $(shell git describe --abbrev=4 --dirty --always --tags)
 
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
@@ -35,7 +38,7 @@ ifeq ($(EXECMODE),$(DEBUG))
   USE_LTO = no
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DSMALL_AUDIO_SET
+	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
 endif
 
 ifeq ($(EXECMODE),$(OPT_SPEED))
@@ -218,7 +221,7 @@ LD   = $(TRGT)g++
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DTRACE
+UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" 
 
 # Define ASM defines here
 UADEFS =

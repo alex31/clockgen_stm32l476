@@ -177,6 +177,7 @@ public:
   void fill([[maybe_unused]] const uint8_t margin = 0U,
 	    [[maybe_unused]] const etl::string_view sep = "") {};
   void draw(void) override;
+  void refresh(void) override{draw();}
   void next(void) override {this->val = std::clamp(this->val+1UL,
 						   0UL, SH-LCD_HEIGHT-0UL);
     this->draw();}

@@ -13,10 +13,12 @@
 
 namespace {
   LCDDisplay lcd(NORMALPRIO);
-  static void eventCb(const Event& ev) {
+  void eventCb(const Event& ev) {
     LcdTab::propagate(ev); 
   }
-
+  constexpr size_t lineOfDisplaySystem = 9U;
+  void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
+  
   // order of declaration matters
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
@@ -27,8 +29,8 @@ namespace {
   NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 100}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
-					   {1, "manuel", StateId::Manuel}, 
-					   {2, "system"},
+					   {1, "manual", StateId::Manual}, 
+					   {2, "system", StateId::System},
 					   {3, "events"}
 					   }};
 
@@ -44,9 +46,9 @@ namespace {
 					 {19200, "19.2_Khz"},
 					 {36400, "36.4_Khz"}
 				 }};
-  ScrollText stManuel("manuel",
+  ScrollText stManual("manual",
 		      FrameBuffer<LCD_WIDTH, 36U>
-		      {"-------MANUEL-------",
+		      {"-------MANUAL-------",
 		       "*tourner pour augm- ",
 		       "-enter ou baisser la",
 		       "frequence pour F1 en",
@@ -85,24 +87,17 @@ namespace {
 		      );
 
 						  
-  ScrollText<6U> st2("manuel",
-   		 [](FrameBuffer<LCD_WIDTH, 6U> &fb) {
-   		   fb.write(0, 0, "mon nouveau %c", ' ');
-   		   fb.write(0, 1, "contenu 1%c", ' ');
-   		   fb.write(0, 2, "contenu 2%c", ' ');
-   		   fb.write(0, 3, "contenu 3%c", ' ');
-   		   fb.write(0, 4, "contenu 4%c", ' ');
-   		   fb.write(0, 5, "contenu 5%c", ' ');
-   		 });
+  ScrollText<lineOfDisplaySystem> stSystem("system", &displaySystemCb);
   
 
-  MainTab mt(StateId::Freq);
-  OneColTab sc(StateId::FreqShortCut, &frequencies);
-  TwoColsTab tc(StateId::Info, {&audioSample, &audioVol, &info});
-  OneColTab rm(StateId::Manuel, &stManuel);
+  MainTab mainTab(StateId::Freq);
+  OneColTab freqShortCut(StateId::FreqShortCut, &frequencies);
+  TwoColsTab param(StateId::Param, {&audioSample, &audioVol, &info});
+  OneColTab manual(StateId::Manual, &stManual);
+  OneColTab system(StateId::System, &stSystem);
 }
 
- void IHM::init()
+void IHM::init()
 {
   Event::init(&eventCb);
   lcd.run(TIME_MS2I(100));
@@ -127,16 +122,16 @@ namespace {
 		  audio.select(val);
 		  audio.play();
 		});
-  tc.bind(LcdTab::Leave, [&audio]{
-			   audio.pause();
-			 });
-  FrameBufferBase::setPrintFn([](uint8_t posx, 
-				 uint8_t posy,
-				 const char* str) {
-				lcd.write(posy, posx, str);
-			      });
-  frequencies.bind([] (uint32_t val) {
-		     mt.setFreq(val);
+  param.bind(LcdTab::Leave, [&audio]{
+ 			   audio.pause();
+ 			 });
+   FrameBufferBase::setPrintFn([](uint8_t posx, 
+ 				 uint8_t posy,
+ 				 const char* str) {
+ 				lcd.write(posy, posx, str);
+ 			      });
+   frequencies.bind([] (uint32_t val) {
+		     mainTab.setFreq(val);
 		   });
   
   LcdTab::push(StateId::Freq);
@@ -144,5 +139,24 @@ namespace {
   rb2.run(TIME_MS2I(100));
   pb1.run(TIME_IMMEDIATE);
   pb2.run(TIME_IMMEDIATE);
+}
+
+#define XSTR(s) STR(s)
+#define STR(s) #s
+
+namespace {
+  void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb)
+  {
+    size_t i=0;
+    fb.write(0, i++, "Branch=%s", XSTR(GIT_BRANCH));
+    fb.write(0, i++, "Tag=%s", XSTR(GIT_TAG));
+    fb.write(0, i++, "Vers=%s", XSTR(GIT_SHA));
+    fb.write(0, i++, "Kernel %s", CH_KERNEL_VERSION);
+    fb.write(0, i++, "Hal  %s", HAL_VERSION);
+    fb.write(0, i++, "%s", PORT_COMPILER_NAME);
+    fb.write(0, i++, "Build Time%c",':');
+    fb.write(0, i++, "%s", __DATE__);
+    fb.write(0, i++, "%s", __TIME__);
+  }
 }
 

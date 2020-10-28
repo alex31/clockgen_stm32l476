@@ -140,9 +140,9 @@ void MainTab::eventCb(const Event& ev)
 
   case Events::DoubleClick :
     if (ev.getIndex() == 0)
-      IhmState::push(StateId::Info);
+      IhmState::push(StateId::Param);
     else
-      IhmState::push(StateId::Manuel);
+      IhmState::push(StateId::Manual);
     break;
  
    
