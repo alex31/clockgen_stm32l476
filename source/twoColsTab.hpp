@@ -1,6 +1,7 @@
 #pragma once
 #include "etl/vector.h"
 #include "lcdTab.hpp"
+#include "menuEntries.hpp"
 #include "hardwareConf.hpp"
 
 /*

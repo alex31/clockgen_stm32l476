@@ -1,6 +1,6 @@
 #pragma once
 #include "ihmState.hpp"
-#include "menuEntries.hpp"
+#include "frameBuffer.hpp"
 #include "hardwareConf.hpp"
 #include "event.hpp"
 

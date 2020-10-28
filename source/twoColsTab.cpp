@@ -10,7 +10,7 @@ TwoColsTab::TwoColsTab (const StateId stateId, std::initializer_list<BaseWidget 
   
   for (size_t i=0; i< rights.size(); i++) {
     rights[i]->setParentFb(&fb);
-    left.addEntry({int(i), rights[i]->getName()});
+    left.addEntry(Entry{int(i), rights[i]->getName()});
   }
   left.bind([this] (int32_t val) {
 	      right =  rights[val];

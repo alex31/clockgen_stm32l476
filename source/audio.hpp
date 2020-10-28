@@ -16,6 +16,7 @@ using source_dac_sample_t = uint8_t;
 
 
 namespace {
+#ifndef NO_AUDIO_SET
 #include "SOUNDS/C/tone500.c"
 #include "SOUNDS/C/tone500t10.c"
 #ifndef SMALL_AUDIO_SET
@@ -31,7 +32,7 @@ namespace {
 #include "SOUNDS/C/school-rings.c"
 #include "SOUNDS/C/uk-phone.c"
 #endif
-
+#endif
   constexpr uint32_t DAC_MAX_FREQUENCY = 1e6; // hardware limitation
   constexpr uint32_t SAMPLE_FREQUENCY = 8000; // expect 8khz unsigned 8 bit, one channel raw audio file
   constexpr uint32_t GPT_COUNT = DAC_MAX_FREQUENCY / SAMPLE_FREQUENCY;
@@ -72,6 +73,7 @@ private:
   static constexpr size_t halfBufferSize = (sizeof(dmaBuff) / sizeof(dmaBuff[0])) / 2U;
   
   static constexpr std::array loops = {
+#ifndef NO_AUDIO_SET		       
 				       GENLOOPN("sine", tone500),
 				       GENLOOPN("sinemod", tone500t10),
 #ifndef SMALL_AUDIO_SET
@@ -86,6 +88,11 @@ private:
 				       GENLOOPN("police", police_siren),
 				       GENLOOP(uk_phone),
 				       GENLOOP(sweep),
+#endif
+#else
+				       // just to see the binary size without
+				       // sound; not meant to be flashed or run
+AudioLoop {.name = "none", .samples = nullptr, .len = 0}				       
 #endif
   };
   static const DACConfig dac1cfg1;

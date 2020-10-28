@@ -27,7 +27,7 @@ namespace {
   NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 100}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
-				   {1, "manuel"},
+					   {1, "manuel"},
 				   {2, "system"},
 				   {3, "events"}
 					       }};
@@ -91,9 +91,8 @@ void IHM::init()
   Audio& audio = BeepIn::getAudio();
 
   for (size_t i=0; i< audio.getLoopsNumber(); i++) {
-    audioSample.addEntry(Entry{.value = int(i),
-			       .str = FixedStr(audio.getName(i).data()),
-			       .posx=0, .posy=0});
+    audioSample.addEntry(Entry{int(i),
+			       FixedStr(audio.getName(i).data())});
   }
 
   audioVol.bind([&audio] (uint32_t val) {
