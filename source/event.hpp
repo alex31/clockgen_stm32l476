@@ -2,8 +2,10 @@
 #include "ch.h"
 #include "hal.h"
 
-enum class Events : uint8_t {None, Turn, ShortClick, LongClick, ClickAtPowerOn, DoubleClick,
-			     SetFreq, Periodic, Undo}; 
+enum class Events : uint8_t {None, Turn, ShortClick, LongClick,
+			     ClickAtPowerOn, DoubleClick,
+			     SetFreq, Periodic, UnderVoltage,
+			     OverVoltage, Undo}; 
 class Event;
 using callback_t = void(*) (const Event&);
 
@@ -22,6 +24,13 @@ public:
     event(Events::None), idx(0), load(0) {}
   Event(const Events _event, const int _idx, const int32_t _load = 0) :
     event(_event), idx(_idx), load(_load) {}
+  Event & set (const Events _event,
+	       const int _idx, const int32_t _load = 0) {
+    event = _event;
+    idx = _idx;
+    load = _load;
+    return *this;
+  }
   int  getLoad(void) const {return load;}
   int  getIndex(void) const {return idx;}
   Events getEvent(void) const {return event;}
@@ -31,9 +40,9 @@ public:
 private:
   union {
     struct {
-      const Events  event;
-      const uint8_t idx:3;
-      int32_t       load:21;
+      Events	event;
+      uint8_t	idx:3;
+      int32_t   load:21;
     };
     msg_t msg;
   };

@@ -4,7 +4,7 @@ TODO:
 
   alerte tension (surtension ou sous tension (court circuit) ):
   + entrer dans des menus correspondant
-  + alarme sonore
+  + alarme sonore (seulement si on est sur l'ecran principal)
   + increment compteur d'alertes
   + sortir seulement si condition d'alarme disparait
   

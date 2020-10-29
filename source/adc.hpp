@@ -9,17 +9,19 @@ namespace {
 
 class ADC : public WorkerThread<ADC> {
 public:
+  enum EventSource {Logic, PowerSupply};
   ADC(const tprio_t m_prio) :
     WorkerThread("adc", threadStackSize, m_prio)
   {};
   static float getPowerSupplyVoltage(void)  {return psVolt;}
-  static float getLogicVoltage(void)  {return logicVolt;}
+  static float getLogicVoltage(void)  {return logicVoltage;}
 private:
   friend WorkerThread<ADC>;
   bool init(void) final;
   bool loop(void) final;
   static float psVolt;
-  static float logicVolt;
+  static float logicVoltAverage;
+  static float logicVoltage;
 };
 
 
