@@ -152,7 +152,14 @@ void IHM::init()
    logicVoltage.bind([] (uint32_t val) {
 		     storage.setVoltageRef(val/10.0f);
 		   });
-  
+
+   // initial choice when entering in menu must reflex reality
+   voltageChoice.bind(LcdTab::Enter, [] {
+				       if (adc.getLogicVoltage() < 4.0f) 
+					 logicVoltage.set(0);
+				       else 
+					 logicVoltage.set(1);
+				     });
   LcdTab::push(StateId::Freq);
   rb1.run(TIME_MS2I(100));
   rb2.run(TIME_MS2I(100));

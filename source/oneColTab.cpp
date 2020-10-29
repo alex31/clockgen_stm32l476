@@ -4,11 +4,13 @@ void OneColTab::enter(void)
 {
   widget->draw();
   widget->invoque();
+  invoque(Enter);
 }
 
 
 void OneColTab::leave(void) 
 {
+  invoque(Leave);
 }
 
 

@@ -36,6 +36,7 @@ int main (void)
   ADC adc(NORMALPRIO);
   BeepIn beepIn(NORMALPRIO);
 
+  adc.run(TIME_MS2I(100));
   storage.incPowerOn();
   tc.run(TIME_S2I(1));
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
@@ -45,7 +46,6 @@ int main (void)
   consoleLaunch();  // lancement du shell
 #endif
   
-  adc.run(TIME_MS2I(100));
   beepIn.run(TIME_MS2I(1));
  
   chThdSleep(TIME_INFINITE);
