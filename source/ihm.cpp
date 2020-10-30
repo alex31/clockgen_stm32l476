@@ -182,7 +182,7 @@ void IHM::init()
 				      audio.select("overvoltage");
 				    }
 				  }
-				  audio.setAttenuation(0.05f);
+				  audio.setAttenuation(0.70f);
 				  audio.play();
 				});
    adcAlert.bind(LcdTab::Leave, [&audio] {
