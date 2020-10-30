@@ -92,7 +92,7 @@ void MainTab::eventCb(const Event& ev)
     case 1 : 
     case 2 :  inc = sign; break;
     case 3 :  inc = 3*sign; break;
-    default : inc  = sign * powf((deltabs-2)*2, 1.0f+(deltabs/6.0f)); break;
+    default : inc  = sign * powf((deltabs-1)*2, 1.0f+(deltabs/5.0f)); break;
     }
 
     const uint32_t minFreqInRange = powf(10.0f, floorf(log10f(freq))) -1.0f;
