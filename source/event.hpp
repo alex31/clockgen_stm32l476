@@ -25,7 +25,7 @@ public:
   Event(const Events _event, const int _idx, const int32_t _load = 0) :
     event(_event), idx(_idx), load(_load) {}
   Event & set (const Events _event,
-	       const int _idx, const int32_t _load = 0) {
+	       const uint8_t _idx, const int32_t _load = 0) {
     event = _event;
     idx = _idx;
     load = _load;
@@ -35,6 +35,7 @@ public:
   int  getIndex(void) const {return idx;}
   Events getEvent(void) const {return event;}
   msg_t  getEventAsMsg(void) const {return msg;}
+  void print(const char*) const;
   static void init(callback_t cb);
 
 private:

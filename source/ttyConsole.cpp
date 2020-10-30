@@ -110,8 +110,10 @@ static void cmd_restart(BaseSequentialStream *lchp, int argc,const char* const a
 static void cmd_storage(BaseSequentialStream *lchp, int argc,const char* const argv[])
 {
   (void) lchp;
-  (void) argc;
   (void) argv;
+  if (argc) {
+    storage.resetAlert();
+  }
   storage.print();
 }
 

@@ -19,18 +19,13 @@ namespace {
 #ifndef NO_AUDIO_SET
 #include "SOUNDS/C/tone500.c"
 #include "SOUNDS/C/tone500t10.c"
+#include "SOUNDS/C/psfail.c"
+#include "SOUNDS/C/shortcut.c"
+#include "SOUNDS/C/overvoltage.c"
 #ifndef SMALL_AUDIO_SET
-#include "SOUNDS/C/nuclear-alarm.c"
-#include "SOUNDS/C/horn.c"
-#include "SOUNDS/C/enzotic_alarm.c"
-#include "SOUNDS/C/ahooga.c"
-#include "SOUNDS/C/siren.c"
 #include "SOUNDS/C/trumpet.c"
-#include "SOUNDS/C/trumpet2.c"
-#include "SOUNDS/C/police-siren.c"
 #include "SOUNDS/C/sweep.c"
 #include "SOUNDS/C/school-rings.c"
-#include "SOUNDS/C/uk-phone.c"
 #endif
 #endif
   constexpr uint32_t DAC_MAX_FREQUENCY = 1e6; // hardware limitation
@@ -50,6 +45,7 @@ class Audio {
 public:
   void start(void);
   void select(const size_t loopIndex);
+  void select(const char* sampleName);
   void play(void);
   void pause(void);
   void setAttenuation(const float attn) {attenuation = std::clamp(attn, 0.0f, 1.0f);}
@@ -62,6 +58,7 @@ private:
   void startDac(void);
   void startTimer(void);
   void stopTimer(void);
+  bool isPlaying(void) const {return GPTD6.state == GPT_CONTINUOUS;}
   static void end_cb1(DACDriver *dacp);
   static void audioCpy(custom_dac_sample_t  *dest, const source_dac_sample_t *src, size_t n);
   
@@ -77,18 +74,13 @@ private:
 				       GENLOOPN("sine", tone500),
 				       GENLOOPN("sinemod", tone500t10),
 #ifndef SMALL_AUDIO_SET
-				       GENLOOPN("nuclear", nuclear_alarm),
-				       GENLOOP(horn),
-				       GENLOOPN("enzotic", enzotic_alarm),
-				       GENLOOP(ahooga),
-				       GENLOOP(siren),
 				       GENLOOPN("school", school_rings),
 				       GENLOOP(trumpet),
-				       GENLOOP(trumpet2),
-				       GENLOOPN("police", police_siren),
-				       GENLOOP(uk_phone),
 				       GENLOOP(sweep),
 #endif
+				       GENLOOP(psfail),
+				       GENLOOP(shortcut),
+				       GENLOOP(overvoltage),
 #else
 				       // just to see the binary size without
 				       // sound; not meant to be flashed or run

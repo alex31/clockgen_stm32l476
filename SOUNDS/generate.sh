@@ -2,6 +2,12 @@
 
 /bin/rm C/* RAW/*
 
+for f in MP3/*
+do
+    echo $f
+    mpg123 -w WAV/"$(basename -- "$f" .mp3).wav" "$f" 
+done
+
 for f in WAV/*
 do
     echo $f

@@ -2,11 +2,8 @@
 TODO:
 
 
-  alerte tension (surtension ou sous tension (court circuit) ):
-  + entrer dans des menus correspondant
-  + alarme sonore (seulement si on est sur l'ecran principal)
-  + increment compteur d'alertes
-  + sortir seulement si condition d'alarme disparait
+	volume de 0 à 100
+
   
 
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage

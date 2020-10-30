@@ -26,9 +26,22 @@ void Audio::select(const size_t loopIndex)
   }
 }
 
+void Audio::select(const char* sampleName)
+{
+  auto sample = std::find_if (loops.begin(), loops.end(),
+			      [&, sampleName] (const auto &s) {
+				return strcmp(s.name.data(), sampleName) == 0;
+			      });
+  if (sample != loops.end()) {
+    const size_t index = sample - loops.begin();
+    select(index);
+  }
+}
+
 void Audio::play(void)
 {
-  startTimer();
+  if (not isPlaying())
+    startTimer();
 }
 
 void Audio::pause(void)

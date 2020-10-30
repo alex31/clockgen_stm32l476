@@ -2,9 +2,9 @@
 
 void OneColTab::enter(void)
 {
+  invoque(Enter);
   widget->draw();
   widget->invoque();
-  invoque(Enter);
 }
 
 

@@ -1,5 +1,5 @@
 #include "event.hpp"
-
+#include "stdutil.h"
 
 namespace EVT {
   msg_t msgBuf[MB_LEN];
@@ -32,4 +32,10 @@ void Event::init(callback_t cb)
 {
   chThdCreateStatic(EVT::waEventSerializer, sizeof(EVT::waEventSerializer),
 		    NORMALPRIO+2, &EVT::eventSerializer, (void *) cb);
+}
+
+void Event::print(const char* eventName) const
+{
+  DebugTrace("EV'%s' = ev=%lu idx=%u load=%d",
+	     eventName, uint32_t(event), idx, load);
 }

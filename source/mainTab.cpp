@@ -148,6 +148,11 @@ void MainTab::eventCb(const Event& ev)
   case Events::ClickAtPowerOn :
     IhmState::push(StateId::VoltageChoice);
     break;
+
+  case Events::UnderVoltage :
+  case Events::OverVoltage :
+    IhmState::push(StateId::VoltageAlert);
+    break;
     
   default : break;
   }
@@ -174,6 +179,8 @@ void MainTab::eventCb(const Event& ev)
     storage.setFrequency(ev.getIndex(), freq);
   }
 
+  
+  
   draw();
 }
 

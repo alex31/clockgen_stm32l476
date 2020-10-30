@@ -1,5 +1,4 @@
 #include "adc.hpp"
-#include "event.hpp"
 #include "hardwareConf.hpp"
 #include "stdutil.h"
 #include "commonRessource.hpp"
@@ -62,27 +61,37 @@ bool ADC::loop()
   psVolt = mean[0] * VCC_33 * POWER_SUPPLY_VOLTAGE_RATIO / SAMPLE_MAX / DEPTH;
   logicVoltage = mean[1] * VCC_33 * LOGIC_VOLTAGE_RATIO /
     SAMPLE_MAX / DEPTH;
-  logicVoltAverage = logicVoltAverage * 0.999f + (logicVoltage * 0.001f);
+  
+  if (Event ev = getVoltageHealth(); ev.getEvent() != Events::None)
+    chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+  else
+    logicVoltAverage = logicVoltAverage * 0.999f + (logicVoltage * 0.001f);
+  
+  return true;
+}
+
+Event ADC::getVoltageHealth(void)
+{
+  Event ev;
+
   const float logicDiffPercent = ((logicVoltage * 100.0f) / logicVoltAverage)
     - 100.0f;
-  
-  Event ev;
   if (logicDiffPercent > 10.0f)  {
     ev.set(Events::OverVoltage, Logic);
-  } else  if (logicDiffPercent < 5.0f)  {
+  } else  if (logicDiffPercent < -5.0f)  {
     ev.set(Events::UnderVoltage, Logic);
   }  else if (psVolt > 13.5f) {
     ev.set(Events::OverVoltage, PowerSupply);
   } else  if (psVolt < 10.5f)  {
     ev.set(Events::UnderVoltage, PowerSupply);
-  } 
-  if (ev.getEvent() != Events::None)
-    chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+  }
+  // if (ev.getEvent() != Events::None)
+  //   DebugTrace("logicVoltage=%.2f logicVoltAverage=%.2f, logicDiffPercent=%.2f",
+  // 	       logicVoltage, logicVoltAverage, logicDiffPercent);
+  
 
-
-  return true;
+  return ev;
 }
-
 
 float ADC::psVolt = 0.0f;
 float ADC::logicVoltAverage = 0.0f;

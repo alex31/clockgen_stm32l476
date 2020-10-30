@@ -18,10 +18,13 @@ namespace {
     LcdTab::propagate(ev); 
   }
   constexpr size_t lineOfDisplaySystem = 9U;
-  constexpr size_t lineOfDisplayStatus = 8U;
+  constexpr size_t lineOfDisplayStatus = 9U;
+  constexpr size_t lineOfDisplayAdcAlert = 4U;
   void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
   void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb);
-  
+  void displayAdcAlertCb(FrameBuffer<LCD_WIDTH, lineOfDisplayAdcAlert> &fb);
+
+  Event psHealthTrigged;
   // order of declaration matters
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
@@ -29,7 +32,7 @@ namespace {
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
 
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {}}; // build dynamically
-  NumericEntry<10> audioVol{"volume", 10, 0, 10, 1, {0, 25}};
+  NumericEntry<10> audioVol{"volume", 10, 0, 10, 5, {0, 100}};
 
   MenuEntries<10, 16> info{"info", 10, 0, {
 					   {1, "manual", StateId::Manual}, 
@@ -98,6 +101,8 @@ namespace {
 						  
   ScrollText<lineOfDisplaySystem> stSystem("system", &displaySystemCb);
   ScrollText<lineOfDisplayStatus> stStatus("status", &displayStatusCb);
+  ScrollText<lineOfDisplayAdcAlert> stAdcAlert("adcAlrt", &displayAdcAlertCb);
+
   
 
   MainTab mainTab(StateId::Freq);
@@ -107,6 +112,7 @@ namespace {
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
   OneColTab status(StateId::Status, &stStatus);
+  OneColTab adcAlert(StateId::VoltageAlert, &stAdcAlert);
 }
 
 void IHM::init()
@@ -123,7 +129,7 @@ void IHM::init()
   }
 
   audioVol.bind([&audio] (uint32_t val) {
-		  const uint32_t attn = 25 - val;
+		  const uint32_t attn = 25 - (val/4U);
 		  storage.setVolume(attn);
 
 		  const float logAttn = powf(10, attn / 10.0f);
@@ -154,12 +160,37 @@ void IHM::init()
 		   });
 
    // initial choice when entering in menu must reflex reality
-   voltageChoice.bind(LcdTab::Enter, [] {
+   voltageChoice.bind(LcdTab::Enter, [&audio] {
 				       if (adc.getLogicVoltage() < 4.0f) 
 					 logicVoltage.set(0);
 				       else 
 					 logicVoltage.set(1);
 				     });
+   adcAlert.bind(LcdTab::Enter, [&audio] {
+				  psHealthTrigged = adc.getVoltageHealth();
+				  // psHealthTrigged.print("lcdtab enter");
+				  audio.pause();
+				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
+				    storage.incPsFailureAlert();
+				    audio.select("psfail");
+				  } else {
+				    if (psHealthTrigged.getEvent() == Events::UnderVoltage) {
+				      storage.incUnderVoltageAlert();
+				      audio.select("shortcut");
+				    } else {
+				      storage.incOverVoltageAlert();
+				      audio.select("overvoltage");
+				    }
+				  }
+				  audio.setAttenuation(0.05f);
+				  audio.play();
+				});
+   adcAlert.bind(LcdTab::Leave, [&audio] {
+				  audio.pause();
+				  audio.select(storage.getSampleIndex());
+				  const float logAttn = powf(10, storage.getVolume() / 10.0f);
+				  audio.setAttenuation(1.0f / logAttn);
+				});
   LcdTab::push(StateId::Freq);
   rb1.run(TIME_MS2I(100));
   rb2.run(TIME_MS2I(100));
@@ -206,9 +237,45 @@ namespace {
     fb.write(0, i++, "Age= %dd, %dh, %dm", day, hour, min);
     fb.write(0, i++, "Cycles= %d", storage.getPowerOn());
     fb.write(0, i++, "Logic Voltage = %.2f", storage.getVoltageRef());
+    fb.write(0, i++, "PS Failure= %d", storage.getPsFailureAlert());
     fb.write(0, i++, "OverVoltage= %d", storage.getOverVoltageAlert());
     fb.write(0, i++, "UnderVoltage= %d", storage.getUnderVoltageAlert());
     fb.write(0, i++, "Systime= %d:%d:%d", h, m, s);
   }
+
+
+  void displayAdcAlertCb(FrameBuffer<LCD_WIDTH, lineOfDisplayAdcAlert> &fb)
+  {
+    size_t i=0;
+    const Event currentHealth = adc.getVoltageHealth();
+    const bool defaultActive = currentHealth.getEvent() != Events::None;
+    Audio& audio = BeepIn::getAudio();
+    if (defaultActive)
+      audio.play();
+    else
+      audio.pause();
+    //    psHealthTrigged.print("display alert");
+
+    if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
+      fb.write(0, i++, "Pow.Supply FAILURE  ");
+      fb.write(0, i++, "Status = %s%*c",
+	       defaultActive ? "ACTIVE" : "clear", 10, ' ');
+    } else if (psHealthTrigged.getIndex() == ADC::Logic) {
+      const char *defaultType =
+	psHealthTrigged.getEvent() == Events::UnderVoltage ?
+	"SHORTCUT" : "OVERVOLTAGE";
+      fb.write(0, i++, "Logic %s%*c", defaultType, 10, ' ');
+      fb.write(0, i++, "Status = %s%*c",
+	       defaultActive ? "ACTIVE" : "clear", 10, ' ');
+    } else  {
+      fb.write(0, i++, "Firmware bug");
+      fb.write(0, i++, "Status = %s%*c",
+	       defaultActive ? "ACTIVE" : "clear", 10, ' ');
+    }
+    fb.write(0, i++, "Vpower= %.2f%*c", adc.getPowerSupplyVoltage(), 10, ' ');
+    fb.write(0, i++, "Vlogic= %.2f%*c", adc.getLogicVoltage(), 10, ' ');
+  }
+  
 }
+
 
