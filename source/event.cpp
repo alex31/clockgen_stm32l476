@@ -36,6 +36,9 @@ void Event::init(callback_t cb)
 
 void Event::print(const char* eventName) const
 {
+#ifndef TRACE
+  (void) eventName;
+#endif
   DebugTrace("EV'%s' = ev=%lu idx=%u load=%d",
 	     eventName, uint32_t(event), idx, load);
 }

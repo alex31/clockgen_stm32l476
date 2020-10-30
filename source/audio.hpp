@@ -26,10 +26,11 @@ namespace {
 #include "SOUNDS/C/trumpet.c"
 #include "SOUNDS/C/sweep.c"
 #include "SOUNDS/C/school-rings.c"
+#include "SOUNDS/C/cosmos.c"
 #endif
 #endif
   constexpr uint32_t DAC_MAX_FREQUENCY = 1e6; // hardware limitation
-  constexpr uint32_t SAMPLE_FREQUENCY = 8000; // expect 8khz unsigned 8 bit, one channel raw audio file
+  constexpr uint32_t SAMPLE_FREQUENCY = 16000; // expect 16khz unsigned 8 bit, one channel raw audio file
   constexpr uint32_t GPT_COUNT = DAC_MAX_FREQUENCY / SAMPLE_FREQUENCY;
 }
 
@@ -77,6 +78,7 @@ private:
 				       GENLOOPN("school", school_rings),
 				       GENLOOP(trumpet),
 				       GENLOOP(sweep),
+				       GENLOOP(cosmos),
 #endif
 				       GENLOOP(psfail),
 				       GENLOOP(shortcut),

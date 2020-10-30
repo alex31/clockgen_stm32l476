@@ -11,7 +11,7 @@ done
 for f in WAV/*
 do
     echo $f
-    sox "$f" -e unsigned-integer -b 8 -Dr 8k -c 1 RAW/"$(basename -- "$f" .wav).raw" rate -I -v channels 1 norm gain -1
+    sox "$f" -e unsigned-integer -b 8 -Dr 16k -c 1 RAW/"$(basename -- "$f" .wav).raw" rate -I -v channels 1 norm gain -1
 done
 
 cd RAW
