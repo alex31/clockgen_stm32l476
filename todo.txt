@@ -2,10 +2,7 @@
 TODO:
 
 
-   + quand on rentre dans le menu volume, afficher l'état courant (sample et volume)
    + essayer des samples à 16Khz au lieu de 8Khz
-
-  
 
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
 

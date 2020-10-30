@@ -23,6 +23,18 @@ IhmState*   IhmState::push(const StateId activeId)
   return last;
 }
 
+IhmState*   IhmState::go(const StateId activeId)
+{
+  auto active = stateArray[+activeId];
+  auto last = stack.top();
+  if ((active != last) && (not stack.empty())) {
+    stack.pop();
+    stack.push(active);
+    transition(last, active);
+  }
+  return last;
+}
+
 IhmState*   IhmState::pop(void)
 {
   if (not stack.empty()) {

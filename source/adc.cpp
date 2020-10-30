@@ -43,7 +43,6 @@ bool ADC::init()
 {
   DebugTrace("ADC::init()");
   adcStart(&ADCD1, NULL);
-  logicVoltAverage = storage.getVoltageRef();
   return true;
 }
 
@@ -65,7 +64,8 @@ bool ADC::loop()
   if (Event ev = getVoltageHealth(); ev.getEvent() != Events::None)
     chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
   else
-    logicVoltAverage = logicVoltAverage * 0.999f + (logicVoltage * 0.001f);
+    storage.setVoltageRef(storage.getVoltageRef() * 0.999f +
+			  (logicVoltage * 0.001f));
   
   return true;
 }
@@ -74,8 +74,9 @@ Event ADC::getVoltageHealth(void)
 {
   Event ev;
 
-  const float logicDiffPercent = ((logicVoltage * 100.0f) / logicVoltAverage)
-    - 100.0f;
+  const float logicDiffPercent = ((logicVoltage * 100.0f) /
+				  storage.getVoltageRef())
+                                  - 100.0f;
   if (logicDiffPercent > 10.0f)  {
     ev.set(Events::OverVoltage, Logic);
   } else  if (logicDiffPercent < -5.0f)  {
@@ -94,5 +95,4 @@ Event ADC::getVoltageHealth(void)
 }
 
 float ADC::psVolt = 0.0f;
-float ADC::logicVoltAverage = 0.0f;
 float ADC::logicVoltage = 0.0f;

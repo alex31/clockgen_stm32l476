@@ -34,7 +34,11 @@ void OneColTab::eventCb(const Event& ev)
     widget->refresh();
     break;
   }
-    
+
+  case Events::ClickAtPowerOn :
+    IhmState::push(StateId::VoltageChoice);
+    break;
+
   default: break;
   }
 }

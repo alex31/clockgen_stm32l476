@@ -18,6 +18,7 @@ public:
   virtual void enter(void) = 0;
   virtual void leave(void) = 0;
   static IhmState* push(const StateId active);
+  static IhmState* go(const StateId active);
   static IhmState* pop(void);
   static IhmState* top(void);
   static IhmState* getTabObject(const StateId query);

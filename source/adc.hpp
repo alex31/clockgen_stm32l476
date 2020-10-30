@@ -22,7 +22,6 @@ private:
   bool init(void) final;
   bool loop(void) final;
   static float psVolt;
-  static float logicVoltAverage;
   static float logicVoltage;
 };
 

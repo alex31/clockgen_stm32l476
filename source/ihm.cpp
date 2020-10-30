@@ -268,9 +268,8 @@ namespace {
       fb.write(0, i++, "Status = %s%*c",
 	       defaultActive ? "ACTIVE" : "clear", 10, ' ');
     } else  {
-      fb.write(0, i++, "Firmware bug");
-      fb.write(0, i++, "Status = %s%*c",
-	       defaultActive ? "ACTIVE" : "clear", 10, ' ');
+      fb.write(0, i++, "New ref. registered", 10, ' ');
+      fb.write(0, i++, "Double check voltage", 10, ' ');
     }
     fb.write(0, i++, "Vpower= %.2f%*c", adc.getPowerSupplyVoltage(), 10, ' ');
     fb.write(0, i++, "Vlogic= %.2f%*c", adc.getLogicVoltage(), 10, ' ');
