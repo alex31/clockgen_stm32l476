@@ -2,7 +2,8 @@
 TODO:
 
 
-	volume de 0 à 100
+   + quand on rentre dans le menu volume, afficher l'état courant (sample et volume)
+   + essayer des samples à 16Khz au lieu de 8Khz
 
   
 
