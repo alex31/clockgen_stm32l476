@@ -4,7 +4,7 @@
 #
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD) 
 GIT_SHA := $(shell git rev-parse --short HEAD)
-GIT_TAG := $(shell git describe --abbrev=4 --dirty --always --tags)
+GIT_TAG := $(shell git describe --abbrev=0 --dirty --always --tags)
 
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
