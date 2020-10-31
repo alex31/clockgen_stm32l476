@@ -2,7 +2,11 @@
 TODO:
 
 
-   + essayer des samples à 16Khz au lieu de 8Khz
+   + systime : si ça marche pas avec le systime,
+   utiliser un type intervalle sur 64 bits
+
+   + a la mise sous tension le menu audio doit afficher le volume
+     et le sample courant
 
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
 
