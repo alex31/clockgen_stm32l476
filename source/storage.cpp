@@ -18,6 +18,7 @@ bool Storage::load(void)
       age = 0;
       underVoltageAlert = 0;
       overVoltageAlert = 0;
+      i2cFailure = 0;
       powerOn = 0;
       store();
     }

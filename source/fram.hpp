@@ -11,7 +11,7 @@ namespace FRAM {
   bool write(const T& object, const uint16_t memAddr);
   template <typename T>
   bool read(T& object, const uint16_t memAddr);
-
+  void resetI2c(I2CDriver *i2cd);
   constexpr uint8_t slaveNumberBase = 0b1010000;
 }
 
@@ -29,6 +29,9 @@ bool FRAM::write(const T& object, const uint16_t memAddr)
     msg_t res = i2cMasterTransmitTimeout(&I2C_FRAM, slaveNumber,
 					 wbuffer.data(), wbuffer.size(),
 					 nullptr, 0, TIME_MS2I(10));
+    if (res != MSG_OK) {
+      FRAM::resetI2c(&I2C_FRAM);
+    }
     return res == MSG_OK;
   }
  

@@ -18,7 +18,7 @@ namespace {
     LcdTab::propagate(ev); 
   }
   constexpr size_t lineOfDisplaySystem = 9U;
-  constexpr size_t lineOfDisplayStatus = 9U;
+  constexpr size_t lineOfDisplayStatus = 10U;
   constexpr size_t lineOfDisplayAdcAlert = 4U;
   void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
   void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb);
@@ -236,6 +236,7 @@ namespace {
     fb.write(0, i++, "Vlogic= %.2f  ", adc.getLogicVoltage());
     fb.write(0, i++, "Age= %dd, %dh, %dm    ", day, hour, min);
     fb.write(0, i++, "Cycles= %d  ", storage.getPowerOn());
+    fb.write(0, i++, "FRam i2c Fail = %d  ", storage.getI2cFailure());
     fb.write(0, i++, "Logic Voltage = %.2f  ", storage.getVoltageRef());
     fb.write(0, i++, "PS Failure= %d  ", storage.getPsFailureAlert());
     fb.write(0, i++, "OverVoltage= %d  ", storage.getOverVoltageAlert());

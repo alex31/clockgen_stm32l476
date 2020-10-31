@@ -18,8 +18,10 @@ public:
   void setVoltageRef(const float v) {voltageRef = v; store();}
   void incAge(void) {age++; store();}
   void incPowerOn(void) {powerOn++; store();}
+  void incI2cFailure(void) {i2cFailure++; store();}
   void resetAlert(void) {
-    underVoltageAlert = overVoltageAlert = psFailureAlert = 0;
+    i2cFailure = underVoltageAlert =
+      overVoltageAlert = psFailureAlert = 0;
     store();
   }
   void incUnderVoltageAlert(void) {underVoltageAlert++; store();}
@@ -34,6 +36,7 @@ public:
   uint32_t getUnderVoltageAlert(void) const {return underVoltageAlert;}
   uint32_t getOverVoltageAlert(void) const {return overVoltageAlert;}
   uint32_t getPsFailureAlert(void) const {return psFailureAlert;}
+  uint32_t getI2cFailure(void) const {return i2cFailure;}
   uint8_t getVolume(void) const {return volume;}
   uint8_t getSampleIndex(void) const {return sampleIndex;}
   void print(void);
@@ -51,6 +54,7 @@ private:
   uint32_t underVoltageAlert;
   uint32_t overVoltageAlert;
   uint32_t psFailureAlert;
+  uint32_t i2cFailure;
   uint8_t volume;
   uint8_t sampleIndex;
 };

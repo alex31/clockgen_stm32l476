@@ -1,6 +1,7 @@
 
 TODO:
 
+   + gerer les conditions d'erreur I2C
 
    + systime : si ça marche pas avec le systime,
    utiliser un type intervalle sur 64 bits
