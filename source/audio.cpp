@@ -4,7 +4,7 @@
 #include <limits>
 #include "stdutil.h"
 #include "audio.hpp"
-
+#include "cmath"
 
 
 
@@ -47,6 +47,13 @@ void Audio::play(void)
 void Audio::pause(void)
 {
   stopTimer();
+}
+
+void Audio::setDbVolume(const uint8_t volume)
+{
+  const uint32_t attn = 25 - (volume/4U);
+  const float logAttn = powf(10, attn / 10.0f);
+  setAttenuation(1.0f/logAttn);
 }
 
 void Audio::startDac(void)

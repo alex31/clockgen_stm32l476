@@ -50,6 +50,7 @@ public:
   void play(void);
   void pause(void);
   void setAttenuation(const float attn) {attenuation = std::clamp(attn, 0.0f, 1.0f);}
+  void setDbVolume(const uint8_t volume);
   size_t  getCurrentLoop(void) {return loop;}
   size_t  getLoopsNumber(void) {return loops.size();}
   std::string_view getName(const size_t index = loops.size());

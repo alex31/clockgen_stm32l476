@@ -13,7 +13,7 @@
 #include "stdutil.h"
 
 namespace {
-  LCDDisplay lcd(NORMALPRIO);
+  LCDDisplay lcd(NORMALPRIO-2);
   void eventCb(const Event& ev) {
     LcdTab::propagate(ev); 
   }
@@ -40,17 +40,18 @@ namespace {
 					   {3, "status", StateId::Status}
 					   }};
 
-  MenuEntries<20, 16> frequencies{"freq.", 0, 0, {{1, "1_Hz"},
-					 {20, "20_Hz"},
-					 {50, "50_Hz"},
-					 {300, "300_hz"},
-					 {1000, "1_Khz"},
-					 {2400, "2.4_Khz"},
-					 {8000, "8_Khz"},
-					 {9600, "9.6_Khz"},
-					 {10000, "10_Khz"},
-					 {19200, "19.2_Khz"},
-					 {36400, "36.4_Khz"}
+  MenuEntries<20, 16> frequencies{"freq.", 0, 0, {
+					 {1_hz, "1 Hz"},
+					 {10_hz, "10 Hz"},
+					 {50_hz, "50 Hz"},
+					 {100_hz, "100 Hz"},
+					 {1_khz, "1 Khz"},
+					 {2.4_khz, "2.4 Khz"},
+					 {4.8_khz, "4.8 Khz"},
+					 {8_khz, "8 Khz"},
+					 {9600, "9.6 Khz"},
+					 {10_khz, "10 Khz"},
+					 {100_khz, "100 Khz"}
 				 }};
 
   MenuEntries<20, 4> logicVoltage{"logic Vcc", 0, 0,
@@ -127,13 +128,12 @@ void IHM::init()
     audioSample.addEntry(Entry{int(i),
 			       FixedStr(audio.getName(i).data())});
   }
+  audioSample.set(storage.getSampleIndex());
+  audioVol.set(storage.getVolume());
 
   audioVol.bind([&audio] (uint32_t val) {
-		  const uint32_t attn = 25 - (val/4U);
-		  storage.setVolume(attn);
-
-		  const float logAttn = powf(10, attn / 10.0f);
-		  audio.setAttenuation(1.0f/logAttn);
+		  storage.setVolume(val);
+		  audio.setDbVolume(val);
 		  audio.play();
 		});
 
@@ -188,8 +188,7 @@ void IHM::init()
    adcAlert.bind(LcdTab::Leave, [&audio] {
 				  audio.pause();
 				  audio.select(storage.getSampleIndex());
-				  const float logAttn = powf(10, storage.getVolume() / 10.0f);
-				  audio.setAttenuation(1.0f / logAttn);
+				  audio.setDbVolume(storage.getVolume());
 				});
   LcdTab::push(StateId::Freq);
   rb1.run(TIME_MS2I(100));

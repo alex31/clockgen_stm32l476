@@ -36,6 +36,10 @@ static constexpr uint32_t operator"" _khz (unsigned long long int freq)
 {
   return freq * 1000UL;
 }
+static constexpr uint32_t operator"" _khz (long double freq)
+{
+  return freq * 1000UL;
+}
 static constexpr uint32_t operator"" _mhz (unsigned long long int freq)
 {
   return freq * 1000_khz;

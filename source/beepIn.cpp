@@ -8,8 +8,7 @@ bool BeepIn::init()
 {
   audio.start();
   audio.pause();
-  const float logAttn = powf(10, storage.getVolume() / 10.0f);
-  audio.setAttenuation(1.0f / logAttn);
+  audio.setDbVolume(storage.getVolume());
   audio.select(storage.getSampleIndex());
   return true;
 }
