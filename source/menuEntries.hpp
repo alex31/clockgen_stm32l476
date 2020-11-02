@@ -298,10 +298,14 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
   }
 }
 
+
 template <size_t SW, size_t SL>
 void MenuEntries<SW, SL>::next(void)
 {
-  selectedItem = (selectedItem+1U) % entries.size();
+  chDbgAssert(entries.size() >= 1, "entries must not be empty");
+  const int max_index = entries.size() -1U;
+  selectedItem =
+    selectedItem >= max_index ? max_index : selectedItem + 1 ;
   this->invoque();
   this->draw();
 }
@@ -309,8 +313,8 @@ void MenuEntries<SW, SL>::next(void)
 template <size_t SW, size_t SL>
 void MenuEntries<SW, SL>::prev(void)
 {
-  selectedItem = selectedItem==0U ? entries.size() - 1U :
-    selectedItem - 1U ;
+  selectedItem =
+    selectedItem==0U ? 0U :  selectedItem - 1U ;
   this->invoque();
   this->draw();
 }
