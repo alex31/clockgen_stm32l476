@@ -39,6 +39,7 @@ public:
   virtual void prev(void) = 0;
   virtual void draw(void) = 0;
   virtual void bind(callback_t _cb) = 0;
+  virtual int32_t     get(void) const =0;
   virtual void invoque(void) = 0;
   virtual void refresh(void) =0;
   virtual void goSubMenu(void) =0;
@@ -61,7 +62,7 @@ public:
   virtual void prev(void) override = 0;
   virtual void fill(const uint8_t margin = 0U, const etl::string_view sep = "") = 0;
   void	       set(const int32_t v) {val = v; this->invoque(); draw();}
-  virtual int32_t     get(void) const {return val;}
+  virtual int32_t     get(void) const override {return val;}
   virtual FrameBuffer<SW, SL>::FbView getView(void) = 0;
   void    setParentFb(FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb) override {parentFb =fb;}
   virtual void draw(void) override;

@@ -34,7 +34,7 @@ namespace {
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {}}; // build dynamically
   NumericEntry<10> audioVol{"volume", 10, 0, 10, 5, {0, 100}};
 
-  MenuEntries<10, 16> info{"info", 10, 0, {
+  MenuEntries<10, 4> info{"info", 10, 0, {
 					   {1, "manual", StateId::Manual}, 
 					   {2, "system", StateId::System},
 					   {3, "status", StateId::Status}
@@ -58,7 +58,12 @@ namespace {
 				    {50, "Logic 5.0V [74xx]"}
 				   }};
 
-  ScrollText stManual("manual",
+  MenuEntries<20, 4> clearDefault{"clear D", 0, 0,
+				   {{0, "Keep defaults"},
+				    {1, "Clear defaults"}
+				   }};
+  
+ ScrollText stManual("manual",
 		      FrameBuffer<LCD_WIDTH, 50U>
 		      {"-MANUEL UTILISATEUR-",
 		       "                    ",
@@ -123,10 +128,11 @@ namespace {
   MainTab mainTab(StateId::Freq);
   OneColTab freqShortCut(StateId::FreqShortCut, &frequencies);
   OneColTab voltageChoice(StateId::VoltageChoice, &logicVoltage);
+  OneColTab defaultsClear(StateId::ClearDefault, &clearDefault);
   TwoColsTab param(StateId::Param, {&info, &audioVol, &audioSample});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
-  OneColTab status(StateId::Status, &stStatus);
+  OneColTab status(StateId::Status, &stStatus, StateId::ClearDefault);
   OneColTab adcAlert(StateId::VoltageAlert, &stAdcAlert);
 }
 
@@ -183,6 +189,11 @@ void IHM::init()
 					 logicVoltage.set(0);
 				       else 
 					 logicVoltage.set(1);
+				     });
+   defaultsClear.bind(LcdTab::Leave, [] {
+				       if (defaultsClear.get() != 0) {
+					 storage.resetAlert();
+				       }
 				     });
    adcAlert.bind(LcdTab::Enter, [&audio] {
 				  psHealthTrigged = adc.getVoltageHealth();

@@ -39,6 +39,11 @@ void OneColTab::eventCb(const Event& ev)
     IhmState::push(StateId::VoltageChoice);
     break;
 
+  case Events::LongClick :
+    if (goOnLongClick != StateId::None)
+      IhmState::push(goOnLongClick);
+    break;
+
   default: break;
   }
 }
