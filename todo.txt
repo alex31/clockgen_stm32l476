@@ -3,6 +3,8 @@ TODO:
 
   + stocker et decoder du mp3
 
+  + appui long sur status pour reseter les compteurs d'erreur
+
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
 
   + possibilité de frequences "custom" dans les raccourcis ?

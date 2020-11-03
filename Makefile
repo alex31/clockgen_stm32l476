@@ -48,7 +48,7 @@ ifeq ($(EXECMODE),$(OPT_SPEED))
 	     $(GCC_DIAG)
 endif
 
-#            --specs=nano.specs -DSMALL_AUDIO_SET
+#            --specs=nano.specs 
 ifeq ($(EXECMODE),$(OPT_SIZE)) 
     USE_LTO = yes
     USE_OPT =  -Os  -flto  -Wall -Wextra \
@@ -56,7 +56,7 @@ ifeq ($(EXECMODE),$(OPT_SIZE))
             -DCH_DBG_STATISTICS=0 -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
 	    -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 -DCH_DBG_FILL_THREADS=0 \
 	    -DCH_CFG_ST_TIMEDELTA=2 -DCH_CFG_TIME_QUANTUM=0 \
-	    -DCH_DBG_THREADS_PROFILING=0 -DNOSHELL=1  \
+	    -DCH_DBG_THREADS_PROFILING=0 -DNOSHELL=1 -DSMALL_AUDIO_SET \
 	     $(GCC_DIAG)
 endif
 

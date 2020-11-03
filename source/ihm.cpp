@@ -251,10 +251,10 @@ namespace {
     
     fb.write(0, i++, "Vpower= %.2f  ", adc.getPowerSupplyVoltage());
     fb.write(0, i++, "Vlogic= %.2f  ", adc.getLogicVoltage());
+    fb.write(0, i++, "VLogic Ref = %.2f  ", storage.getVoltageRef());
     fb.write(0, i++, "Age= %dd, %dh, %dm    ", day, hour, min);
     fb.write(0, i++, "Cycles= %d  ", storage.getPowerOn());
     fb.write(0, i++, "FRam i2c Fail = %d  ", storage.getI2cFailure());
-    fb.write(0, i++, "Logic Voltage = %.2f  ", storage.getVoltageRef());
     fb.write(0, i++, "PS Failure= %d  ", storage.getPsFailureAlert());
     fb.write(0, i++, "OverVoltage= %d  ", storage.getOverVoltageAlert());
     fb.write(0, i++, "UnderVoltage= %d  ", storage.getUnderVoltageAlert());
