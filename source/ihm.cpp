@@ -43,7 +43,6 @@ namespace {
   MenuEntries<20, 16> frequencies{"freq.", 0, 0, {
 					 {1_hz, "1 Hz"},
 					 {10_hz, "10 Hz"},
-					 {50_hz, "50 Hz"},
 					 {100_hz, "100 Hz"},
 					 {1_khz, "1 Khz"},
 					 {2.4_khz, "2.4 Khz"},
@@ -60,22 +59,35 @@ namespace {
 				   }};
 
   ScrollText stManual("manual",
-		      FrameBuffer<LCD_WIDTH, 36U>
-		      {"-------MANUAL-------",
+		      FrameBuffer<LCD_WIDTH, 50U>
+		      {"-MANUEL UTILISATEUR-",
+		       "                    ",
 		       "*tourner pour augm- ",
 		       "-enter ou baisser la",
 		       "frequence pour F1 en",
 		       "haut et F2 en bas.  ",
+		       "                    ",
 		       "* Un appui court    ",
 		       "permet de parcourir ",
 		       "rapidement la gamme ",
 		       "dans le sens de la  ",
 		       "fleche.             ",
+		       "                    ",
 		       "* Un appui          ",
 		       "long donne acces au ",
 		       "menu des raccourcis ",
 		       "pour les frequences ",
 		       "usuelles.           ",
+		       "                    ",
+		       "* Un signal branche ",
+		       "sur l'entree frequ- ",
+		       "encemetre declenche-",
+		       "ra l'affichage de la",
+		       "frequence, du temps ",
+		       "de l'impulsion posi-",
+		       "tive et du rapport  ",
+		       "cyclique.           ",
+		       "                    ",
 		       "* Un double clic sur",
 		       "le bouton du haut   ",
 		       "permet de regler le ",
@@ -83,7 +95,8 @@ namespace {
 		       "de son, et d'avoir  ",
 		       "acces au pages      ",
 		       "d'information syste-",
-		       "me.                 ",
+		       "me et de status.    ",
+		       "                    ",
 		       "* Un appui sur le   ",
 		       "bouton du haut a la ",
 		       "mise sous tension   ",
@@ -91,6 +104,7 @@ namespace {
 		       "nner la tension     ",
 		       "attendue de la      ",
 		       "logique (3V ou 5V)  ",
+		       "                    ",
 		       "* Une sous tension  ",
 		       "ou une surtension   ",
 		       "sur la tension logi-",
@@ -109,7 +123,7 @@ namespace {
   MainTab mainTab(StateId::Freq);
   OneColTab freqShortCut(StateId::FreqShortCut, &frequencies);
   OneColTab voltageChoice(StateId::VoltageChoice, &logicVoltage);
-  TwoColsTab param(StateId::Param, {&audioSample, &audioVol, &info});
+  TwoColsTab param(StateId::Param, {&info, &audioVol, &audioSample});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
   OneColTab status(StateId::Status, &stStatus);
@@ -125,8 +139,12 @@ void IHM::init()
   Audio& audio = BeepIn::getAudio();
 
   for (size_t i=0; i< audio.getLoopsNumber(); i++) {
-    audioSample.addEntry(Entry{int(i),
-			       FixedStr(audio.getName(i).data())});
+    if (const char* n = audio.getName(i).data();
+	(strcmp(n, "psfail") != 0) && 	(strcmp(n, "shortcut") != 0) &&
+	(strcmp(n, "overvoltage") != 0)) {
+      audioSample.addEntry(Entry{int(i),
+				 FixedStr(audio.getName(i).data())});
+    }
   }
   audioSample.set(storage.getSampleIndex());
   audioVol.set(storage.getVolume());

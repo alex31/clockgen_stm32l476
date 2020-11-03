@@ -167,6 +167,16 @@ public:
     content(std::move(_content)) {};
   ScrollText(const FixedStr& name,
 	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	      const FrameBuffer<LCD_WIDTH, SH> &_content) :
+    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    content(_content) {};
+  ScrollText(const FixedStr& name,
+	      const FrameBuffer<LCD_WIDTH, SH> &_content)
+	      :
+    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    content(_content) {};
+  ScrollText(const FixedStr& name,
+	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
     BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
     drawFn(_drawFn) {};
