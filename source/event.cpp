@@ -31,7 +31,7 @@ namespace EVT {
 void Event::init(callback_t cb)
 {
   chThdCreateStatic(EVT::waEventSerializer, sizeof(EVT::waEventSerializer),
-		    NORMALPRIO+2, &EVT::eventSerializer, (void *) cb);
+		    NORMALPRIO-1, &EVT::eventSerializer, (void *) cb);
 }
 
 void Event::print(const char* eventName) const
