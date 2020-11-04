@@ -1,6 +1,30 @@
 
 TODO:
 
+
+   INTERNAL :
+
+    * utiliser etl::string_view plutot que celui de la STL
+
+    +ne pas passer par des representation c string et plutot utiliser
+    * using etlstring10 = etl::string<10>;
+
+    class FixedString : public etlstring10 
+    {
+        using etlstring10::etlstring10 ;
+        FixedString& operator=(const etl::string_view sv) {
+                     assign(sv.begin(), sv.end());
+                     return *this;
+                     }
+    };
+
+
+    et methode compare plutot que strcmp
+
+  + internal : pattern singleton plutot que commonRessource.hpp
+
+
+===========================================
   + stocker et decoder du mp3
 
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
