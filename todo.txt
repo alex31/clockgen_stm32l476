@@ -4,8 +4,6 @@ TODO:
 
    INTERNAL :
 
-    * utiliser etl::string_view plutot que celui de la STL
-
     +ne pas passer par des representation c string et plutot utiliser
     * using etlstring10 = etl::string<10>;
 

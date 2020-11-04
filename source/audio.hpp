@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <string_view>
+#include <etl/string_view.h>
 #include <algorithm>
 
 using custom_dac_sample_t = uint16_t;
@@ -36,7 +36,7 @@ namespace {
 
 
 struct AudioLoop {
-  const std::string_view name;
+  const etl::string_view name;
   const source_dac_sample_t *samples;
   const size_t len;
 };
@@ -53,7 +53,7 @@ public:
   void setDbVolume(const uint8_t volume);
   size_t  getCurrentLoop(void) {return loop;}
   size_t  getLoopsNumber(void) {return loops.size();}
-  std::string_view getName(const size_t index = loops.size());
+  etl::string_view getName(const size_t index = loops.size());
   
 private:
   void stopDac(void);

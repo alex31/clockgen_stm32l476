@@ -20,7 +20,17 @@
 #endif
 
 
-using FixedStr = etl::string<20>;
+using etlstring20 = etl::string<20>;
+
+class FixedStr : public etlstring20
+{
+  using etlstring20::etlstring20 ;
+  FixedStr& operator=(const etl::string_view sv) {
+    assign(sv.begin(), sv.end());
+    return *this;
+  }
+};
+
 
 struct Entry {
   int value;
@@ -280,7 +290,7 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
     s.clear();
     s.insert(s.begin(), margin, ' ');
     if (sep.length())
-      s.append(sep.data());
+      s.append(sep.begin(), sep.end());
   }
 
   for (int index=0; auto& e : entries) {
@@ -339,7 +349,7 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
     s.clear();
     s.insert(s.begin(), margin, ' ');
     if (sep.length())
-      s.append(sep.data());
+      s.append(sep.begin(), sep.end());
   }
   fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
   fb.append(1, "[%d]%*c", this->val, LCD_WIDTH, ' ');

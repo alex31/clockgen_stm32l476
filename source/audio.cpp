@@ -30,7 +30,7 @@ void Audio::select(const char* sampleName)
 {
   auto sample = std::find_if (loops.begin(), loops.end(),
 			      [&, sampleName] (const auto &s) {
-				return strcmp(s.name.data(), sampleName) == 0;
+				return s.name.compare(sampleName) == 0;
 			      });
   if (sample != loops.end()) {
     const size_t index = sample - loops.begin();
@@ -122,10 +122,10 @@ void Audio::audioCpy(custom_dac_sample_t  *dest, const source_dac_sample_t *src,
 
 
 
-std::string_view Audio::getName(const size_t index)
+etl::string_view Audio::getName(const size_t index)
 {
   size_t idx = (index >= loops.size()) ? loop : index;
-    return std::string_view(loops[idx].name);
+    return etl::string_view(loops[idx].name);
 }
 
 const DACConfig Audio::dac1cfg1 = {

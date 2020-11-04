@@ -145,11 +145,11 @@ void IHM::init()
   Audio& audio = BeepIn::getAudio();
 
   for (size_t i=0; i< audio.getLoopsNumber(); i++) {
-    if (const char* n = audio.getName(i).data();
-	(strcmp(n, "psfail") != 0) && 	(strcmp(n, "shortcut") != 0) &&
-	(strcmp(n, "overvoltage") != 0)) {
+    if (const auto& n = audio.getName(i);
+	(n.compare("psfail") != 0) && 	(n.compare("shortcut") != 0) &&
+	(n.compare("overvoltage") != 0)) {
       audioSample.addEntry(Entry{int(i),
-				 FixedStr(audio.getName(i).data())});
+				 FixedStr(audio.getName(i))});
     }
   }
   audioSample.set(storage.getSampleIndex());
