@@ -22,7 +22,7 @@ void MainTab::draw(void)
   if (IhmState::top() != this)
     return;
 
-  fb.write(0,0, "V=%.2f   ", adc.getLogicVoltage());
+  fb.write(0,0, "V=%.2f   ", ADC::getLogicVoltage());
   fb.write(7,0, "F1=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
 	   LCD_WIDTH-7, ' ');

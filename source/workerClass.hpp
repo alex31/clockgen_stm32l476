@@ -34,6 +34,23 @@ private:
 };
 
 
+template<typename T>
+class WorkerThreadSingleton : public WorkerThread<T>
+{
+public:
+  WorkerThreadSingleton() = delete;
+  static T &instance(const tprio_t m_prio) {
+    static T inst(m_prio);
+    return inst;
+  }
+protected:
+  WorkerThreadSingleton(const char *m_name, const size_t m_size,
+		     const tprio_t m_prio) : WorkerThread<T>(m_name, m_size, m_prio) {};
+
+};
+
+
+
 /*
   thread_t * 	chThdCreateFromHeap (memory_heap_t *heapp, size_t size, const char *name, 
 		tprio_t prio, tfunc_t pf, void *arg)

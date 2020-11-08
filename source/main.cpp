@@ -33,7 +33,7 @@ namespace std {
 int main (void)
 {
   TimeCount tc(NORMALPRIO);
-  ADC adc(NORMALPRIO);
+  ADC &adc = ADC::instance(NORMALPRIO);
   BeepIn beepIn(NORMALPRIO);
 
   beepIn.run(TIME_MS2I(1));

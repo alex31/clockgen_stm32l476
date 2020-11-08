@@ -9,7 +9,7 @@
 #include "oneColTab.hpp"
 #include "commonRessource.hpp"
 #include "beepIn.hpp"
-#include "commonRessource.hpp"
+#include "adc.hpp"
 #include "stdutil.h"
 
 namespace {
@@ -185,7 +185,7 @@ void IHM::init()
 
    // initial choice when entering in menu must reflex reality
    voltageChoice.bind(LcdTab::Enter, [&audio] {
-				       if (adc.getLogicVoltage() < 4.0f) 
+				       if (ADC::getLogicVoltage() < 4.0f) 
 					 logicVoltage.set(0);
 				       else 
 					 logicVoltage.set(1);
@@ -196,7 +196,7 @@ void IHM::init()
 				       }
 				     });
    adcAlert.bind(LcdTab::Enter, [&audio] {
-				  psHealthTrigged = adc.getVoltageHealth();
+				  psHealthTrigged = ADC::getVoltageHealth();
 				  // psHealthTrigged.print("lcdtab enter");
 				  audio.pause();
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
@@ -260,8 +260,8 @@ namespace {
     s %= 60;
     m %= 60;
     
-    fb.write(0, i++, "Vpower= %.2f  ", adc.getPowerSupplyVoltage());
-    fb.write(0, i++, "Vlogic= %.2f  ", adc.getLogicVoltage());
+    fb.write(0, i++, "Vpower= %.2f  ", ADC::getPowerSupplyVoltage());
+    fb.write(0, i++, "Vlogic= %.2f  ", ADC::getLogicVoltage());
     fb.write(0, i++, "VLogic Ref = %.2f  ", storage.getVoltageRef());
     fb.write(0, i++, "Age= %dd, %dh, %dm    ", day, hour, min);
     fb.write(0, i++, "Cycles= %d  ", storage.getPowerOn());
@@ -276,7 +276,7 @@ namespace {
   void displayAdcAlertCb(FrameBuffer<LCD_WIDTH, lineOfDisplayAdcAlert> &fb)
   {
     size_t i=0;
-    const Event currentHealth = adc.getVoltageHealth();
+    const Event currentHealth = ADC::getVoltageHealth();
     const bool defaultActive = currentHealth.getEvent() != Events::None;
     Audio& audio = BeepIn::getAudio();
     if (defaultActive)
@@ -300,8 +300,8 @@ namespace {
       fb.write(0, i++, "New ref. registered", 10, ' ');
       fb.write(0, i++, "Double check voltage", 10, ' ');
     }
-    fb.write(0, i++, "Vpower= %.2f%*c", adc.getPowerSupplyVoltage(), 10, ' ');
-    fb.write(0, i++, "Vlogic= %.2f%*c", adc.getLogicVoltage(), 10, ' ');
+    fb.write(0, i++, "Vpower= %.2f%*c", ADC::getPowerSupplyVoltage(), 10, ' ');
+    fb.write(0, i++, "Vlogic= %.2f%*c", ADC::getLogicVoltage(), 10, ' ');
   }
   
 }
