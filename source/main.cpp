@@ -7,7 +7,6 @@
 #include "resetTTL.hpp"
 #include "hardwareConf.hpp"
 #include "beepIn.hpp"
-#include "adc.hpp"
 #include "ihm.hpp"
 #include "freqCapture.hpp"
 #include "fram.hpp"
@@ -33,7 +32,6 @@ namespace std {
 int main (void)
 {
   TimeCount tc(NORMALPRIO);
-  ADC adc(NORMALPRIO);
   BeepIn beepIn(NORMALPRIO);
 
   beepIn.run(TIME_MS2I(1));
