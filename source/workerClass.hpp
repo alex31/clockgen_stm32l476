@@ -39,6 +39,9 @@ class WorkerThreadSingleton : public WorkerThread<T>
 {
 public:
   WorkerThreadSingleton() = delete;
+  WorkerThreadSingleton(WorkerThreadSingleton const &) = delete;
+  WorkerThreadSingleton& operator=(WorkerThreadSingleton const &) = delete;
+  
   static T &instance(const tprio_t m_prio) {
     static T inst(m_prio);
     return inst;
@@ -47,6 +50,7 @@ protected:
   WorkerThreadSingleton(const char *m_name, const size_t m_size,
 		     const tprio_t m_prio) : WorkerThread<T>(m_name, m_size, m_prio) {};
 
+  ~WorkerThreadSingleton() {}
 };
 
 
