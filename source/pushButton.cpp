@@ -88,4 +88,5 @@ void PushButton::proceedDown(void)
 	  
 
 uint32_t PushButton::factoryIdx = 0U;
+std::array<PushButton*, 2> PushButton::buttons{};
 

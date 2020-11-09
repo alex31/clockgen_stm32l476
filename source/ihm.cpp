@@ -64,7 +64,7 @@ namespace {
 				   }};
   
  ScrollText stManual("manual",
-		      FrameBuffer<LCD_WIDTH, 50U>
+		      FrameBuffer<LCD_WIDTH, 66U>
 		      {"-MANUEL UTILISATEUR-",
 		       "                    ",
 		       "*tourner pour augm- ",
@@ -93,14 +93,30 @@ namespace {
 		       "tive et du rapport  ",
 		       "cyclique.           ",
 		       "                    ",
+		       "* Un signal branche ",
+		       "sur l'entree beep   ",
+		       "enable declenche l' ",
+		       "emission d'un son   ",
+		       "dont le type et le  ",
+		       "volume peuvent etre ",
+		       "regle dans le menu  ",
+		       "parametres          ",
+		       "                    ",
 		       "* Un double clic sur",
 		       "le bouton du haut   ",
-		       "permet de regler le ",
-		       "volume, et le type  ",
-		       "de son, et d'avoir  ",
-		       "acces au pages      ",
-		       "d'information syste-",
-		       "me et de status.    ",
+		       "permet d'ouvrir le  ",
+		       "menu parametres pour",
+		       "le volume, le type  ",
+		       "de son, l'acces aux ",
+		       "pages d'information ",
+		       "systeme et de status",
+		       "                    ",
+		       "* Tourner le bouton ",
+		       "du bas tout en le   ",
+		       "maintenant appuye   ",
+		       "est un raccourcis   ",
+		       "pour regler le      ",
+		       "volume du son.      ",
 		       "                    ",
 		       "* Un appui sur le   ",
 		       "bouton du haut a la ",
@@ -126,10 +142,10 @@ namespace {
   
 
   MainTab mainTab(StateId::Freq);
-  OneColTab freqShortCut(StateId::FreqShortCut, &frequencies);
+  OneColTab freqShortCut(StateId::FreqShortCut, &frequencies, StateId::None, StateId::Param);
   OneColTab voltageChoice(StateId::VoltageChoice, &logicVoltage);
   OneColTab defaultsClear(StateId::ClearDefault, &clearDefault);
-  TwoColsTab param(StateId::Param, {&info, &audioVol, &audioSample});
+  TwoColsTab param(StateId::Param, {&audioVol, &audioSample, &info});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
   OneColTab status(StateId::Status, &stStatus, StateId::ClearDefault);

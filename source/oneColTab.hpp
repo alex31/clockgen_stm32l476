@@ -6,10 +6,12 @@
 class OneColTab : public LcdTab {
 public:
   OneColTab (const StateId stateId, BaseWidget* w,
-	     StateId goOnLong = StateId::None) : LcdTab(stateId),
-						 widget(w),
-						 goOnLongClick(goOnLong)
-                                          {widget->setParentFb(&fb);}
+	     StateId goOnLong = StateId::None,
+	     StateId goOnTP = StateId::None) : LcdTab(stateId),
+					       widget(w),
+					       goOnLongClick(goOnLong),
+					       goOnTurnPress(goOnTP)
+				     {widget->setParentFb(&fb);}
   void enter(void) override;
   void leave(void) override ;
   void eventCb(const Event& ev) override;
@@ -17,4 +19,5 @@ public:
 private:
   BaseWidget* widget;
   StateId goOnLongClick = StateId::None;
+  StateId goOnTurnPress = StateId::None;
 };

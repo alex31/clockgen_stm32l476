@@ -44,6 +44,11 @@ void OneColTab::eventCb(const Event& ev)
       IhmState::push(goOnLongClick);
     break;
 
+  case Events::TurnPress :
+    if (goOnTurnPress != StateId::None)
+      IhmState::go(goOnTurnPress);
+    break;
+
   default: break;
   }
 }

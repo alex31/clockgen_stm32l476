@@ -2,7 +2,7 @@
 #include "ch.h"
 #include "hal.h"
 
-enum class Events : uint8_t {None, Turn, ShortClick, LongClick,
+enum class Events : uint8_t {None, Turn, TurnPress, ShortClick, LongClick,
 			     ClickAtPowerOn, DoubleClick,
 			     SetFreq, Periodic, UnderVoltage,
 			     OverVoltage, Undo}; 

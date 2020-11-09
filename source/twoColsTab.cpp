@@ -36,7 +36,8 @@ void TwoColsTab::leave(void)
 void TwoColsTab::eventCb(const Event& ev) 
 {
   switch(ev.getEvent())  {
-  case Events::Turn : {
+  case Events::Turn:
+  case Events::TurnPress : {
     if(ev.getIndex() == 0) {
       if (ev.getLoad() > 0)
 	left.next();

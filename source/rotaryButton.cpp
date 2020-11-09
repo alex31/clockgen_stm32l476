@@ -1,6 +1,7 @@
 #include "rotaryButton.hpp"
 
 #include "event.hpp"
+#include "pushButton.hpp"
 #include <functional>
 #include <type_traits>
 
@@ -18,7 +19,9 @@ bool RotaryButton::loop()
     int16_t delta = cnt - lastCnt;
     //    DebugTrace("delta = %d", delta);
     if (std::abs(delta) >= 2) {
-      Event ev(Events::Turn, index, delta/2);
+      const bool turnWhilePress = PushButton::getState(index) != PBState::Up;
+      Event ev( turnWhilePress ? Events::TurnPress : Events::Turn,
+		index, delta/2);
       lastCnt = cnt;
       chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
     }

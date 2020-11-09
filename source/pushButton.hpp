@@ -1,6 +1,7 @@
 #pragma once
 #include "workerClass.hpp"
 #include "hardwareConf.hpp"
+#include <array>
 
 namespace PB {
   constexpr size_t threadStackSize = 1024U;
@@ -13,8 +14,10 @@ public:
   PushButton(const tprio_t m_prio, const ioline_t _line) :
     WorkerThread("pushButton", PB::threadStackSize, m_prio),
     line(_line)
-  { index = factoryIdx++; };
-
+  { index = factoryIdx++; buttons[index] = this;};
+  static  PBState getState(const uint8_t index) {
+    return buttons[index]->state;
+  }
 private:
   friend WorkerThread<PushButton>;
   bool init(void) final;
@@ -29,6 +32,7 @@ private:
   PBState state = PBState::Up;
   systime_t ts = chVTGetSystemTimeX();
   static uint32_t factoryIdx;
+  static  std::array<PushButton*, 2> buttons;
 };
 
 
