@@ -221,7 +221,7 @@ LD   = $(TRGT)g++
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$BUILD"
+UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$(BUILD)"
 
 # Define ASM defines here
 UADEFS =
