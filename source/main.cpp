@@ -7,6 +7,7 @@
 #include "resetTTL.hpp"
 #include "hardwareConf.hpp"
 #include "beepIn.hpp"
+#include "adc.hpp"
 #include "ihm.hpp"
 #include "freqCapture.hpp"
 #include "fram.hpp"

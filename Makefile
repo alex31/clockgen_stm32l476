@@ -9,13 +9,13 @@ GIT_TAG := $(shell git describe --abbrev=0 --dirty --always --tags)
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
 
-DEBUG := 1
-OPT_SPEED := 2
-OPT_SIZE := 3
+DEBUG := DEBUG
+SPEED := SPEED
+SIZE := SIZE
 
-EXECMODE := $(DEBUG)
-#EXECMODE := $(OPT_SPEED)
-#EXECMODE := $(OPT_SIZE)
+ifeq    ($(BUILD),)
+        BUILD := $(DEBUG)
+endif
 
 
 GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
@@ -34,14 +34,14 @@ ifeq "$(GCCVERSIONGTEQ10)" "1"
     USE_CPPOPT = -Wno-volatile -Wno-error=deprecated-declarations
 endif
 
-ifeq ($(EXECMODE),$(DEBUG)) 
+ifeq ($(BUILD),$(DEBUG)) 
   USE_LTO = no
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
 endif
 
-ifeq ($(EXECMODE),$(OPT_SPEED))
+ifeq ($(BUILD),$(SPEED))
     USE_LTO = yes
     USE_OPT =  -Ofast -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
@@ -49,7 +49,7 @@ ifeq ($(EXECMODE),$(OPT_SPEED))
 endif
 
 #            --specs=nano.specs -DSMALL_AUDIO_SET
-ifeq ($(EXECMODE),$(OPT_SIZE)) 
+ifeq ($(BUILD),$(SIZE)) 
     USE_LTO = yes
     USE_OPT =  -Os  -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
@@ -221,7 +221,7 @@ LD   = $(TRGT)g++
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" 
+UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$BUILD"
 
 # Define ASM defines here
 UADEFS =

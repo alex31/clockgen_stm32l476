@@ -17,7 +17,7 @@ namespace {
   void eventCb(const Event& ev) {
     LcdTab::propagate(ev); 
   }
-  constexpr size_t lineOfDisplaySystem = 9U;
+  constexpr size_t lineOfDisplaySystem = 10U;
   constexpr size_t lineOfDisplayStatus = 10U;
   constexpr size_t lineOfDisplayAdcAlert = 4U;
   void displaySystemCb(FrameBuffer<LCD_WIDTH, lineOfDisplaySystem> &fb);
@@ -237,6 +237,7 @@ namespace {
     fb.write(0, i++, "Branch=%s", XSTR(GIT_BRANCH));
     fb.write(0, i++, "Tag=%s", XSTR(GIT_TAG));
     fb.write(0, i++, "Vers=%s", XSTR(GIT_SHA));
+    fb.write(0, i++, "Build=%s", XSTR(BUILD));
     fb.write(0, i++, "Kernel %s", CH_KERNEL_VERSION);
     fb.write(0, i++, "Hal  %s", HAL_VERSION);
     fb.write(0, i++, "%s", PORT_COMPILER_NAME);
