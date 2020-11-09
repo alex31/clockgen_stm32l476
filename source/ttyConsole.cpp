@@ -11,7 +11,7 @@
 #include "ttyConsole.hpp"
 #include "etl/string.h"
 #include <etl/vector.h>
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
 #ifdef CONSOLE_DEV_SD
 
@@ -112,9 +112,9 @@ static void cmd_storage(BaseSequentialStream *lchp, int argc,const char* const a
   (void) lchp;
   (void) argv;
   if (argc) {
-    storage.resetAlert();
+    Storage::instance().resetAlert();
   }
-  storage.print();
+  Storage::instance().print();
 }
 
 

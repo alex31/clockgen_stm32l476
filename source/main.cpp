@@ -12,7 +12,7 @@
 #include "freqCapture.hpp"
 #include "fram.hpp"
 #include "timeCount.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
    
 void _init_chibios() __attribute__ ((constructor(101)));
@@ -39,7 +39,7 @@ int main (void)
   beepIn.run(TIME_MS2I(1));
   chThdSleepMilliseconds(10);
   adc.run(TIME_MS2I(100));
-  storage.incPowerOn();
+  Storage::instance().incPowerOn();
   tc.run(TIME_S2I(1));
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   IHM::init();

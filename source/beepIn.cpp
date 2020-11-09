@@ -1,6 +1,6 @@
 #include "beepIn.hpp"
 #include "hardwareConf.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 //#include "stdutil.h"
 
 
@@ -8,8 +8,8 @@ bool BeepIn::init()
 {
   audio.start();
   audio.pause();
-  audio.setDbVolume(storage.getVolume());
-  audio.select(storage.getSampleIndex());
+  audio.setDbVolume(Storage::instance().getVolume());
+  audio.select(Storage::instance().getSampleIndex());
   return true;
 }
 

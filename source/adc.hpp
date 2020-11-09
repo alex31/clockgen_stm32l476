@@ -11,6 +11,10 @@ namespace {
 class ADC : public WorkerThreadSingleton<ADC> {
 public:
   enum EventSource {None, Logic, PowerSupply};
+
+ ADC(ADC const &) = delete;
+ ADC& operator=(ADC const &) = delete;
+
   static float getPowerSupplyVoltage(void)  {return psVolt;}
   static float getLogicVoltage(void)  {return logicVoltage;}
   static Event getVoltageHealth(void);
@@ -19,6 +23,7 @@ protected:
     WorkerThreadSingleton("adc", threadStackSize, m_prio)
   {};
 private:
+  ~ADC() {}
   friend WorkerThreadSingleton<ADC>;
   friend WorkerThread<ADC>;
   bool init(void) final;

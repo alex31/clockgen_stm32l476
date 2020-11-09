@@ -7,7 +7,7 @@
 #include "mainTab.hpp"
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 #include "beepIn.hpp"
 #include "adc.hpp"
 #include "stdutil.h"
@@ -141,7 +141,8 @@ void IHM::init()
   Event::init(&eventCb);
   lcd.run(TIME_MS2I(100));
   lcd.enableCursor(false);
-
+  Storage &storage = Storage::instance();
+  
   Audio& audio = BeepIn::getAudio();
 
   for (size_t i=0; i< audio.getLoopsNumber(); i++) {
@@ -155,13 +156,13 @@ void IHM::init()
   audioSample.set(storage.getSampleIndex());
   audioVol.set(storage.getVolume());
 
-  audioVol.bind([&audio] (uint32_t val) {
+  audioVol.bind([&audio, &storage]  (uint32_t val) {
 		  storage.setVolume(val);
 		  audio.setDbVolume(val);
 		  audio.play();
 		});
 
-  audioSample.bind([&audio] (uint32_t val) {
+  audioSample.bind([&audio, &storage] (uint32_t val) {
 		  storage.setSampleIndex(val);
 		  audio.select(val);
 		  audio.play();
@@ -179,7 +180,7 @@ void IHM::init()
 		     mainTab.setFreq(val);
 		   });
 
-   logicVoltage.bind([] (uint32_t val) {
+   logicVoltage.bind([&storage] (uint32_t val) {
 		     storage.setVoltageRef(val/10.0f);
 		   });
 
@@ -190,12 +191,12 @@ void IHM::init()
 				       else 
 					 logicVoltage.set(1);
 				     });
-   defaultsClear.bind(LcdTab::Leave, [] {
+   defaultsClear.bind(LcdTab::Leave, [&storage] {
 				       if (defaultsClear.get() != 0) {
 					 storage.resetAlert();
 				       }
 				     });
-   adcAlert.bind(LcdTab::Enter, [&audio] {
+   adcAlert.bind(LcdTab::Enter, [&audio, &storage] {
 				  psHealthTrigged = ADC::getVoltageHealth();
 				  // psHealthTrigged.print("lcdtab enter");
 				  audio.pause();
@@ -214,7 +215,7 @@ void IHM::init()
 				  audio.setAttenuation(0.70f);
 				  audio.play();
 				});
-   adcAlert.bind(LcdTab::Leave, [&audio] {
+   adcAlert.bind(LcdTab::Leave, [&audio, &storage] {
 				  audio.pause();
 				  audio.select(storage.getSampleIndex());
 				  audio.setDbVolume(storage.getVolume());
@@ -248,6 +249,7 @@ namespace {
   void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb)
   {
     size_t i=0;
+    Storage &storage = Storage::instance();
     uint32_t min = storage.getAge() / 60;
     uint32_t hour = min / 60;
     const uint32_t day = hour / 24;
