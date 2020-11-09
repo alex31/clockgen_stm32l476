@@ -5,7 +5,14 @@
 class Storage
 {
 public:
-  constexpr Storage(void) = default;
+  Storage(Storage const &) = delete;
+  Storage& operator=(Storage const &) = delete;
+
+  static Storage &instance(void) {
+    static Storage inst;
+    return inst;
+  }
+
   bool load(void);
   bool store(void);
   static bool hasFailed(void) {return failure;}
@@ -43,6 +50,8 @@ public:
 
   
 private:
+  constexpr Storage(void) = default;
+  ~Storage() {}
   static Storage* singletonCheck;
   static bool failure;
   constexpr static uint32_t MAGIC = 0xDEADBEEF;

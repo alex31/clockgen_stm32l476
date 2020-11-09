@@ -1,5 +1,5 @@
 #include "timeCount.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
 
 
@@ -12,6 +12,6 @@ bool TimeCount::init()
 
 bool TimeCount::loop()
 {
-  storage.incAge();
+  Storage::instance().incAge();
   return true;
 }

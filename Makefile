@@ -13,9 +13,9 @@ DEBUG := 1
 OPT_SPEED := 2
 OPT_SIZE := 3
 
-#EXECMODE := $(DEBUG)
+EXECMODE := $(DEBUG)
 #EXECMODE := $(OPT_SPEED)
-EXECMODE := $(OPT_SIZE)
+#EXECMODE := $(OPT_SIZE)
 
 
 GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)

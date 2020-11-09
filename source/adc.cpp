@@ -1,7 +1,7 @@
 #include "adc.hpp"
 #include "hardwareConf.hpp"
 #include "stdutil.h"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
 #define SMPR1_PS CONCAT(ADC_SMPR1_SMP_AN, SUPPLY_VOLTAGE_ADC_IN)
 #define SMPR1_LOGIC CONCAT(ADC_SMPR1_SMP_AN, LOGIC_VOLTAGE_ADC_IN)
@@ -52,6 +52,7 @@ bool ADC::loop()
 {
   adcConvert(&ADCD1, &adcgrpcfg1, adcSamples, DEPTH);
   float mean[CHANNELS] {};
+  Storage &storage = Storage::instance();
   
   for (size_t d=0; d < CHANNELS * DEPTH; d += CHANNELS)
     for (size_t c=0; c < CHANNELS; c++)
@@ -75,7 +76,7 @@ Event ADC::getVoltageHealth(void)
   Event ev;
 
   const float logicDiffPercent = ((logicVoltage * 100.0f) /
-				  storage.getVoltageRef())
+				  Storage::instance().getVoltageRef())
                                   - 100.0f;
   if (logicDiffPercent > 10.0f)  {
     ev.set(Events::OverVoltage, Logic);

@@ -1,10 +1,11 @@
 #include "mainTab.hpp"
 #include "adc.hpp"
 #include "stdutil.h"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
 MainTab::MainTab(const StateId stateId) : LcdTab(stateId)
 {
+  Storage &storage = Storage::instance();
   storage.load();
   frequencies[0].freq = storage.getFrequencies()[0];
   frequencies[1].freq = storage.getFrequencies()[1];
@@ -22,12 +23,12 @@ void MainTab::draw(void)
   if (IhmState::top() != this)
     return;
 
-  fb.write(0,0, "V=%.2f   ", adc.getLogicVoltage());
+  fb.write(0,0, "V=%.2f   ", ADC::getLogicVoltage());
   fb.write(7,0, "F1=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
 	   LCD_WIDTH-7, ' ');
 
-  if (storage.hasFailed() == true) {
+  if (Storage::instance().hasFailed() == true) {
     fb.write(0,1, "sto fail%*c", 10, ' ');
   } else {
     fb.write(0,1, "%*c", 10, ' ');
@@ -176,7 +177,7 @@ void MainTab::eventCb(const Event& ev)
 	  //	DebugTrace("Iter freq DOWN = %lu", freq);
 	}
     }
-    storage.setFrequency(ev.getIndex(), freq);
+    Storage::instance().setFrequency(ev.getIndex(), freq);
   }
 
   

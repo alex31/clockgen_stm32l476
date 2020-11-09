@@ -2,7 +2,7 @@
 #include "ch.h" 
 #include "hal.h" 
 #include "hardwareConf.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 
 bool FRAM::init(void)
 {
@@ -14,5 +14,5 @@ void  FRAM::resetI2c(I2CDriver *i2cd)
 {
   i2cStop(i2cd);
   i2cStart(i2cd, &i2ccfg_1000);
-  storage.incI2cFailure();
+  Storage::instance().incI2cFailure();
 }

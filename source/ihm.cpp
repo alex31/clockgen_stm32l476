@@ -7,9 +7,9 @@
 #include "mainTab.hpp"
 #include "twoColsTab.hpp"
 #include "oneColTab.hpp"
-#include "commonRessource.hpp"
+#include "storage.hpp"
 #include "beepIn.hpp"
-#include "commonRessource.hpp"
+#include "adc.hpp"
 #include "stdutil.h"
 
 namespace {
@@ -141,7 +141,8 @@ void IHM::init()
   Event::init(&eventCb);
   lcd.run(TIME_MS2I(100));
   lcd.enableCursor(false);
-
+  Storage &storage = Storage::instance();
+  
   Audio& audio = BeepIn::getAudio();
 
   for (size_t i=0; i< audio.getLoopsNumber(); i++) {
@@ -155,13 +156,13 @@ void IHM::init()
   audioSample.set(storage.getSampleIndex());
   audioVol.set(storage.getVolume());
 
-  audioVol.bind([&audio] (uint32_t val) {
+  audioVol.bind([&audio, &storage]  (uint32_t val) {
 		  storage.setVolume(val);
 		  audio.setDbVolume(val);
 		  audio.play();
 		});
 
-  audioSample.bind([&audio] (uint32_t val) {
+  audioSample.bind([&audio, &storage] (uint32_t val) {
 		  storage.setSampleIndex(val);
 		  audio.select(val);
 		  audio.play();
@@ -179,24 +180,24 @@ void IHM::init()
 		     mainTab.setFreq(val);
 		   });
 
-   logicVoltage.bind([] (uint32_t val) {
+   logicVoltage.bind([&storage] (uint32_t val) {
 		     storage.setVoltageRef(val/10.0f);
 		   });
 
    // initial choice when entering in menu must reflex reality
    voltageChoice.bind(LcdTab::Enter, [&audio] {
-				       if (adc.getLogicVoltage() < 4.0f) 
+				       if (ADC::getLogicVoltage() < 4.0f) 
 					 logicVoltage.set(0);
 				       else 
 					 logicVoltage.set(1);
 				     });
-   defaultsClear.bind(LcdTab::Leave, [] {
+   defaultsClear.bind(LcdTab::Leave, [&storage] {
 				       if (defaultsClear.get() != 0) {
 					 storage.resetAlert();
 				       }
 				     });
-   adcAlert.bind(LcdTab::Enter, [&audio] {
-				  psHealthTrigged = adc.getVoltageHealth();
+   adcAlert.bind(LcdTab::Enter, [&audio, &storage] {
+				  psHealthTrigged = ADC::getVoltageHealth();
 				  // psHealthTrigged.print("lcdtab enter");
 				  audio.pause();
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
@@ -214,7 +215,7 @@ void IHM::init()
 				  audio.setAttenuation(0.70f);
 				  audio.play();
 				});
-   adcAlert.bind(LcdTab::Leave, [&audio] {
+   adcAlert.bind(LcdTab::Leave, [&audio, &storage] {
 				  audio.pause();
 				  audio.select(storage.getSampleIndex());
 				  audio.setDbVolume(storage.getVolume());
@@ -248,6 +249,7 @@ namespace {
   void displayStatusCb(FrameBuffer<LCD_WIDTH, lineOfDisplayStatus> &fb)
   {
     size_t i=0;
+    Storage &storage = Storage::instance();
     uint32_t min = storage.getAge() / 60;
     uint32_t hour = min / 60;
     const uint32_t day = hour / 24;
@@ -260,8 +262,8 @@ namespace {
     s %= 60;
     m %= 60;
     
-    fb.write(0, i++, "Vpower= %.2f  ", adc.getPowerSupplyVoltage());
-    fb.write(0, i++, "Vlogic= %.2f  ", adc.getLogicVoltage());
+    fb.write(0, i++, "Vpower= %.2f  ", ADC::getPowerSupplyVoltage());
+    fb.write(0, i++, "Vlogic= %.2f  ", ADC::getLogicVoltage());
     fb.write(0, i++, "VLogic Ref = %.2f  ", storage.getVoltageRef());
     fb.write(0, i++, "Age= %dd, %dh, %dm    ", day, hour, min);
     fb.write(0, i++, "Cycles= %d  ", storage.getPowerOn());
@@ -276,7 +278,7 @@ namespace {
   void displayAdcAlertCb(FrameBuffer<LCD_WIDTH, lineOfDisplayAdcAlert> &fb)
   {
     size_t i=0;
-    const Event currentHealth = adc.getVoltageHealth();
+    const Event currentHealth = ADC::getVoltageHealth();
     const bool defaultActive = currentHealth.getEvent() != Events::None;
     Audio& audio = BeepIn::getAudio();
     if (defaultActive)
@@ -300,8 +302,8 @@ namespace {
       fb.write(0, i++, "New ref. registered", 10, ' ');
       fb.write(0, i++, "Double check voltage", 10, ' ');
     }
-    fb.write(0, i++, "Vpower= %.2f%*c", adc.getPowerSupplyVoltage(), 10, ' ');
-    fb.write(0, i++, "Vlogic= %.2f%*c", adc.getLogicVoltage(), 10, ' ');
+    fb.write(0, i++, "Vpower= %.2f%*c", ADC::getPowerSupplyVoltage(), 10, ' ');
+    fb.write(0, i++, "Vlogic= %.2f%*c", ADC::getLogicVoltage(), 10, ' ');
   }
   
 }
