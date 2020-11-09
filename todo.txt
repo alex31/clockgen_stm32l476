@@ -5,9 +5,6 @@ TODO:
    INTERNAL :
 
 
-  + internal : pattern singleton plutot que commonRessource.hpp
-
-
 ===========================================
   + stocker et decoder du mp3
 
