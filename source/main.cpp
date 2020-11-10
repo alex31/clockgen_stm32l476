@@ -13,7 +13,7 @@
 #include "fram.hpp"
 #include "timeCount.hpp"
 #include "storage.hpp"
-
+#include "greenLed.hpp"
    
 void _init_chibios() __attribute__ ((constructor(101)));
 void _init_chibios() {
@@ -35,6 +35,13 @@ int main (void)
   ADC &adc = ADC::instance(NORMALPRIO);
   BeepIn beepIn(NORMALPRIO);
 
+  // if I²C FRAM is not connected, stop here
+  if (Storage::instance().load()) {
+    blinkLed(TIME_MS2I(1000));
+  } else {
+    blinkLed(TIME_MS2I(100));
+  }
+  
   beepIn.run(TIME_MS2I(1));
   chThdSleepMilliseconds(10);
   adc.run(TIME_MS2I(100));

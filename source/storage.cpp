@@ -23,7 +23,7 @@ bool Storage::load(void)
       store();
     }
   } else {
-    failure = true;
+    i2cFailAtInit = true;
   }
   // DebugTrace("====== READ ========");
   // print();
@@ -36,7 +36,7 @@ bool Storage::store(void)
   //  DebugTrace("====== STORE ========");
   //print();
   //  DebugTrace("\n");
-  return FRAM::write(*this, 0);
+  return (not i2cFailAtInit) and FRAM::write(*this, 0);
 }
 
 void Storage::print(void)
@@ -55,5 +55,4 @@ void Storage::print(void)
 }
 
 
-Storage* Storage::singletonCheck = nullptr;
-bool Storage::failure = false;
+bool Storage::i2cFailAtInit = false;

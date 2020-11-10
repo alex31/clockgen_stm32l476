@@ -15,7 +15,7 @@ public:
 
   bool load(void);
   bool store(void);
-  static bool hasFailed(void) {return failure;}
+  static bool hasFailed(void) {return i2cFailAtInit;}
 
   void setFrequency(const uint8_t idx, const uint32_t f) {
     frequencies[idx] = f;
@@ -52,8 +52,7 @@ public:
 private:
   constexpr Storage(void) = default;
   ~Storage() {}
-  static Storage* singletonCheck;
-  static bool failure;
+  static bool i2cFailAtInit;
   constexpr static uint32_t MAGIC = 0xDEADBEEF;
   uint32_t magic;
   std::array<uint32_t, 2> frequencies;
