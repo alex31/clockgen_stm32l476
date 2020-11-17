@@ -36,6 +36,7 @@ public:
   void incPsFailureAlert(void) {psFailureAlert++; store();}
   void setVolume(const uint8_t v) {volume = v; store();}
   void setSampleIndex(const uint8_t i) {sampleIndex = i; store();}
+  void setEnableF2(const bool e) {enableF2 = e;}
   
   float getVoltageRef(void) const {return voltageRef;}
   uint32_t getAge(void) const {return age;}
@@ -46,6 +47,7 @@ public:
   uint32_t getI2cFailure(void) const {return i2cFailure;}
   uint8_t getVolume(void) const {return volume;}
   uint8_t getSampleIndex(void) const {return sampleIndex;}
+  bool	  getEnableF2(void) const {return enableF2;}
   void print(void);
 
   
@@ -65,4 +67,5 @@ private:
   uint32_t i2cFailure;
   uint8_t volume;
   uint8_t sampleIndex;
+  bool	  enableF2;
 };

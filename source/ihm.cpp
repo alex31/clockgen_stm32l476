@@ -32,13 +32,17 @@ namespace {
   PushButton pb1(NORMALPRIO, LINE_BOUTON_F1_SW);
 
   MenuEntries<10, 16> audioSample{"sample", 10, 0, {}}; // build dynamically
-  NumericEntry<10> audioVol{"volume", 10, 0, 10, 5, {0, 100}};
+  NumericEntry<10> audioVol{"volume", 10, 0, 50, 5, {30, 100}};
 
   MenuEntries<10, 4> info{"info", 10, 0, {
 					   {1, "manual", StateId::Manual}, 
 					   {2, "system", StateId::System},
 					   {3, "status", StateId::Status}
 					   }};
+  MenuEntries<10, 4> enableF2{"show F2", 10, 0,
+			      {{0, "F1"},
+			       {1, "F1 + F2"}
+			      }};
 
   MenuEntries<20, 16> frequencies{"freq.", 0, 0, {
 					 {1_hz, "1 Hz"},
@@ -62,7 +66,8 @@ namespace {
 				   {{0, "Keep defaults"},
 				    {1, "Clear defaults"}
 				   }};
-  
+
+   
  ScrollText stManual("manual",
 		      FrameBuffer<LCD_WIDTH, 66U>
 		      {"-MANUEL UTILISATEUR-",
@@ -145,7 +150,7 @@ namespace {
   OneColTab freqShortCut(StateId::FreqShortCut, &frequencies, StateId::None, StateId::Param);
   OneColTab voltageChoice(StateId::VoltageChoice, &logicVoltage);
   OneColTab defaultsClear(StateId::ClearDefault, &clearDefault);
-  TwoColsTab param(StateId::Param, {&audioVol, &audioSample, &info});
+  TwoColsTab param(StateId::Param, {&audioVol, &audioSample, &info, &enableF2});
   OneColTab manual(StateId::Manual, &stManual);
   OneColTab system(StateId::System, &stSystem);
   OneColTab status(StateId::Status, &stStatus, StateId::ClearDefault);
@@ -198,6 +203,10 @@ void IHM::init()
 
    logicVoltage.bind([&storage] (uint32_t val) {
 		     storage.setVoltageRef(val/10.0f);
+		   });
+
+   enableF2.bind([&storage] (uint32_t val) {
+		       storage.setEnableF2(val == 0 ? false : true);
 		   });
 
    // initial choice when entering in menu must reflex reality

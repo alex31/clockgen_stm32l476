@@ -2,6 +2,7 @@
 #include "adc.hpp"
 #include "stdutil.h"
 #include "storage.hpp"
+#include "beepIn.hpp"
 
 MainTab::MainTab(const StateId stateId) : LcdTab(stateId)
 {
@@ -22,7 +23,8 @@ void MainTab::draw(void)
 {
   if (IhmState::top() != this)
     return;
-
+  Storage &storage = Storage::instance();
+  
   fb.write(0,0, "V=%.2f   ", ADC::getLogicVoltage());
   fb.write(7,0, "F1=%s %c%*c",
 	   LCDDisplay::freq2Str(frequencies[0].freq).c_str(), char(frequencies[0].dir),
@@ -30,13 +32,19 @@ void MainTab::draw(void)
 
   if (Storage::instance().hasFailed() == true) {
     fb.write(0,1, "sto fail%*c", 10, ' ');
+  } else if (BeepIn::hasRecentChange()) {
+    fb.write(0,1, "Vol=%d  ", storage.getVolume());
   } else {
     fb.write(0,1, "%*c", 10, ' ');
   }
-  fb.write(7,1, "F2=%s %c%*c",
-	   LCDDisplay::freq2Str(frequencies[1].freq).c_str(), char(frequencies[1].dir),
-	   LCD_WIDTH-7, ' ');
-
+  
+  if (storage.getEnableF2()) {
+    fb.write(7,1, "F2=%s %c%*c",
+	     LCDDisplay::freq2Str(frequencies[1].freq).c_str(), char(frequencies[1].dir),
+	     LCD_WIDTH-7, ' ');
+  } else {
+    fb.write(7,1, "%*c", LCD_WIDTH-7, ' ');
+  }
 
   if (ICU::getFrequency() == 0) {
     fb.write(0,2, "%*c", LCD_WIDTH, ' ');

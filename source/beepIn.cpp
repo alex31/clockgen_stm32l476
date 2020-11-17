@@ -20,6 +20,7 @@ bool BeepIn::loop()
   bool on = palReadLine(LINE_BUZZER_IN) == PAL_HIGH;
 
   if (on != lastState) {
+    lastChangeTs = chVTGetSystemTime();
     if (on) { 
       audio.play();
     } else {
@@ -31,7 +32,11 @@ bool BeepIn::loop()
   return true;
 }
 
-
+bool BeepIn::hasRecentChange(void)
+{
+  return TIME_I2S(chTimeDiffX(lastChangeTs, chVTGetSystemTime())) < 2;
+}
 
 Audio BeepIn::audio;
 bool  BeepIn::lastState = false;
+systime_t BeepIn::lastChangeTs=0;
