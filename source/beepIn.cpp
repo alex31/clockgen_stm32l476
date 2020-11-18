@@ -19,8 +19,10 @@ bool BeepIn::loop()
 {
   bool on = palReadLine(LINE_BUZZER_IN) == PAL_HIGH;
 
-  if (on != lastState) {
+  if (on)
     lastChangeTs = chVTGetSystemTime();
+
+  if (on != lastState) {
     if (on) { 
       audio.play();
     } else {

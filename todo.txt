@@ -3,7 +3,6 @@ TODO:
 
 
    INTERNAL :
-   afficher volume
 
 ===========================================
   + stocker et decoder du mp3
@@ -11,9 +10,3 @@ TODO:
   + (plus tard) faire une FFT sur les tensions pour detecter une instabilité des alims au demarrage
 
   + possibilité de fréquences "custom" dans les raccourcis ?
-
-
-
-
-
-
