@@ -14,7 +14,7 @@ SPEED := SPEED
 SIZE := SIZE
 
 ifeq    ($(BUILD),)
-        BUILD := $(DEBUG)
+        BUILD := $(SIZE)
 endif
 
 
