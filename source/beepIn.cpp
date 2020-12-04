@@ -22,7 +22,7 @@ bool BeepIn::loop()
   if (on)
     lastChangeTs = chVTGetSystemTime();
 
-  if (on != lastState) {
+  if ((on != lastState) and enabled) {
     if (on) { 
       audio.play();
     } else {
@@ -36,9 +36,10 @@ bool BeepIn::loop()
 
 bool BeepIn::hasRecentChange(void)
 {
-  return TIME_I2S(chTimeDiffX(lastChangeTs, chVTGetSystemTime())) < 2;
+  return TIME_I2S(chTimeDiffX(lastChangeTs, chVTGetSystemTime())) < 2U;
 }
 
 Audio BeepIn::audio;
 bool  BeepIn::lastState = false;
+volatile bool  BeepIn::enabled = true;
 systime_t BeepIn::lastChangeTs=0;

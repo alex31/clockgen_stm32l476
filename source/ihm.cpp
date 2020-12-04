@@ -224,6 +224,7 @@ void IHM::init()
    adcAlert.bind(LcdTab::Enter, [&audio, &storage] {
 				  psHealthTrigged = ADC::getVoltageHealth();
 				  // psHealthTrigged.print("lcdtab enter");
+				  BeepIn::disable();
 				  audio.pause();
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
 				    storage.incPsFailureAlert();
@@ -244,6 +245,7 @@ void IHM::init()
 				  audio.pause();
 				  audio.select(storage.getSampleIndex());
 				  audio.setDbVolume(storage.getVolume());
+				  BeepIn::enable();
 				});
   LcdTab::push(StateId::Freq);
   rb1.run(TIME_MS2I(100));

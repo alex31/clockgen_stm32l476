@@ -11,11 +11,14 @@ public:
   {};
   static Audio& getAudio(void) {return audio;}
   static bool hasRecentChange(void);
+  static void enable(void) {enabled = true;}
+  static void disable(void) {enabled = false;}
 private:
   static constexpr size_t threadStackSize = 1024U;
   static  Audio audio;
   static bool  lastState;
   static systime_t lastChangeTs;
+  static volatile bool enabled;
   friend WorkerThread<BeepIn>;
   bool init(void) final;
   bool loop(void) final;
