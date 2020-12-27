@@ -214,8 +214,8 @@ static void cmd_mem(BaseSequentialStream *lchp, int argc,const char* const argv[
 
 #if  CH_DBG_THREADS_PROFILING
 static void cmd_threads(BaseSequentialStream *lchp, int argc,const char* const argv[]) {
-  static const char *states[] = {THD_STATE_NAMES};
-  Thread *tp = chRegFirstThread();
+  static const char *states[] = {CH_STATE_NAMES};
+  thread_t *tp = chRegFirstThread();
   (void)argv;
   (void)argc;
   float totalTicks=0;
@@ -231,14 +231,14 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char* const a
     chprintf(lchp, "%.8lx %.8lx %6lu %4lu %4lu %9s %9lu   %.1f    \t%s\r\n",
 	      (uint32_t)tp, (uint32_t)tp->ctx.sp,
 	      get_stack_free (tp),
-	      (uint32_t)tp->prio, (uint32_t)(tp->refs - 1),
+	      (uint32_t)tp->hdr.pqueue.prio, (uint32_t)(tp->refs - 1),
 	      states[tp->state], (uint32_t)tp->time, 
 	      stampThreadGetCpuPercent (&threadCpuInfo, idx),
-	      chRegGetThreadName(tp));
+	      chRegGetThreadNameX(tp));
     totalTicks+= (float) tp->time;
-    if (strcmp (chRegGetThreadName(tp), "idle") == 0)
+    if (strcmp (chRegGetThreadNameX(tp), "idle") == 0)
       idleTicks =  (float) tp->time;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while (tp != NULL);
 
@@ -320,7 +320,7 @@ void consoleLaunch (void)
 #if  CH_DBG_THREADS_PROFILING
 static void stampThreadCpuInfo (ThreadCpuInfo *ti)
 {
-  const Thread *tp =  chRegFirstThread();
+  const thread_t *tp =  chRegFirstThread();
   uint32_t idx=0;
   
   float totalTicks =0;
@@ -328,7 +328,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
     totalTicks+= (float) tp->time;
     ti->cpu[idx] = (float) tp->time - ti->ticks[idx];;
     ti->ticks[idx] = (float) tp->time;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
   
@@ -339,7 +339,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
   idx=0;
   do {
     ti->cpu[idx] =  (ti->cpu[idx]*100.f)/diffTotal;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
 }
