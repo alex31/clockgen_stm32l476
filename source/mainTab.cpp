@@ -12,11 +12,20 @@ MainTab::MainTab(const StateId stateId) : LcdTab(stateId)
   frequencies[1].freq = storage.getFrequencies()[1];
   (void) f1.setFreq(frequencies[0].freq);
   (void) f2.setFreq(frequencies[1].freq);
+  enableF2(storage.getEnableF2());
 }
 
 void MainTab::enter(void)
 {
   draw();
+}
+
+void MainTab::enableF2(bool en)
+{
+  if (en)
+    f2.play();
+  else
+    f2.pause();
 }
 
 void MainTab::draw(void)

@@ -22,6 +22,7 @@ public:
   void leave(void) override ;
   void eventCb(const Event& ev) override;
   void setFreq(const uint32_t freq);
+  void enableF2(bool en);
 
 private:
   ClockGenerator f1{&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1};

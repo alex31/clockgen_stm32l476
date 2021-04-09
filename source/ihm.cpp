@@ -206,7 +206,9 @@ void IHM::init()
 		   });
 
    enableF2.bind([&storage] (uint32_t val) {
-		       storage.setEnableF2(val == 0 ? false : true);
+		   const bool enable = (val != 0);
+		     storage.setEnableF2(enable);
+		     mainTab.enableF2(enable);
 		   });
 
    // initial choice when entering in menu must reflex reality
