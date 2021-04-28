@@ -2,7 +2,7 @@
 #include "event.hpp"
 #include "hardwareConf.hpp"
 #include "stdutil.h"
-
+#include <limits>
 
 namespace {
   constexpr uint32_t ICU_FREQ = STM32_SYSCLK;
