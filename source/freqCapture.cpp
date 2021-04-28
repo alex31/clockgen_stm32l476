@@ -3,10 +3,10 @@
 #include "hardwareConf.hpp"
 #include "stdutil.h"
 #include <limits>
+#include <cmath>
 
 namespace {
-  constexpr uint32_t ICU_FREQ = STM32_SYSCLK;
-
+  constexpr uint32_t ICU_FREQ = STM32_SYSCLK; 
   
   const ICUConfig icucfg = {
   .mode = ICU_INPUT_ACTIVE_HIGH,
@@ -27,6 +27,8 @@ namespace ICU {
 void init(void)
 {
   icuStart(&ICU_IN, &icucfg);
+  // enable glitch digital filter  fSAMPLING=fDTS/32, N=8
+  ICU_IN.tim->CCMR1 |= (0b1111 << TIM_CCMR1_IC1F_Pos); 
   icuStartCapture(&ICU_IN);
 }
 
@@ -37,7 +39,7 @@ float getFrequency(void)
     return 0.0f;
   } else {
     //    DebugTrace("icuGetPeriodX = %lu", icuGetPeriodX(&ICU_IN));
-    return static_cast<float>(ICU_FREQ) / (icuGetPeriodX(&ICU_IN)+1U);
+    return floorf(static_cast<float>(ICU_FREQ) / (icuGetPeriodX(&ICU_IN)+1U));
   }
 }
 
