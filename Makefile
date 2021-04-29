@@ -12,6 +12,7 @@ GIT_TAG := $(shell git describe --abbrev=0 --dirty --always --tags)
 DEBUG := DEBUG
 SPEED := SPEED
 SIZE := SIZE
+SMALL := SMALL
 
 ifeq    ($(BUILD),)
         BUILD := $(SIZE)
@@ -39,6 +40,13 @@ ifeq ($(BUILD),$(DEBUG))
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
+endif
+
+ifeq ($(BUILD),$(SMALL)) 
+  USE_LTO = yes
+  USE_OPT =  -Os -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+	    $(GCC_DIAG) -DNO_AUDIO_SET -DTRACE
 endif
 
 ifeq ($(BUILD),$(SPEED))

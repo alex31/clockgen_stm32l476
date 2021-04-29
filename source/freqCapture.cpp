@@ -5,8 +5,22 @@
 #include <limits>
 #include <cmath>
 
+
 namespace {
-  constexpr uint32_t ICU_FREQ = STM32_SYSCLK; 
+  /* Input filter, see RM0351 page 1070 on IC1F IC2F on CCMR1 timer register*/
+  enum ICFFilter_t {ICF_noFilter=0,
+		    ICF_fCKINT_N2, ICF_fCKINT_N4, ICF_fCKINT_N8,
+		    ICF_fDTS_Div2_N6, ICF_fDTS_Div2_N8,
+		    ICF_fDTS_Div4_N6, ICF_fDTS_Div4_N8,
+		    ICF_fDTS_Div8_N6, ICF_fDTS_Div8_N8,
+		    ICF_fDTS_Div16_N5, ICF_fDTS_Div16_N6, ICF_fDTS_Div16_N8,
+		    ICF_fDTS_Div32_N5, ICF_fDTS_Div32_N6, ICF_fDTS_Div32_N8, ICF_End};
+  static_assert (ICF_End == 16U);
+
+  constexpr uint32_t ICU_FREQ = STM32_SYSCLK;
+
+  // use the most effective value, limiting input frequency to 100khz
+  constexpr uint32_t ICxF_Filter = ICF_fDTS_Div32_N8;
   
   const ICUConfig icucfg = {
   .mode = ICU_INPUT_ACTIVE_HIGH,
@@ -27,8 +41,9 @@ namespace ICU {
 void init(void)
 {
   icuStart(&ICU_IN, &icucfg);
-  // enable glitch digital filter  fSAMPLING=fDTS/32, N=8
-  ICU_IN.tim->CCMR1 |= (0b1111 << TIM_CCMR1_IC1F_Pos); 
+  // enable glitch digital filter  
+  ICU_IN.tim->CCMR1 |= ((ICxF_Filter << TIM_CCMR1_IC1F_Pos) |
+			(ICxF_Filter << TIM_CCMR1_IC2F_Pos)); 
   icuStartCapture(&ICU_IN);
 }
 
