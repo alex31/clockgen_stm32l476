@@ -125,18 +125,18 @@ class NumericEntry : public BaseEntry<SW, LCD_HEIGHT> {
   
 public:
   NumericEntry(const FixedStr& name,
-	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
+	       FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *ffb,
 	       uint8_t anchorx, uint8_t anchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
-    BaseEntry<SW, LCD_HEIGHT>(name, fb, anchorx, anchory),
+    BaseEntry<SW, LCD_HEIGHT>(name, ffb, anchorx, anchory),
 	       inc(_inc),
     interval(_interval) {this->val = _val;}
-  NumericEntry(const FixedStr& name,
-	       uint8_t anchorx, uint8_t anchory,
+  NumericEntry(const FixedStr& nname,
+	       uint8_t aanchorx, uint8_t aanchory,
 	       const int32_t _val, const int32_t _inc,
 	       const std::pair<int32_t, int32_t>& _interval) :
-    BaseEntry<SW, LCD_HEIGHT>(name, nullptr, anchorx, anchory),
+    BaseEntry<SW, LCD_HEIGHT>(nname, nullptr, aanchorx, aanchory),
 	       inc(_inc),
 	       interval(_interval) {this->val = _val;};
   void fill(const uint8_t margin = 0U, const etl::string_view sep = "") override;
@@ -171,29 +171,29 @@ public:
 	      FrameBuffer<LCD_WIDTH, SH> &&_content) :
     BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
     content(std::move(_content)) {};
-  ScrollText(const FixedStr& name,
+  ScrollText(const FixedStr& nname,
 	      FrameBuffer<LCD_WIDTH, SH> &&_content)
 	      :
-    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    BaseEntry<LCD_WIDTH, SH>(nname, nullptr, 0, 0),
     content(std::move(_content)) {};
-  ScrollText(const FixedStr& name,
+  ScrollText(const FixedStr& nname,
 	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	      const FrameBuffer<LCD_WIDTH, SH> &_content) :
-    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    BaseEntry<LCD_WIDTH, SH>(nname, fb, 0, 0),
     content(_content) {};
-  ScrollText(const FixedStr& name,
+  ScrollText(const FixedStr& nname,
 	      const FrameBuffer<LCD_WIDTH, SH> &_content)
 	      :
-    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    BaseEntry<LCD_WIDTH, SH>(nname, nullptr, 0, 0),
     content(_content) {};
-  ScrollText(const FixedStr& name,
+  ScrollText(const FixedStr& nname,
 	      FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
 	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
-    BaseEntry<LCD_WIDTH, SH>(name, fb, 0, 0),
+    BaseEntry<LCD_WIDTH, SH>(nname, fb, 0, 0),
     drawFn(_drawFn) {};
-  ScrollText(const FixedStr& name,
+  ScrollText(const FixedStr& nname,
 	     std::function<void(FrameBuffer<LCD_WIDTH, SH> &fb)> _drawFn) :
-    BaseEntry<LCD_WIDTH, SH>(name, nullptr, 0, 0),
+    BaseEntry<LCD_WIDTH, SH>(nname, nullptr, 0, 0),
     drawFn(_drawFn) {};
   void fill([[maybe_unused]] const uint8_t margin = 0U,
 	    [[maybe_unused]] const etl::string_view sep = "") {};
@@ -244,21 +244,21 @@ FrameBuffer<SW, SL>::FbView MenuEntries<SW, SL>::getView(void)
 }
 
 template <size_t SW, size_t SL>
-MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
-				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *fb,
-				 uint8_t anchorx, uint8_t anchory,
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& nname,
+				 FrameBuffer<LCD_WIDTH, LCD_HEIGHT> *ffb,
+				 uint8_t aanchorx, uint8_t aanchory,
 				 std::initializer_list<Entry> il) :
-  BaseEntry<SW, SL>(name, fb, anchorx, anchory)
+  BaseEntry<SW, SL>(nname, ffb, aanchorx, aanchory)
 {
   for (const auto& e : il)
     addEntry(e);
 }
 
 template <size_t SW, size_t SL>
-MenuEntries<SW, SL>::MenuEntries(const FixedStr& name,
-				 uint8_t anchorx, uint8_t anchory,
+MenuEntries<SW, SL>::MenuEntries(const FixedStr& nname,
+				 uint8_t aanchorx, uint8_t aanchory,
 				 std::initializer_list<Entry> il) :
-  BaseEntry<SW, SL>(name, nullptr, anchorx, anchory)
+  BaseEntry<SW, SL>(nname, nullptr, aanchorx, aanchory)
 {
   for (const auto& e : il)
     addEntry(e);

@@ -72,12 +72,12 @@ void PushButton::proceedDown(void)
 	      } else {
 		chVTResetI(&pb->vt);
 		chVTSetI(&pb->vt, TIME_MS2I(LONG_CLIC_INTERVAL_MS),
-			 [] ([[maybe_unused]] void *arg) {
+			 [] (void *aarg) {
 			   chSysLockFromISR();
-			   PushButton *pb = static_cast<PushButton *>(arg);
-			   Event ev(Events::LongClick, pb->index);
+			   PushButton *ppb = static_cast<PushButton *>(aarg);
+			   Event ev(Events::LongClick, ppb->index);
 			   chMBPostI(&EVT::mb, ev.getEventAsMsg());
-			   pb->state = PBState::LongDown;
+			   ppb->state = PBState::LongDown;
 			   chSysUnlockFromISR();
 			 }, pb);
 	      }

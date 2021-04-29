@@ -31,15 +31,15 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
             -Wformat-overflow=2
 
 ifeq "$(GCCVERSIONGTEQ10)" "1"
-    GCC_DIAG = -Wno-error=volatile 
+#    GCC_DIAG = -Wno-error=volatile 
     USE_CPPOPT = -Wno-volatile -Wno-error=deprecated-declarations
 endif
 
 ifeq ($(BUILD),$(DEBUG)) 
   USE_LTO = no
-  USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
+  USE_OPT =  -Og -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
+	    $(GCC_DIAG) -DNO_AUDIO_SET -DTRACE
 endif
 
 ifeq ($(BUILD),$(SMALL)) 
