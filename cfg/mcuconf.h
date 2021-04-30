@@ -389,7 +389,8 @@
 #define USERLIB_USE_HD44780 TRUE
 #define HD44780_USE_DIMMABLE_BACKLIGHT      FALSE
 #define HD44780_USE_4_BIT_MODE		    TRUE
-#define HD44780_ENABLE_PIN_DELAY()  {chSysPolledDelayX((US2RTC(STM32_SYSCLK, 3U) / 2U));}
+#define HD44780_ENABLE_PIN_DELAY()  {chSysPolledDelayX((US2RTC(STM32_SYSCLK, 3U) / 2U)); \
+				     __sync_synchronize();}
 
 
 #endif /* MCUCONF_H */
