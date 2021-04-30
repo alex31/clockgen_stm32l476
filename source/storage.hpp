@@ -31,9 +31,9 @@ public:
       overVoltageAlert = psFailureAlert = 0;
     store();
   }
-  void incUnderVoltageAlert(void) {underVoltageAlert++; store();}
+  void incUnderVoltageAlertX(void) {underVoltageAlert++; storePending = true;}
   void incOverVoltageAlert(void) {overVoltageAlert++; store();}
-  void incPsFailureAlert(void) {psFailureAlert++; store();}
+  void incPsFailureAlertX(void) {psFailureAlert++; storePending = true;}
   void setVolume(const uint8_t v) {volume = v; store();}
   void setSampleIndex(const uint8_t i) {sampleIndex = i; store();}
   void setEnableF2(const bool e) {enableF2 = e;}
@@ -52,10 +52,12 @@ public:
 
   
 private:
-  constexpr Storage(void) = default;
+  Storage(void);
   ~Storage() {}
+  static void periodicStore(void *arg);
+  static volatile bool storePending;
   static bool i2cFailAtInit;
-  constexpr static uint32_t MAGIC = 0xDEADBEEF;
+  constexpr static uint32_t MAGIC = 0xBEEFC0DE;
   uint32_t magic;
   std::array<uint32_t, 2> frequencies;
   float voltageRef;

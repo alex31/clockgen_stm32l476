@@ -106,7 +106,7 @@ constexpr uint8_t LCDDisplay::xy2pos(uint8_t line, uint8_t posx)
 
 etl::string<10> LCDDisplay::freq2Str(uint32_t freq)
 {
-  char buf[10];
+  char buf[12];
   
     if (freq == 0) {
       strncpy(buf, "--------", sizeof(buf));

@@ -4,6 +4,10 @@
 #include "stdutil.h"
 #endif
 
+Storage::Storage(void) {
+  chThdCreateFromHeap(nullptr, 1024U, "periodicStore", NORMALPRIO,
+		      &periodicStore, nullptr);
+}
 
 bool Storage::load(void)
 {
@@ -56,3 +60,15 @@ void Storage::print(void)
 
 
 bool Storage::i2cFailAtInit = false;
+volatile bool Storage::storePending = false;
+
+void Storage::periodicStore([[maybe_unused]] void *arg)
+{
+  while (true) {
+    if (storePending) {
+      instance().store();
+      storePending = false;
+    }
+    chThdSleepMilliseconds(10);
+  }
+}

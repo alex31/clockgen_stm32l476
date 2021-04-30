@@ -25,6 +25,7 @@ namespace {
   void displayAdcAlertCb(FrameBuffer<LCD_WIDTH, lineOfDisplayAdcAlert> &fb);
 
   Event psHealthTrigged;
+  virtual_timer_t vt;
   // order of declaration matters
   RotaryButton rb2(NORMALPRIO, ENCODER_F2);
   RotaryButton rb1(NORMALPRIO, ENCODER_F1);
@@ -160,6 +161,7 @@ namespace {
 void IHM::init()
 {
   Event::init(&eventCb);
+  chVTObjectInit(&vt);
   lcd.run(TIME_MS2I(100));
   lcd.enableCursor(false);
   Storage &storage = Storage::instance();
@@ -229,11 +231,23 @@ void IHM::init()
 				  BeepIn::disable();
 				  audio.pause();
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
-				    storage.incPsFailureAlert();
+				    // introduce delay before storing to filter bench power off
+				    chVTSet(&vt, TIME_MS2I(1500),
+					    [] ([[maybe_unused]] void *arg) {
+					      auto *lstorage = (Storage *) arg;
+					      lstorage->incPsFailureAlertX();
+					    }
+					    , &storage);
 				    audio.select("psfail");
 				  } else {
 				    if (psHealthTrigged.getEvent() == Events::UnderVoltage) {
-				      storage.incUnderVoltageAlert();
+				    // introduce delay before storing to filter bench power off
+				      chVTSet(&vt, TIME_MS2I(1500),
+					      [] ([[maybe_unused]] void *arg) {
+						auto *lstorage = (Storage *) arg;
+						lstorage->incUnderVoltageAlertX();
+					      }
+					      , &storage);
 				      audio.select("shortcut");
 				    } else {
 				      storage.incOverVoltageAlert();

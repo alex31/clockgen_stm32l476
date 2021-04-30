@@ -11,11 +11,12 @@ GIT_TAG := $(shell git describe --abbrev=0 --dirty --always --tags)
 
 DEBUG := DEBUG
 SPEED := SPEED
-SIZE := SIZE
+RELEASE := RELEASE
 SMALL := SMALL
+CHECKS := CHECKS
 
 ifeq    ($(BUILD),)
-        BUILD := $(SIZE)
+        BUILD := $(RELEASE)
 endif
 
 
@@ -39,7 +40,7 @@ ifeq ($(BUILD),$(DEBUG))
   USE_LTO = no
   USE_OPT =  -Og -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DNO_AUDIO_SET -DTRACE
+	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
 endif
 
 ifeq ($(BUILD),$(SMALL)) 
@@ -57,14 +58,27 @@ ifeq ($(BUILD),$(SPEED))
 endif
 
 #            --specs=nano.specs -DSMALL_AUDIO_SET
-ifeq ($(BUILD),$(SIZE)) 
+ifeq ($(BUILD),$(RELEASE)) 
+    USE_LTO = yes
+    USE_OPT =  -Os  -flto  -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+            -DCH_DBG_STATISTICS=0 \
+            -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
+	    -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
+            -DCH_DBG_FILL_THREADS=0 \
+	    -DCH_CFG_ST_TIMEDELTA=2 -DCH_CFG_TIME_QUANTUM=0 \
+            -DNOSHELL \
+	     $(GCC_DIAG) 
+endif
+
+ifeq ($(BUILD),$(CHECKS)) 
     USE_LTO = yes
     USE_OPT =  -Os  -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
             -DCH_DBG_STATISTICS=1 \
-            -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
-	    -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
-            -DCH_DBG_FILL_THREADS=0 \
+            -DCH_DBG_SYSTEM_STATE_CHECK=1 -DCH_DBG_ENABLE_CHECKS=1 \
+	    -DCH_DBG_ENABLE_ASSERTS=1 -DCH_DBG_ENABLE_STACK_CHECK=1 \
+            -DCH_DBG_FILL_THREADS=1 \
 	    -DCH_CFG_ST_TIMEDELTA=2 -DCH_CFG_TIME_QUANTUM=0 \
 	     $(GCC_DIAG) 
 endif
