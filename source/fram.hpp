@@ -45,10 +45,12 @@ bool FRAM::read(T& object, const uint16_t memAddr)
   {
     const uint8_t slaveNumber = slaveNumberBase | ((memAddr >> 8) & 0x07);
     const uint8_t memAddrLsb = memAddr & 0xFF;
+    i2cAcquireBus(&I2C_FRAM);
     msg_t res = i2cMasterTransmitTimeout(&I2C_FRAM, slaveNumber,
 					 &memAddrLsb, sizeof(memAddrLsb),
 					 reinterpret_cast<uint8_t *>(&object),
 					 sizeof(T), TIME_MS2I(10));
+    i2cReleaseBus(&I2C_FRAM);
     return res == MSG_OK;
   }
  
