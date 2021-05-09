@@ -232,7 +232,7 @@ void IHM::init()
 				  audio.pause();
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
 				    // introduce delay before storing to filter bench power off
-				    chVTSet(&vt, TIME_MS2I(1500),
+				    chVTSet(&vt, TIMOUT_BEFORE_POWER_LOSS_LOG,
 					    [] ([[maybe_unused]] void *arg) {
 					      auto *lstorage = (Storage *) arg;
 					      lstorage->incPsFailureAlertX();
@@ -242,7 +242,7 @@ void IHM::init()
 				  } else {
 				    if (psHealthTrigged.getEvent() == Events::UnderVoltage) {
 				    // introduce delay before storing to filter bench power off
-				      chVTSet(&vt, TIME_MS2I(1500),
+				      chVTSet(&vt, TIMOUT_BEFORE_POWER_LOSS_LOG,
 					      [] ([[maybe_unused]] void *arg) {
 						auto *lstorage = (Storage *) arg;
 						lstorage->incUnderVoltageAlertX();
