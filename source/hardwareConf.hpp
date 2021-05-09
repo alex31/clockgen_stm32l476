@@ -78,7 +78,7 @@ static constexpr size_t ADC_RESOLUTION_IN_BITS = 12U;
 static constexpr uint32_t SAMPLE_MAX = (1<<ADC_RESOLUTION_IN_BITS) - 1;
 static constexpr float LOGIC_VOLTAGE_RATIO = 2.0f;
 static constexpr float POWER_SUPPLY_VOLTAGE_RATIO = 5.55;
-static constexpr uint32_t TIMOUT_BEFORE_POWER_LOSS_LOG = TIME_MS2I(1000U);
+static constexpr systime_t TIMOUT_BEFORE_POWER_LOSS_LOG = TIME_MS2I(1000U);
 
 
 static_assert(BOUTON_F2_IN_A_TIM == BOUTON_F2_IN_B_TIM);
