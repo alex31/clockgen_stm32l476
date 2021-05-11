@@ -390,10 +390,8 @@
 #define HD44780_USE_DIMMABLE_BACKLIGHT      FALSE
 #define HD44780_USE_4_BIT_MODE		    TRUE
 #define HD44780_ENABLE_PIN_DELAY()  { asm volatile("": : :"memory");			  \
-                                      __sync_synchronize(); 				  \
 				      chSysPolledDelayX((US2RTC(STM32_SYSCLK, 3U) / 2U)); \
-				      __sync_synchronize();				  \
-				       asm volatile("": : :"memory");			  \
+				      asm volatile("": : :"memory");			  \
   }
 
 
