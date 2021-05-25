@@ -1,6 +1,10 @@
 
 TODO:
 
+° enlever les raccourcis vers les frequences multiples de 10 hormis premier et dernier
+° reglage volume : enlever les bornes
+
+
 
    INTERNAL :
 

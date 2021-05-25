@@ -47,16 +47,12 @@ namespace {
 
   MenuEntries<20, 16> frequencies{"freq.", 0, 0, {
 					 {1_hz, "1 Hz"},
-					 {10_hz, "10 Hz"},
-					 {100_hz, "100 Hz"},
-					 {1_khz, "1 Khz"},
 					 {2.4_khz, "2.4 Khz"},
 					 {4.8_khz, "4.8 Khz"},
 					 {8_khz, "8 Khz"},
 					 {9600, "9.6 Khz"},
-					 {10_khz, "10 Khz"},
-					 {100_khz, "100 Khz"}
-				 }};
+
+						  }};
 
   MenuEntries<20, 4> logicVoltage{"logic Vcc", 0, 0,
 				   {{33, "Logic 3.3V [Func]"},

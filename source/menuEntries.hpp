@@ -351,10 +351,16 @@ void NumericEntry<SW>::fill(const uint8_t margin, const etl::string_view sep)
     if (sep.length())
       s.append(sep.begin(), sep.end());
   }
-  fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
-  fb.append(1, "[%d]%*c", this->val, LCD_WIDTH, ' ');
-  fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
-  fb.append(3, "%*c", LCD_WIDTH, ' ');
+  if  constexpr (NUMERIC_ENTRY_SHOW_INTERVAL == true) {
+      fb.append(0, "<%d>%*c", interval.first, LCD_WIDTH, ' ');
+      fb.append(1, "[%d]%*c", this->val, LCD_WIDTH, ' ');
+      fb.append(2, "<%d>%*c", interval.second, LCD_WIDTH, ' ');
+      fb.append(3, "%*c", LCD_WIDTH, ' ');
+    } else {
+    fb.append(0, "[%d]%*c", this->val, LCD_WIDTH, ' ');
+    for (size_t i=1; i<4; i++)
+      fb.append(i, "%*c", LCD_WIDTH, ' ');
+  }
 }
 
 template <size_t SW>
