@@ -340,7 +340,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
     tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
-  ti->totalISRTicks = ch.kernel_stats.m_crit_isr.cumulative;
+  ti->totalISRTicks = currcore->kernel_stats.m_crit_isr.cumulative;
   ti->totalTicks += ti->totalISRTicks;
   tp =  chRegFirstThread();
   idx=0;

@@ -35,7 +35,7 @@ void PushButton::proceedUp(void)
 {
   chVTReset(&vt);
   chVTSet(&vt, TIME_MS2I(ANTI_REBOUND_INTERVAL_MS),
-	  [] (void *arg) {
+	  [] ([[maybe_unused]] ch_virtual_timer *vtl, void *arg) {
 	    chSysLockFromISR();
 	    PushButton *pb = static_cast<PushButton *>(arg);
 	    if (palReadLine(pb->line) == PAL_HIGH) {
@@ -56,7 +56,7 @@ void PushButton::proceedDown(void)
   chVTReset(&vt);
 
   chVTSet(&vt, TIME_MS2I(ANTI_REBOUND_INTERVAL_MS),
-	  [] (void *arg) {
+	  [] ([[maybe_unused]] ch_virtual_timer *vtl, void *arg) {
 	    chSysLockFromISR();
 	    PushButton *pb = static_cast<PushButton *>(arg);
 	    if (palReadLine(pb->line) == PAL_LOW) {
@@ -72,7 +72,7 @@ void PushButton::proceedDown(void)
 	      } else {
 		chVTResetI(&pb->vt);
 		chVTSetI(&pb->vt, TIME_MS2I(LONG_CLIC_INTERVAL_MS),
-			 [] (void *aarg) {
+			 [] ([[maybe_unused]] ch_virtual_timer *vvtl, void *aarg) {
 			   chSysLockFromISR();
 			   PushButton *ppb = static_cast<PushButton *>(aarg);
 			   Event ev(Events::LongClick, ppb->index);

@@ -229,7 +229,8 @@ void IHM::init()
 				  if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
 				    // introduce delay before storing to filter bench power off
 				    chVTSet(&vt, TIMOUT_BEFORE_POWER_LOSS_LOG,
-					    [] ([[maybe_unused]] void *arg) {
+					    [] ([[maybe_unused]] ch_virtual_timer *vtl,
+						[[maybe_unused]] void *arg) {
 					      auto *lstorage = (Storage *) arg;
 					      lstorage->incPsFailureAlertX();
 					    }
@@ -239,7 +240,8 @@ void IHM::init()
 				    if (psHealthTrigged.getEvent() == Events::UnderVoltage) {
 				    // introduce delay before storing to filter bench power off
 				      chVTSet(&vt, TIMOUT_BEFORE_POWER_LOSS_LOG,
-					      [] ([[maybe_unused]] void *arg) {
+					      [] ([[maybe_unused]] ch_virtual_timer *vtl,
+						  [[maybe_unused]] void *arg) {
 						auto *lstorage = (Storage *) arg;
 						lstorage->incUnderVoltageAlertX();
 					      }

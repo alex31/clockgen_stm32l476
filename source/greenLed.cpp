@@ -4,8 +4,8 @@
 
 namespace {
   virtual_timer_t vt;
-  void ledOnCb(void *arg);
-  void ledOffCb(void *arg);
+  void ledOnCb(ch_virtual_timer *vtl, void *arg);
+  void ledOffCb(ch_virtual_timer *vtl, void *arg);
   uint32_t delay=0;
 }
 
@@ -19,19 +19,19 @@ void blinkLed(uint32_t _delay)
 
 
 namespace {
-  void ledOnCb([[maybe_unused]] void *arg)
+  void ledOnCb(ch_virtual_timer *vtl, [[maybe_unused]] void *arg)
   {
     chSysLockFromISR();
     palSetLine(LINE_LED_GREEN);
-    chVTSetI(&vt, TIME_MS2I(100), &ledOffCb, nullptr);
+    chVTSetI(vtl, TIME_MS2I(100), &ledOffCb, nullptr);
     chSysUnlockFromISR();
   }
   
-  void ledOffCb([[maybe_unused]] void *arg)
+  void ledOffCb(ch_virtual_timer *vtl, [[maybe_unused]] void *arg)
   {
     chSysLockFromISR();
     palClearLine(LINE_LED_GREEN);
-    chVTSetI(&vt, delay, &ledOnCb, nullptr);
+    chVTSetI(vtl, delay, &ledOnCb, nullptr);
     chSysUnlockFromISR();
   }
 }

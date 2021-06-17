@@ -15,7 +15,8 @@ static constexpr PWMConfig pwmcfgSkel = {
 		      {.mode = PWM_OUTPUT_DISABLED, .callback = NULL}
 		      },
 	.cr2  = 0, 
-	.dier = 0  
+	.bdtr = 0,
+	.dier = 0
   };
 
 class ClockGenerator {
@@ -30,7 +31,7 @@ private:
   static constexpr sysinterval_t interpolatedDelay = TIME_MS2I(500) /
     (steps + 1);
   void start(void);
-  static void interpoledSetFreqProxy(void *obj);
+  static void interpoledSetFreqProxy(ch_virtual_timer *vtl, void *obj);
   void interpoledSetFreq(void);
 
   PWMDriver * const pwmd;
