@@ -26,10 +26,20 @@ public:
   void play(void);
 
 private:
+  static constexpr int32_t steps = 100;
+  static constexpr sysinterval_t interpolatedDelay = TIME_MS2I(500) /
+    (steps + 1);
   void start(void);
+  static void interpoledSetFreqProxy(void *obj);
+  void interpoledSetFreq(void);
+
   PWMDriver * const pwmd;
   const uint32_t channel;
   PWMConfig pwmcfg{pwmcfgSkel};
+  virtual_timer_t vt;
+  float targetFreq;
+  volatile float currentFreq;
+  float incrementFreq;
 };
 
 

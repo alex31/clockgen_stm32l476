@@ -260,8 +260,8 @@ void IHM::init()
 				  BeepIn::enable();
 				});
   LcdTab::push(StateId::Freq);
-  rb1.run(TIME_MS2I(100));
-  rb2.run(TIME_MS2I(100));
+  rb1.run(TIME_MS2I(KNOB_INTERVAL_MS));
+  rb2.run(TIME_MS2I(KNOB_INTERVAL_MS));
   pb1.run(TIME_IMMEDIATE);
   pb2.run(TIME_IMMEDIATE);
 }
