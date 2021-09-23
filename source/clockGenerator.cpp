@@ -24,6 +24,8 @@ void ClockGenerator::play(void)
 void ClockGenerator::enableOutput(bool en)
 {
   pwmEnableChannelOutput(pwmd, 1, en); // works because F1 and F2 output on channel 2
+  if (en)
+    interpoledSetFreq();
 }
 
 void ClockGenerator::start(void)
