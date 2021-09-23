@@ -136,15 +136,11 @@ void MainTab::eventCb(const Event& ev)
     //	       dir == Direction::Up ? "UP" : "DOWN");
     lastFreq = freq;
     if (dir == Direction::Up) {
-      if (mulExp == 3) {
-	freq = 1_hz;
-      } else {
+      if (mulExp != 3) {
 	freq = powf(10, ceilf(log10f(freq+1)));
       }
     } else { // dir == Direction::Down
-      if (freq == 1)
-	freq = 100_khz;
-      else
+      if (freq != 1_hz)
 	freq = powf(10, floorf(log10f(freq-1)));
     }
     break;
