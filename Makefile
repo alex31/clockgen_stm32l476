@@ -167,7 +167,7 @@ BOARD = NUCLEO476
 MCU  = cortex-m4
 
 # Imported source files and paths.
-MY_DIRNAME=../../../ChibiOS_stable
+MY_DIRNAME=../../../ChibiOS_21.6_stable
 ifneq "$(wildcard $(MY_DIRNAME) )" ""
    RELATIVE=../../..
 else
