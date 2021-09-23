@@ -21,6 +21,11 @@ void ClockGenerator::play(void)
   pwmd->tim->CR1 |= STM32_TIM_CR1_CEN;
 }
 
+void ClockGenerator::enableOutput(bool en)
+{
+  pwmEnableChannelOutput(pwmd, 1, en); // works because F1 and F2 output on channel 2
+}
+
 void ClockGenerator::start(void)
 {
   pwmStart(pwmd, &pwmcfg);

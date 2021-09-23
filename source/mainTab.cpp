@@ -23,9 +23,11 @@ void MainTab::enter(void)
 void MainTab::enableF2(bool en)
 {
   if (en)
-    f2.play();
+    f2.enableOutput(en);
   else
     f2.pause();
+
+  f2.enableOutput(en);
 }
 
 void MainTab::draw(void)

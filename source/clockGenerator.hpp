@@ -25,7 +25,7 @@ public:
   [[nodiscard]] uint32_t setFreq(uint32_t freq);
   void pause(void);
   void play(void);
-
+  void enableOutput(bool en);
 private:
   static constexpr int32_t steps = 100;
   static constexpr sysinterval_t interpolatedDelay = TIME_MS2I(500) /
