@@ -203,6 +203,7 @@ void IHM::init()
 		     storage.setVoltageRef(val/10.0f);
 		   });
 
+   enableF2.set(storage.getEnableF2() == false ? 0 : 1);
    enableF2.bind([&storage] (uint32_t val) {
 		   const bool enable = (val != 0);
 		     storage.setEnableF2(enable);
