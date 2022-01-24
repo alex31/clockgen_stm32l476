@@ -234,18 +234,6 @@
 #define STM32_PWM_USE_TIM17                 FALSE
 
 /*
- * RAW_TIMERS
- */
-#define STM32_RAWTIMER_USE_TIM1                  TRUE
-#define STM32_RAWTIMER_USE_TIM2                  FALSE
-#define STM32_RAWTIMER_USE_TIM3                  FALSE
-#define STM32_RAWTIMER_USE_TIM4                  FALSE
-#define STM32_RAWTIMER_USE_TIM5                  FALSE
-#define STM32_RAWTIMER_USE_TIM8                  TRUE
-#define STM32_RAWTIMER_USE_TIM15                 FALSE
-#define STM32_RAWTIMER_USE_TIM16                 FALSE
-#define STM32_RAWTIMER_USE_TIM17                 FALSE
-/*
  * RTC driver system settings.
  */
 #define STM32_RTC_PRESA_VALUE               32
@@ -358,6 +346,9 @@
  */
 #define STM32_WSPI_USE_QUADSPI1             FALSE
 #define STM32_WSPI_QUADSPI1_DMA_STREAM      STM32_DMA_STREAM_ID(2, 7)
+#define STM32_WSPI_QUADSPI1_PRESCALER_VALUE 1
+
+// local defs
 #define CH_HEAP_SIZE (0)
 #define CH_HEAP_USE_TLSF 0 // if 0 or undef, chAlloc will be used
 #define CONSOLE_DEV_SD SD2
@@ -369,5 +360,6 @@
 				      chSysPolledDelayX((US2RTC(STM32_SYSCLK, 3U) / 2U)); \
 				      asm volatile("": : :"memory");			  \
   }
-#define STM32_WSPI_QUADSPI1_PRESCALER_VALUE 1
+// local def end
+
 #endif /* MCUCONF_H */

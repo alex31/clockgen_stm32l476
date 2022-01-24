@@ -167,14 +167,14 @@ BOARD = NUCLEO476
 MCU  = cortex-m4
 
 # Imported source files and paths.
-MY_DIRNAME=../../../ChibiOS_21.6_stable
+MY_DIRNAME=../../../ChibiOS_21.11_stable
 ifneq "$(wildcard $(MY_DIRNAME) )" ""
    RELATIVE=../../..
 else
   RELATIVE=../..
 endif
 
-CHIBIOS  := $(RELATIVE)/ChibiOS_21.6_stable
+CHIBIOS  := $(RELATIVE)/$(notdir $(MY_DIRNAME))
 CONFDIR  := ./cfg
 BUILDDIR := ./build
 DEPDIR   := ./.dep

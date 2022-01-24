@@ -281,7 +281,7 @@ namespace {
     fb.write(0, i++, "Vers=%s", XSTR(GIT_SHA));
     fb.write(0, i++, "Build=%s", XSTR(BUILD));
     fb.write(0, i++, "Kernel %s", CH_KERNEL_VERSION);
-    fb.write(0, i++, "Hal  %s", HAL_VERSION);
+    fb.write(0, i++, "Hal  %s", CH_HAL_VERSION);
     fb.write(0, i++, "%s", PORT_COMPILER_NAME);
     fb.write(0, i++, "Build Time%c",':');
     fb.write(0, i++, "%s", __DATE__);
