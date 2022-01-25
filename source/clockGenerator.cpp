@@ -53,7 +53,7 @@ uint32_t ClockGenerator::setFreq(uint32_t freq)
   return targetFreq;
 }
 
-void ClockGenerator::interpoledSetFreqProxy([[maybe_unused]] ch_virtual_timer *vtl,
+void ClockGenerator::interpoledSetFreqProxy([[maybe_unused]] virtual_timer_t *vtl,
 					    void *obj)
 {
   ClockGenerator *cg = static_cast<ClockGenerator *>(obj);
