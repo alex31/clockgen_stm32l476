@@ -52,7 +52,7 @@ endif
 
 ifeq ($(BUILD),$(SPEED))
     USE_LTO = yes
-    USE_OPT =  -Ofast -Wall -Wextra \
+    USE_OPT =  -Ofast -fno-strict-aliasing -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	     $(GCC_DIAG)
 endif
