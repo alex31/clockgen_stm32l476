@@ -26,8 +26,6 @@
 #                 \___|  \___/  |_| |_|   \_/    \___| |_|     \__|  |_|   \___/  |_| |_| 
 */
 
-using namespace std::literals;
-
 static constexpr uint32_t operator"" _hz (unsigned long long int freq)
 {
   return freq;
