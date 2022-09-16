@@ -51,7 +51,7 @@ namespace {
 					 {4.8_khz, "4.8 Khz"},
 					 {8_khz, "8 Khz"},
 					 {9600, "9.6 Khz"},
-
+					 {80_khz, "80 Khz"},
 						  }};
 
   MenuEntries<20, 4> logicVoltage{"logic Vcc", 0, 0,
