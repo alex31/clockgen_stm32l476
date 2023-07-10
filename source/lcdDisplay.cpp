@@ -13,6 +13,8 @@ adresse of rows :
 namespace DP {
   class MutexRAII
   {
+    MutexRAII(const MutexRAII&) = delete;
+    MutexRAII& operator=(const MutexRAII&) = delete;
   public:
     MutexRAII(mutex_t *_mut) : mut(_mut) {chMtxLock(mut);};
     ~MutexRAII() {chMtxUnlock(mut);};
