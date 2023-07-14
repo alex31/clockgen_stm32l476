@@ -131,7 +131,8 @@ etl::string_view Audio::getName(const size_t index)
 const DACConfig Audio::dac1cfg1 = {
   .init         = 2047U,
   .datamode     = DAC_DHRM_12BIT_RIGHT,
-  .cr           = 0
+  .cr           = 0,
+  .mcr = 0
 };
 
 const DACConversionGroup Audio::dacgrpcfg1 = {
