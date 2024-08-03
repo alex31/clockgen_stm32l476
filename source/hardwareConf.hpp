@@ -94,8 +94,8 @@ static constexpr PWMDriver &PWM_F2 = CONCAT(PWMD, CLOCK_F2_OUT_TIM);
 
 static constexpr ICUDriver &ICU_IN = CONCAT(ICUD, FREQMETER_IN_TIM);
 
-static inline    constinit stm32_tim_t * const ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
-static inline    constinit stm32_tim_t * const ENCODER_F2 = CONCAT(STM32_TIM, BOUTON_F2_IN_A_TIM);
+static inline     stm32_tim_t * const ENCODER_F1 = CONCAT(STM32_TIM, BOUTON_F1_IN_A_TIM);
+static inline     stm32_tim_t * const ENCODER_F2 = CONCAT(STM32_TIM, BOUTON_F2_IN_A_TIM);
 
 static constexpr I2CDriver &I2C_FRAM = CONCAT(I2CD, MEM_SCL_I2C);
 static constexpr uint32_t I2C_FAST_400KHZ_DNF3_R200NS_F50NS_PCLK80MHZ_TIMINGR = 0x10B0133C;

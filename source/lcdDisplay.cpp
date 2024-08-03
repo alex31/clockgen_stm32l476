@@ -106,9 +106,11 @@ constexpr uint8_t LCDDisplay::xy2pos(uint8_t line, uint8_t posx)
   return DP::rowAddr[line] + posx;
 }
 
+
+
 etl::string<10> LCDDisplay::freq2Str(uint32_t freq)
 {
-  char buf[12];
+  char buf[12] = {0};
   
     if (freq == 0) {
       strncpy(buf, "--------", sizeof(buf));
@@ -126,7 +128,7 @@ etl::string<10> LCDDisplay::freq2Str(uint32_t freq)
 
 etl::string<10> LCDDisplay::time2Str(uint32_t usec)
 {
-  char buf[10];
+  char buf[10] = {0};
   
   if (usec < 1000) {
     snprintf(buf, sizeof(buf), "%03ld uS", usec);
@@ -138,4 +140,5 @@ etl::string<10> LCDDisplay::time2Str(uint32_t usec)
   return etl::string<10>(buf);
 }
  
- 
+
+

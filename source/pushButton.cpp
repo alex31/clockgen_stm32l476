@@ -30,12 +30,14 @@ bool PushButton::loop()
   return true;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-null-argument"
 
 void PushButton::proceedUp(void)
 {
   chVTReset(&vt);
   chVTSet(&vt, TIME_MS2I(ANTI_REBOUND_INTERVAL_MS),
-	  [] ([[maybe_unused]] virtual_timer_t *vtl, void *arg) {
+	  [] (virtual_timer_t *, void *arg) {
 	    chSysLockFromISR();
 	    PushButton *pb = static_cast<PushButton *>(arg);
 	    if (palReadLine(pb->line) == PAL_HIGH) {
@@ -56,7 +58,7 @@ void PushButton::proceedDown(void)
   chVTReset(&vt);
 
   chVTSet(&vt, TIME_MS2I(ANTI_REBOUND_INTERVAL_MS),
-	  [] ([[maybe_unused]] virtual_timer_t *vtl, void *arg) {
+	  [] (virtual_timer_t *, void *arg) {
 	    chSysLockFromISR();
 	    PushButton *pb = static_cast<PushButton *>(arg);
 	    if (palReadLine(pb->line) == PAL_LOW) {
@@ -85,6 +87,7 @@ void PushButton::proceedDown(void)
 	    chSysUnlockFromISR();     
 	  }, this);
 }
+#pragma GCC diagnostic pop
 	  
 
 uint32_t PushButton::factoryIdx = 0U;

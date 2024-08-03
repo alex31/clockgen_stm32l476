@@ -87,12 +87,12 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = -std=gnu11  -Wunsuffixed-float-constants 
+  USE_COPT = -std=gnu23  -Wunsuffixed-float-constants 
 endif
 
 # C++ specific options here (added to USE_OPT).
 
-USE_CPPOPT += -std=c++20 -fno-rtti -fno-exceptions -fno-threadsafe-statics
+USE_CPPOPT += -std=c++23 -fno-rtti -fno-exceptions -fno-threadsafe-statics
 
 
 # Enable this if you want the linker to remove unused code and data
