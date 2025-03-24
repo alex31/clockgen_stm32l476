@@ -26,31 +26,31 @@
 #                 \___|  \___/  |_| |_|   \_/    \___| |_|     \__|  |_|   \___/  |_| |_| 
 */
 
-static constexpr uint32_t operator"" _hz (unsigned long long int freq)
+static constexpr uint32_t operator""_hz (unsigned long long int freq)
 {
   return freq;
 }
-static constexpr uint32_t operator"" _khz (unsigned long long int freq)
+static constexpr uint32_t operator""_khz (unsigned long long int freq)
 {
   return freq * 1000UL;
 }
-static constexpr uint32_t operator"" _khz (long double freq)
+static constexpr uint32_t operator""_khz (long double freq)
 {
   return freq * 1000UL;
 }
-static constexpr uint32_t operator"" _mhz (unsigned long long int freq)
+static constexpr uint32_t operator""_mhz (unsigned long long int freq)
 {
   return freq * 1000_khz;
 }
-static constexpr long double operator"" _ohm (long double resistance)
+static constexpr long double operator""_ohm (long double resistance)
 {
   return resistance;
 }
-static constexpr long double operator"" _kohm (long double resistance)
+static constexpr long double operator""_kohm (long double resistance)
 {
   return resistance * 1000UL;
 }
-static constexpr uint32_t operator"" _percent (unsigned long long int freq)
+static constexpr uint32_t operator""_percent (unsigned long long int freq)
 {
   return freq * 100UL;
 }
