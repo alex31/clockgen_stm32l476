@@ -14,6 +14,7 @@ SPEED := SPEED
 RELEASE := RELEASE
 SMALL := SMALL
 CHECKS := CHECKS
+BUILD_UDEFS = -DBUILD_IS_DEBUG=0
 
 ifeq    ($(BUILD),)
         BUILD := $(RELEASE)
@@ -42,6 +43,7 @@ ifeq ($(BUILD),$(DEBUG))
   USE_OPT =  -Og -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
+  BUILD_UDEFS = -DBUILD_IS_DEBUG=1
 endif
 
 ifeq ($(BUILD),$(SMALL)) 
@@ -245,7 +247,7 @@ LD   = $(TRGT)g++
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$(BUILD)"
+UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$(BUILD)" $(BUILD_UDEFS)
 
 # Define ASM defines here
 UADEFS =

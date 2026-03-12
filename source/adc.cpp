@@ -71,25 +71,31 @@ bool ADC::loop()
   return true;
 }
 
+
+
 Event ADC::getVoltageHealth(void)
 {
   Event ev;
+  static constexpr float logicDiffPercentMaxSup = 10;
+  static constexpr float logicDiffPercentMaxInf = BUILD_IS_DEBUG ? -10 : -5;
+  static constexpr float max12VPSvoltage = 13.5f;
+  static constexpr float min12VPSvoltage = 10.5f;
 
   const float logicDiffPercent = ((logicVoltage * 100.0f) /
 				  Storage::instance().getVoltageRef())
                                   - 100.0f;
-  if (logicDiffPercent > 10.0f)  {
+  if (logicDiffPercent > logicDiffPercentMaxSup)  {
     ev.set(Events::OverVoltage, Logic);
-  } else  if (logicDiffPercent < -5.0f)  {
+  } else  if (logicDiffPercent < logicDiffPercentMaxInf)  {
     ev.set(Events::UnderVoltage, Logic);
-  }  else if (psVolt > 13.5f) {
+  }  else if (psVolt > max12VPSvoltage) {
     ev.set(Events::OverVoltage, PowerSupply);
-  } else  if (psVolt < 10.5f)  {
+  } else  if (psVolt < min12VPSvoltage)  {
     ev.set(Events::UnderVoltage, PowerSupply);
   }
-  // if (ev.getEvent() != Events::None)
-  //   DebugTrace("logicVoltage=%.2f logicVoltAverage=%.2f, logicDiffPercent=%.2f",
-  // 	       logicVoltage, logicVoltAverage, logicDiffPercent);
+   if (ev.getEvent() != Events::None)
+     DebugTrace("logicVoltage=%.2f, logicDiffPercent=%.2f",
+   	       logicVoltage, logicDiffPercent);
   
 
   return ev;
