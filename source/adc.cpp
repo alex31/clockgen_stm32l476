@@ -93,11 +93,11 @@ Event ADC::getVoltageHealth(void)
   } else  if (psVolt < min12VPSvoltage)  {
     ev.set(Events::UnderVoltage, PowerSupply);
   }
-   if (ev.getEvent() != Events::None)
-     DebugTrace("logicVoltage=%.2f, logicDiffPercent=%.2f",
+  if (ev.getEvent() != Events::None) {
+    DebugTrace("logicVoltage=%.2f, logicDiffPercent=%.2f",
    	       logicVoltage, logicDiffPercent);
+  }
   
-
   return ev;
 }
 
