@@ -82,7 +82,7 @@ void LCDDisplay::write(const uint8_t lineN, const uint8_t posX, const char* str)
 {
   if ((lineN <  LCD_HEIGHT) and (posX <  LCD_WIDTH)) {
     DP::MutexRAII m(&mut);
-    hd44780RawWrite(&lcdd, DP::rowAddr[lineN], str);
+    hd44780RawWrite(&lcdd, xy2pos(lineN, posX), str);
   }
 }
 
@@ -140,5 +140,4 @@ etl::string<10> LCDDisplay::time2Str(uint32_t usec)
   return etl::string<10>(buf);
 }
  
-
 
