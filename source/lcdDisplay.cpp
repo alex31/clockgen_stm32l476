@@ -23,6 +23,19 @@ namespace DP {
   };
 
   constexpr uint8_t rowAddr[4] = {0U, 64U, 20U, 84U};
+  constexpr uint8_t heartBeatGlyphSlot = 1U;
+  constexpr std::array<std::array<uint8_t, 8>, 10> heartBeatFrames = {{
+      {{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b00000, 0b01010, 0b00100, 0b00000, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b01010, 0b11111, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b00000, 0b01010, 0b00100, 0b00000, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b01010, 0b11111, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000}}
+    }};
   
   const hd44780_pins_t lcdpins = {
 				  .RS = LINE_LCD_RS,
@@ -59,6 +72,8 @@ bool LCDDisplay::init()
   hd44780ObjectInit(&lcdd);
   hd44780Start(&lcdd, &DP::lcdcfg);
   hd44780ClearDisplay(&lcdd);
+  const auto &glyph = DP::heartBeatFrames[heartBeatIdx];
+  hd44780CustomGraphic(&lcdd, DP::heartBeatGlyphSlot, glyph.data());
 
   return true;
 }
@@ -68,13 +83,14 @@ bool LCDDisplay::init()
 bool LCDDisplay::loop()
 {
   DP::MutexRAII m(&mut);
-  
-  hd44780Write(&lcdd, xy2pos(3,  19), "%c", heartBeatAnim[heartBeatIdx++]);
+  const auto &glyph = DP::heartBeatFrames[heartBeatIdx++];
+  hd44780CustomGraphic(&lcdd, DP::heartBeatGlyphSlot, glyph.data());
+  hd44780Write(&lcdd, xy2pos(3,  19), "%c", char(DP::heartBeatGlyphSlot));
   //  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
   //	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
   //  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
 
-  heartBeatIdx %= heartBeatAnim.size();
+  heartBeatIdx %= DP::heartBeatFrames.size();
 
   //enableCursor(true);
   //setCursorPos(0, 15);
