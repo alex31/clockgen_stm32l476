@@ -62,7 +62,7 @@ void ClockGenerator::interpoledSetFreqProxy([[maybe_unused]] virtual_timer_t *vt
   
 void ClockGenerator::interpoledSetFreq(void)
 {
-  chSysLockFromISR();
+  const syssts_t sts = chSysGetStatusAndLockX();
   if (incrementFreq > 0.0f) {
     currentFreq = std::min(currentFreq + incrementFreq,
 			   targetFreq);
@@ -82,7 +82,7 @@ void ClockGenerator::interpoledSetFreq(void)
   pwmd->tim->PSC = prescaler - 1;
   pwmd->tim->ARR = reload - 1;
   pwmEnableChannelI(pwmd, channel, (reload / 2));
-  chSysUnlockFromISR();
+  chSysRestoreStatusX(sts);
   
   play();
 }

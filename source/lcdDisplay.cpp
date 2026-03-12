@@ -44,6 +44,11 @@ namespace DP {
   .font = HD44780_SET_FONT_5X8,       
   .lines = HD44780_SET_2LINES,        
   .pinmap = &lcdpins,
+  .gpt = {
+    .gptd = &GPTD7,
+    .frequency = 1000000U,
+    .step_delay_us = 3U
+  },
   .backlight = 0U
 };
 
@@ -140,4 +145,3 @@ etl::string<10> LCDDisplay::time2Str(uint32_t usec)
   return etl::string<10>(buf);
 }
  
-
