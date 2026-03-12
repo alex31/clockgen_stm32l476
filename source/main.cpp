@@ -14,8 +14,9 @@
 #include "timeCount.hpp"
 #include "storage.hpp"
 #include "greenLed.hpp"
+#include "watchdog.hpp"
    
-void _init_chibios() __attribute__ ((constructor(101)));
+void _init_chibios() __attribute__ ((constructor(102)));
 void _init_chibios() {
   halInit();
   chSysInit();
@@ -36,16 +37,22 @@ int main (void)
   BeepIn beepIn(NORMALPRIO);
 
   // if I²C FRAM is not connected, stop here
-  if (Storage::instance().load()) {
+  Storage &storage = Storage::instance();
+  if (storage.load()) {
     blinkLed(TIME_MS2I(1000));
   } else {
     blinkLed(TIME_MS2I(100));
   }
+
+  if (Watchdog::wasReset()) {
+    storage.incWatchdogReset();
+  }
+  Watchdog::start();
   
   beepIn.run(TIME_MS2I(1));
   chThdSleepMilliseconds(10);
   adc.run(TIME_MS2I(100));
-  Storage::instance().incPowerOn();
+  storage.incPowerOn();
   tc.run(TIME_S2I(1));
   releaseResetAfter(TIME_S2I(1U)); // keep reset out value during 1 second
   IHM::init();
@@ -57,6 +64,4 @@ int main (void)
  
   chThdSleep(TIME_INFINITE);
 }
-
-
 
