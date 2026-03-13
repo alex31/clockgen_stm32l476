@@ -322,12 +322,6 @@ namespace {
     size_t i=0;
     const Event currentHealth = ADC::getVoltageHealth();
     const bool defaultActive = currentHealth.getEvent() != Events::None;
-    Audio& audio = BeepIn::getAudio();
-    if (defaultActive)
-      audio.play();
-    else
-      audio.pause();
-    //    psHealthTrigged.print("display alert");
 
     if (psHealthTrigged.getIndex() == ADC::PowerSupply) {
       fb.write(0, i++, "Pow.Supply FAILURE  ");
@@ -349,4 +343,3 @@ namespace {
   }
   
 }
-

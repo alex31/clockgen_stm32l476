@@ -14,10 +14,36 @@ SPEED := SPEED
 RELEASE := RELEASE
 SMALL := SMALL
 CHECKS := CHECKS
+AUDIO_AUTO := AUTO
+AUDIO_FULL := FULL
+AUDIO_SMALL := SMALL
+AUDIO_NONE := NONE
 BUILD_UDEFS = -DBUILD_IS_DEBUG=0
+AUDIO_UDEFS =
 
 ifeq    ($(BUILD),)
         BUILD := $(RELEASE)
+endif
+
+ifeq    ($(AUDIO_SET),)
+        AUDIO_SET := $(AUDIO_AUTO)
+endif
+
+ifeq ($(AUDIO_SET),$(AUDIO_AUTO))
+  ifeq ($(BUILD),$(DEBUG))
+    AUDIO_SET := $(AUDIO_SMALL)
+  endif
+  ifeq ($(BUILD),$(SMALL))
+    AUDIO_SET := $(AUDIO_NONE)
+  endif
+endif
+
+ifeq ($(AUDIO_SET),$(AUDIO_SMALL))
+  AUDIO_UDEFS += -DSMALL_AUDIO_SET
+endif
+
+ifeq ($(AUDIO_SET),$(AUDIO_NONE))
+  AUDIO_UDEFS += -DNO_AUDIO_SET
 endif
 
 
@@ -42,7 +68,7 @@ ifeq ($(BUILD),$(DEBUG))
   USE_LTO = no
   USE_OPT =  -Og -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DSMALL_AUDIO_SET -DTRACE
+	    $(GCC_DIAG) -DTRACE
   BUILD_UDEFS = -DBUILD_IS_DEBUG=1
 endif
 
@@ -50,7 +76,7 @@ ifeq ($(BUILD),$(SMALL))
   USE_LTO = yes
   USE_OPT =  -Os -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DNO_AUDIO_SET -DTRACE
+	    $(GCC_DIAG) -DTRACE
 endif
 
 ifeq ($(BUILD),$(SPEED))
@@ -185,6 +211,7 @@ STMSRC = $(RELATIVE)/COMMON/stm
 VARIOUS = $(RELATIVE)/COMMON/various
 USBD_LIB = $(VARIOUS)/Chibios-USB-Devices
 ETL_LIB = ../../../../etl/include
+HELIX_MP3 = ./ext/helix_mp3
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -215,6 +242,23 @@ CSRC = $(ALLCSRC) \
        $(VARIOUS)/microrl/microrlShell.c \
        $(VARIOUS)/microrl/microrl.c \
        $(VARIOUS)/hd44780.c
+
+CSRC += $(HELIX_MP3)/mp3dec.c \
+        $(HELIX_MP3)/mp3tabs.c \
+        $(HELIX_MP3)/real/bitstream.c \
+        $(HELIX_MP3)/real/buffers.c \
+        $(HELIX_MP3)/real/dct32.c \
+        $(HELIX_MP3)/real/dequant.c \
+        $(HELIX_MP3)/real/dqchan.c \
+        $(HELIX_MP3)/real/huffman.c \
+        $(HELIX_MP3)/real/hufftabs.c \
+        $(HELIX_MP3)/real/imdct.c \
+        $(HELIX_MP3)/real/polyphase.c \
+        $(HELIX_MP3)/real/scalfact.c \
+        $(HELIX_MP3)/real/stproc.c \
+        $(HELIX_MP3)/real/subband.c \
+        $(HELIX_MP3)/real/trigtabs_fixpt.c
+USE_COPT += -I$(HELIX_MP3) -I$(HELIX_MP3)/pub -I$(HELIX_MP3)/real
 
 
 
@@ -247,7 +291,7 @@ LD   = $(TRGT)g++
 #
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$(BUILD)" $(BUILD_UDEFS)
+UDEFS = -DGIT_BRANCH="$(GIT_BRANCH)" -DGIT_TAG="$(GIT_TAG)" -DGIT_SHA="$(GIT_SHA)" -DBUILD="$(BUILD)" $(BUILD_UDEFS) $(AUDIO_UDEFS)
 
 # Define ASM defines here
 UADEFS =
