@@ -72,8 +72,8 @@ namespace {
     activeLoop = &audioLoop;
     mp3StreamStart = audioLoop.samples;
     mp3StreamLen = audioLoop.len;
-    mp3SkipSamples = audioLoop.skip_samples;
-    mp3LoopSamplesRemaining = audioLoop.loop_samples;
+    mp3SkipSamples = audioLoop.meta.skip_samples;
+    mp3LoopSamplesRemaining = audioLoop.meta.play_samples;
     mp3Active = false;
     mp3ResetRing();
     mp3Rewind();
@@ -128,8 +128,8 @@ namespace {
       }
 
       if (mp3LoopSamplesRemaining == 0U) {
-	mp3SkipSamples = activeLoop->skip_samples;
-	mp3LoopSamplesRemaining = activeLoop->loop_samples;
+	mp3SkipSamples = activeLoop->meta.skip_samples;
+	mp3LoopSamplesRemaining = activeLoop->meta.play_samples;
 	mp3Rewind();
 	break;
       }
@@ -146,8 +146,8 @@ namespace {
       mp3LoopSamplesRemaining -= chunk;
 
       if (mp3LoopSamplesRemaining == 0U) {
-	mp3SkipSamples = activeLoop->skip_samples;
-	mp3LoopSamplesRemaining = activeLoop->loop_samples;
+	mp3SkipSamples = activeLoop->meta.skip_samples;
+	mp3LoopSamplesRemaining = activeLoop->meta.play_samples;
 	mp3Rewind();
 	break;
       }
