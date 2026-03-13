@@ -395,8 +395,8 @@ void MenuEntries<SW, SL>::fill(const uint8_t margin, const etl::string_view sep)
   for (int index=0; auto& e : entries) {
     auto str = e.str;
     if (index == selectedItem) {
-      str.replace(str.begin(),str.begin()+1, "("); 
-      str.replace(str.end()-1, str.end(), ")"); 
+      str.front() = '(';
+      str.back() = ')';
     }
     if (str.length() >= fb[posy].available()) {
       posy++;
@@ -472,4 +472,3 @@ void ScrollText<SH>::draw(void)
     drawFn(content);
   BaseEntry<LCD_WIDTH, SH>::draw();
 }
-

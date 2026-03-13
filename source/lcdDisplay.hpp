@@ -29,7 +29,6 @@ private:
   friend WorkerThread<LCDDisplay>;
 
   uint8_t heartBeatIdx = 0;
-  static constexpr std::array heartBeatAnim = {'.', 'o', 'O', '0', 'O', 'o', '.'};
   
   HD44780Driver lcdd;
   MUTEX_DECL(mut);
@@ -38,5 +37,4 @@ private:
   bool loop(void) final;
   static constexpr uint8_t xy2pos(uint8_t line, const uint8_t posx);
 };
-
 

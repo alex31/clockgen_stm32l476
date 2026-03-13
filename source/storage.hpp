@@ -26,6 +26,7 @@ public:
   void incAge(void) {age++; store();}
   void incPowerOn(void) {powerOn++; store();}
   void incI2cFailure(void) {i2cFailure++; store();}
+  void incWatchdogReset(void) {watchdogReset++; store();}
   void resetAlert(void) {
     i2cFailure = underVoltageAlert =
       overVoltageAlert = psFailureAlert = 0;
@@ -45,6 +46,7 @@ public:
   uint32_t getOverVoltageAlert(void) const {return overVoltageAlert;}
   uint32_t getPsFailureAlert(void) const {return psFailureAlert;}
   uint32_t getI2cFailure(void) const {return i2cFailure;}
+  uint32_t getWatchdogReset(void) const {return watchdogReset;}
   uint8_t getVolume(void) const {return volume;}
   uint8_t getSampleIndex(void) const {return sampleIndex;}
   bool	  getEnableF2(void) const {return enableF2;}
@@ -57,7 +59,8 @@ private:
   static void periodicStore(void *arg);
   static volatile bool storePending;
   static bool i2cFailAtInit;
-  constexpr static uint32_t MAGIC = 0xBEEFC0DE;
+  constexpr static uint32_t LEGACY_MAGIC = 0xBEEFC0DE;
+  constexpr static uint32_t MAGIC = 0xBEEFC0DF;
   uint32_t magic;
   std::array<uint32_t, 2> frequencies;
   float voltageRef;
@@ -67,6 +70,7 @@ private:
   uint32_t overVoltageAlert;
   uint32_t psFailureAlert;
   uint32_t i2cFailure;
+  uint32_t watchdogReset;
   uint8_t volume;
   uint8_t sampleIndex;
   bool	  enableF2;

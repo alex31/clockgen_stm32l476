@@ -1,46 +1,101 @@
 #pragma once
 
 #include <array>
-#include <etl/string_view.h>
 #include <algorithm>
+#include <cstdint>
+#include <etl/string_view.h>
 
 using custom_dac_sample_t = uint16_t;
-using source_dac_sample_t = uint8_t;
-
-#define GENLOOPN(nme,file) AudioLoop {.name = nme, \
-                              .samples = file##_raw, \
-  			      .len =  file##_raw_len}
-#define GENLOOP(file) AudioLoop {.name = #file,     \
-                              .samples = file##_raw, \
-  			      .len =  file##_raw_len}
-
+using decoded_pcm_sample_t = int16_t;
 
 namespace {
-#ifndef NO_AUDIO_SET
-#include "SOUNDS/C/tone500.c"
-#include "SOUNDS/C/tone500t10.c"
-#include "SOUNDS/C/psfail.c"
-#include "SOUNDS/C/shortcut.c"
-#include "SOUNDS/C/overvoltage.c"
-#ifndef SMALL_AUDIO_SET
-#include "SOUNDS/C/trumpet.c"
-#include "SOUNDS/C/sweep.c"
-#include "SOUNDS/C/school-rings.c"
-#include "SOUNDS/C/cosmos.c"
-#endif
-#endif
-  constexpr uint32_t DAC_MAX_FREQUENCY = 1e6; // hardware limitation
-  constexpr uint32_t SAMPLE_FREQUENCY = 16000; // expect 16khz unsigned 8 bit, one channel raw audio file
-  constexpr uint32_t GPT_COUNT = DAC_MAX_FREQUENCY / SAMPLE_FREQUENCY;
+  constexpr uint32_t DAC_MAX_FREQUENCY = 1000000U; // hardware limitation
+  constexpr uint32_t AUDIO_SAMPLE_FREQUENCY = 32000U;
 }
 
+struct AudioLoopMetadata {
+  size_t skip_samples;
+  size_t play_samples;
+};
+
+namespace {
+
+#ifndef NO_AUDIO_SET
+  constexpr uint8_t tone500_mp3[] = {
+#embed "../SOUNDS/MP3/tone500.mp3"
+  };
+  constexpr size_t tone500_mp3_len = sizeof(tone500_mp3);
+#include "../SOUNDS/MP3/tone500.meta.hpp"
+
+  constexpr uint8_t tone500t10_mp3[] = {
+#embed "../SOUNDS/MP3/tone500t10.mp3"
+  };
+  constexpr size_t tone500t10_mp3_len = sizeof(tone500t10_mp3);
+#include "../SOUNDS/MP3/tone500t10.meta.hpp"
+
+  constexpr uint8_t psfail_mp3[] = {
+#embed "../SOUNDS/MP3/psfail.mp3"
+  };
+  constexpr size_t psfail_mp3_len = sizeof(psfail_mp3);
+#include "../SOUNDS/MP3/psfail.meta.hpp"
+
+  constexpr uint8_t shortcut_mp3[] = {
+#embed "../SOUNDS/MP3/shortcut.mp3"
+  };
+  constexpr size_t shortcut_mp3_len = sizeof(shortcut_mp3);
+#include "../SOUNDS/MP3/shortcut.meta.hpp"
+
+  constexpr uint8_t overvoltage_mp3[] = {
+#embed "../SOUNDS/MP3/overvoltage.mp3"
+  };
+  constexpr size_t overvoltage_mp3_len = sizeof(overvoltage_mp3);
+#include "../SOUNDS/MP3/overvoltage.meta.hpp"
+
+#ifndef SMALL_AUDIO_SET
+  constexpr uint8_t school_rings_mp3[] = {
+#embed "../SOUNDS/MP3/school-rings.mp3"
+  };
+  constexpr size_t school_rings_mp3_len = sizeof(school_rings_mp3);
+#include "../SOUNDS/MP3/school-rings.meta.hpp"
+
+  constexpr uint8_t trumpet_mp3[] = {
+#embed "../SOUNDS/MP3/trumpet.mp3"
+  };
+  constexpr size_t trumpet_mp3_len = sizeof(trumpet_mp3);
+#include "../SOUNDS/MP3/trumpet.meta.hpp"
+
+  constexpr uint8_t sweep_mp3[] = {
+#embed "../SOUNDS/MP3/sweep.mp3"
+  };
+  constexpr size_t sweep_mp3_len = sizeof(sweep_mp3);
+#include "../SOUNDS/MP3/sweep.meta.hpp"
+
+  constexpr uint8_t cosmos_mp3[] = {
+#embed "../SOUNDS/MP3/cosmos.mp3"
+  };
+  constexpr size_t cosmos_mp3_len = sizeof(cosmos_mp3);
+#include "../SOUNDS/MP3/cosmos.meta.hpp"
+
+  constexpr uint8_t double_tamponne_mp3[] = {
+#embed "../SOUNDS/MP3/double_tamponne.mp3"
+  };
+  constexpr size_t double_tamponne_mp3_len = sizeof(double_tamponne_mp3);
+#include "../SOUNDS/MP3/double_tamponne.meta.hpp"
+#endif
+#endif
+}
+
+#define GENLOOPMP3N(nme, file, meta_) AudioLoop {.name = nme, \
+                               .samples = file, \
+                               .len = file##_len, \
+                               .meta = meta_}
 
 struct AudioLoop {
   const etl::string_view name;
-  const source_dac_sample_t *samples;
+  const uint8_t *samples;
   const size_t len;
+  const AudioLoopMetadata meta;
 };
-
 
 class Audio {
 public:
@@ -51,10 +106,10 @@ public:
   void pause(void);
   void setAttenuation(const float attn) {attenuation = std::clamp(attn, 0.0f, 1.0f);}
   void setDbVolume(const uint8_t volume);
-  size_t  getCurrentLoop(void) {return loop;}
-  size_t  getLoopsNumber(void) {return loops.size();}
+  size_t getCurrentLoop(void) {return loop;}
+  size_t getLoopsNumber(void) {return loops.size();}
   etl::string_view getName(const size_t index = loops.size());
-  
+
 private:
   void stopDac(void);
   void startDac(void);
@@ -62,32 +117,29 @@ private:
   void stopTimer(void);
   bool isPlaying(void) const {return GPTD6.state == GPT_CONTINUOUS;}
   static void end_cb1(DACDriver *dacp);
-  static void audioCpy(custom_dac_sample_t  *dest, const source_dac_sample_t *src, size_t n);
-  
+  static void fillDacBuffer(custom_dac_sample_t *dest, size_t n);
+
   static size_t loop;
-  static size_t loopLen;
-  static float  attenuation;
-  static const source_dac_sample_t *loopPtr;
-  static const custom_dac_sample_t dmaBuff[1024];
+  static float attenuation;
+  static custom_dac_sample_t dmaBuff[1024];
   static constexpr size_t halfBufferSize = (sizeof(dmaBuff) / sizeof(dmaBuff[0])) / 2U;
-  
+
   static constexpr std::array loops = {
-#ifndef NO_AUDIO_SET		       
-				       GENLOOPN("sine", tone500),
-				       GENLOOPN("sinemod", tone500t10),
+#ifndef NO_AUDIO_SET
+				       GENLOOPMP3N("sine", tone500_mp3, tone500_meta),
+				       GENLOOPMP3N("sinemod", tone500t10_mp3, tone500t10_meta),
 #ifndef SMALL_AUDIO_SET
-				       GENLOOPN("school", school_rings),
-				       GENLOOP(trumpet),
-				       GENLOOP(sweep),
-				       GENLOOP(cosmos),
+				       GENLOOPMP3N("school", school_rings_mp3, school_rings_meta),
+				       GENLOOPMP3N("trumpet", trumpet_mp3, trumpet_meta),
+				       GENLOOPMP3N("sweep", sweep_mp3, sweep_meta),
+				       GENLOOPMP3N("cosmos", cosmos_mp3, cosmos_meta),
+				       GENLOOPMP3N("dbuf", double_tamponne_mp3, double_tamponne_meta),
 #endif
-				       GENLOOP(psfail),
-				       GENLOOP(shortcut),
-				       GENLOOP(overvoltage),
+				       GENLOOPMP3N("psfail", psfail_mp3, psfail_meta),
+				       GENLOOPMP3N("shortcut", shortcut_mp3, shortcut_meta),
+				       GENLOOPMP3N("overvoltage", overvoltage_mp3, overvoltage_meta),
 #else
-				       // just to see the binary size without
-				       // sound; not meant to be flashed or run
-AudioLoop {.name = "none", .samples = nullptr, .len = 0}				       
+				       AudioLoop {.name = "none", .samples = nullptr, .len = 0, .meta = {.skip_samples = 0, .play_samples = 0}}
 #endif
   };
   static const DACConfig dac1cfg1;

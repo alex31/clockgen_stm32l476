@@ -137,6 +137,6 @@ static constexpr size_t TWO_COLS_MAX_LEFT_ENTRIES = 16U;
 
 static constexpr uint32_t  ANTI_REBOUND_INTERVAL_MS = 30;
 static constexpr uint32_t  LONG_CLIC_INTERVAL_MS = 500;
-static constexpr uint32_t  DOUBLE_CLIC_INTERVAL_MS = 100;
+static constexpr uint32_t  DOUBLE_CLIC_INTERVAL_MS = 150;
 static constexpr bool	   NUMERIC_ENTRY_SHOW_INTERVAL = false;
 static constexpr uint32_t  KNOB_INTERVAL_MS = 100;
