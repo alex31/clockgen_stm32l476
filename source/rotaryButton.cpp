@@ -17,13 +17,16 @@ bool RotaryButton::loop()
  
   if (change) {
     int16_t delta = cnt - lastCnt;
-    //    DebugTrace("delta = %d", delta);
     if (std::abs(delta) >= 2) {
       const bool turnWhilePress = PushButton::getState(index) != PBState::Up;
-      Event ev( turnWhilePress ? Events::TurnPress : Events::Turn,
-		index, delta/2);
+      const Events eventType = turnWhilePress ? Events::TurnPress : Events::Turn;
+      const int16_t detents = delta / 2;
+      const int32_t sign = detents > 0 ? 1 : -1;
       lastCnt = cnt;
-      chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+      for (int16_t i = 0; i < std::abs(detents); i++) {
+        Event ev(eventType, index, sign);
+        chMBPostTimeout(&EVT::mb, ev.getEventAsMsg(), TIME_INFINITE);
+      }
     }
   }
 

@@ -23,6 +23,9 @@ class ClockGenerator {
 public:
   ClockGenerator(PWMDriver * const _pwmd, const uint32_t _channel);
   [[nodiscard]] uint32_t setFreq(uint32_t freq);
+  [[nodiscard]] uint32_t quantizeFreq(uint32_t freq) const;
+  [[nodiscard]] uint32_t nextReachableFreq(uint32_t fromFreq, bool up,
+                                           uint32_t steps = 1U) const;
   void pause(void);
   void play(void);
   void enableOutput(bool en);
@@ -33,6 +36,8 @@ private:
   void start(void);
   static void interpoledSetFreqProxy(ch_virtual_timer *vtl, void *obj);
   void interpoledSetFreq(void);
+  [[nodiscard]] uint32_t searchNextReachableFreq(uint32_t realizedFreq,
+                                                 bool up) const;
 
   PWMDriver * const pwmd;
   const uint32_t channel;
@@ -42,5 +47,3 @@ private:
   volatile float currentFreq;
   float incrementFreq;
 };
-
-

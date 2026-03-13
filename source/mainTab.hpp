@@ -3,6 +3,7 @@
 #include "clockGenerator.hpp"
 #include "hardwareConf.hpp"
 #include "freqCapture.hpp"
+#include "frequencyTuner.hpp"
 
 
 class MainTab : public LcdTab {
@@ -12,6 +13,7 @@ class MainTab : public LcdTab {
     uint32_t freq;
     ClockGenerator &cg;
     Direction dir;
+    FrequencyTuner tuner;
   };
   
 
@@ -27,8 +29,9 @@ public:
 private:
   ClockGenerator f1{&PWM_F1, CLOCK_F1_OUT_TIM_CH - 1};
   ClockGenerator f2{&PWM_F2, CLOCK_F2_OUT_TIM_CH - 1};
-  Frequency frequencies[2] = {{1, 1, f1, Direction::Up}, {1, 1, f2, Direction::Up}};
+  Frequency frequencies[2] = {{1, 1, f1, Direction::Up, {}}, {1, 1, f2, Direction::Up, {}}};
 
   uint8_t selFreq=0;
+  static uint32_t applyFreqTarget(Frequency &frequency, uint32_t targetFreq);
   void draw(void);
 };
