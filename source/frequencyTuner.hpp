@@ -51,11 +51,15 @@ public:
     if (hasLastEvent_) {
       const uint32_t dtUs = timestampUs - lastTimestampUs_;
 
+      if (dtUs < cfg_.dtIgnoreUs) {
+        return 0;
+      }
+
       if (dtUs >= cfg_.dtIdleResetUs) {
         speedTicksPerSec_ = 0.0;
         continuity_ = 0.0;
         speedGate_ = false;
-      } else if (dtUs >= cfg_.dtIgnoreUs) {
+      } else {
         updateSpeed(dtUs);
         updateContinuity(sign, dtUs);
       }

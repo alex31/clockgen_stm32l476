@@ -1,5 +1,6 @@
 #include "event.hpp"
 #include "stdutil.h"
+#include "watchdog.hpp"
 
 namespace EVT {
   msg_t msgBuf[MB_LEN];
@@ -19,6 +20,7 @@ namespace EVT {
     Event ev;
     callback_t cb = (callback_t) arg;
     while (true) {
+      Watchdog::reload();
       if (chMBFetchTimeout(&mb, (msg_t *) &ev, TIME_MS2I(200)) == MSG_OK)
 	cb(ev);
       else

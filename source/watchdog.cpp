@@ -3,9 +3,6 @@
 #include <hal.h>
 
 namespace {
-  constexpr sysinterval_t watchdogRefreshPeriod = TIME_MS2I(500U);
-  constexpr tprio_t watchdogThreadPriority = LOWPRIO;
-
   /*
    * LSI is nominally 32 kHz. With prescaler 64 the watchdog clock is 500 Hz,
    * so RLR=1000 gives a timeout of about 2 seconds.
@@ -21,24 +18,12 @@ namespace {
   bool resetByWatchdog = false;
   bool started = false;
 
-  THD_WORKING_AREA(waWatchdog, 256U);
-
   void latchResetCause(void) __attribute__ ((constructor(101)));
   void latchResetCause(void)
   {
     const uint32_t csr = RCC->CSR;
     resetByWatchdog = (csr & RCC_CSR_IWDGRSTF) != 0U;
     RCC->CSR |= RCC_CSR_RMVF;
-  }
-
-  THD_FUNCTION(watchdogThread, arg)
-  {
-    (void)arg;
-    chRegSetThreadName("watchdog");
-    while (true) {
-      chThdSleep(watchdogRefreshPeriod);
-      wdgReset(&WDGD1);
-    }
   }
 }
 
@@ -55,6 +40,11 @@ void Watchdog::start(void)
 
   started = true;
   wdgStart(&WDGD1, &wdgcfg);
-  chThdCreateStatic(waWatchdog, sizeof(waWatchdog), watchdogThreadPriority,
-		    watchdogThread, nullptr);
+}
+
+void Watchdog::reload(void)
+{
+  if (started) {
+    wdgReset(&WDGD1);
+  }
 }

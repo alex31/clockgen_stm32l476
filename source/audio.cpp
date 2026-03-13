@@ -41,14 +41,14 @@ namespace {
 
   size_t mp3RingFreeSpace(void)
   {
-    return mp3PcmRingSize - mp3PcmCount;
+    return mp3PcmRingSize - __atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED);
   }
 
   void mp3ResetRing(void)
   {
     mp3PcmReadIdx = 0U;
     mp3PcmWriteIdx = 0U;
-    mp3PcmCount = 0U;
+    __atomic_store_n(&mp3PcmCount, 0U, __ATOMIC_RELAXED);
   }
 
   void mp3ResetDecoder(void)
@@ -108,10 +108,8 @@ namespace {
       }
     }
 
-    const syssts_t sts = chSysGetStatusAndLockX();
     mp3PcmWriteIdx = writeIdx;
-    mp3PcmCount += n;
-    chSysRestoreStatusX(sts);
+    __atomic_add_fetch(&mp3PcmCount, n, __ATOMIC_RELAXED);
   }
 
   bool mp3PublishLoopSamples(const decoded_pcm_sample_t *samples, size_t n)
@@ -189,6 +187,9 @@ namespace {
     if (err != ERR_MP3_NONE) {
       if (err == ERR_MP3_INDATA_UNDERFLOW || err == ERR_MP3_FREE_BITRATE_SYNC) {
 	mp3Rewind();
+      } else if (mp3BytesLeft > 0U) {
+	mp3StreamPtr++;
+	mp3BytesLeft--;
       }
       return false;
     }
@@ -207,14 +208,14 @@ namespace {
   bool mp3FillUntil(const size_t targetSamples)
   {
     size_t noProgressCount = 0U;
-    while (mp3PcmCount < targetSamples && mp3RingFreeSpace() >= mp3MonoFrameSamples) {
+    while (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) < targetSamples && mp3RingFreeSpace() >= mp3MonoFrameSamples) {
       if (mp3DecodeOneFrame()) {
 	noProgressCount = 0U;
       } else if (++noProgressCount >= 4U) {
 	break;
       }
     }
-    return mp3PcmCount != 0U;
+    return __atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) != 0U;
   }
 
   THD_FUNCTION(mp3DecoderThread, arg)
@@ -227,7 +228,7 @@ namespace {
 	continue;
       }
 
-      if (mp3PcmCount < mp3LowWatermark) {
+      if (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) < mp3LowWatermark) {
 	(void)mp3FillUntil(mp3PrimeSamples);
       } else {
 	chThdSleepMilliseconds(2);
@@ -339,7 +340,7 @@ void Audio::end_cb1(DACDriver *dacp)
 void Audio::fillDacBuffer(custom_dac_sample_t *dest, const size_t n)
 {
   for (size_t i = 0; i < n; i++) {
-    if (mp3PcmCount == 0U) {
+    if (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) == 0U) {
       dest[i] = 2048U;
       continue;
     }
@@ -349,7 +350,7 @@ void Audio::fillDacBuffer(custom_dac_sample_t *dest, const size_t n)
     if (mp3PcmReadIdx == mp3PcmRingSize) {
       mp3PcmReadIdx = 0U;
     }
-    mp3PcmCount--;
+    __atomic_sub_fetch(&mp3PcmCount, 1U, __ATOMIC_RELAXED);
 
     const float attenuated = 2048.0f + ((float(sample) * attenuation) / 16.0f);
     dest[i] = static_cast<custom_dac_sample_t>(std::clamp(attenuated, 0.0f, 4095.0f));
