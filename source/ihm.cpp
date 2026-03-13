@@ -14,6 +14,8 @@
 
 namespace {
   LCDDisplay lcd(NORMALPRIO-2);
+  constexpr uint8_t lcdAnimatedHeartbeatLine = LCD_HEIGHT - 1U;
+  constexpr uint8_t lcdAnimatedHeartbeatColumn = LCD_WIDTH - 1U;
   void eventCb(const Event& ev) {
     LcdTab::propagate(ev); 
   }
@@ -158,7 +160,7 @@ void IHM::init()
 {
   Event::init(&eventCb);
   chVTObjectInit(&vt);
-  lcd.run(TIME_MS2I(100));
+  lcd.run(TIME_MS2I(20));
   lcd.enableCursor(false);
   Storage &storage = Storage::instance();
   
@@ -189,11 +191,19 @@ void IHM::init()
   param.bind(LcdTab::Leave, [&audio]{
  			   audio.pause();
  			 });
-   FrameBufferBase::setPrintFn([](uint8_t posx, 
- 				 uint8_t posy,
- 				 const char* str) {
- 				lcd.write(posy, posx, str);
- 			      });
+   FrameBufferBase::setPrintFn([](uint8_t posx,
+				 uint8_t posy,
+				 const char* str) {
+				if ((posy == lcdAnimatedHeartbeatLine) &&
+				    (posx < lcdAnimatedHeartbeatColumn)) {
+				  char clipped[LCD_WIDTH + 1] = {};
+				  strncpy(clipped, str,
+					  lcdAnimatedHeartbeatColumn - posx);
+				  lcd.write(posy, posx, clipped);
+				} else {
+				  lcd.write(posy, posx, str);
+				}
+			      });
    
    frequencies.bind([] (uint32_t val) {
 		     mainTab.setFreq(val);

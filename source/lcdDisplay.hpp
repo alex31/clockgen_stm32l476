@@ -28,7 +28,8 @@ public:
 private:
   friend WorkerThread<LCDDisplay>;
 
-  uint8_t heartBeatIdx = 0;
+  systime_t heartBeatStart = 0;
+  uint8_t heartBeatDisplayed = 0xFFU;
   
   HD44780Driver lcdd;
   MUTEX_DECL(mut);
@@ -37,4 +38,3 @@ private:
   bool loop(void) final;
   static constexpr uint8_t xy2pos(uint8_t line, const uint8_t posx);
 };
-

@@ -23,27 +23,19 @@ namespace DP {
   };
 
   constexpr uint8_t rowAddr[4] = {0U, 64U, 20U, 84U};
-  constexpr uint8_t heartGlyphBlank = 1U;
-  constexpr uint8_t heartGlyphSmall = 2U;
-  constexpr uint8_t heartGlyphMedium = 3U;
-  constexpr uint8_t heartGlyphLarge = 4U;
-  constexpr std::array<std::array<uint8_t, 8>, 4> heartGlyphs = {{
+  constexpr sysinterval_t heartBeatFramePeriod = TIME_MS2I(100U);
+  constexpr uint8_t heartBeatGlyphSlot = 1U;
+  constexpr std::array<std::array<uint8_t, 8>, 10> heartBeatFrames = {{
       {{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000}},
       {{0b00000, 0b00000, 0b01010, 0b00100, 0b00000, 0b00000, 0b00000, 0b00000}},
       {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
-      {{0b01010, 0b11111, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000}}
-    }};
-  constexpr std::array<uint8_t, 10> heartBeatSequence = {{
-      heartGlyphBlank,
-      heartGlyphSmall,
-      heartGlyphMedium,
-      heartGlyphLarge,
-      heartGlyphMedium,
-      heartGlyphSmall,
-      heartGlyphMedium,
-      heartGlyphLarge,
-      heartGlyphMedium,
-      heartGlyphBlank
+      {{0b01010, 0b11111, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b00000, 0b01010, 0b00100, 0b00000, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b01010, 0b11111, 0b11111, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000}},
+      {{0b00000, 0b01010, 0b11111, 0b01110, 0b00100, 0b00000, 0b00000, 0b00000}},
+      {{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000}}
     }};
   
   const hd44780_pins_t lcdpins = {
@@ -81,10 +73,11 @@ bool LCDDisplay::init()
   hd44780ObjectInit(&lcdd);
   hd44780Start(&lcdd, &DP::lcdcfg);
   hd44780ClearDisplay(&lcdd);
-  hd44780CustomGraphic(&lcdd, DP::heartGlyphBlank, DP::heartGlyphs[0].data());
-  hd44780CustomGraphic(&lcdd, DP::heartGlyphSmall, DP::heartGlyphs[1].data());
-  hd44780CustomGraphic(&lcdd, DP::heartGlyphMedium, DP::heartGlyphs[2].data());
-  hd44780CustomGraphic(&lcdd, DP::heartGlyphLarge, DP::heartGlyphs[3].data());
+  heartBeatStart = chVTGetSystemTimeX();
+  heartBeatDisplayed = 0U;
+  const auto &glyph = DP::heartBeatFrames[heartBeatDisplayed];
+  hd44780CustomGraphic(&lcdd, DP::heartBeatGlyphSlot, glyph.data());
+  hd44780Write(&lcdd, xy2pos(3, 19), "%c", char(DP::heartBeatGlyphSlot));
 
   return true;
 }
@@ -93,17 +86,18 @@ bool LCDDisplay::init()
 
 bool LCDDisplay::loop()
 {
+  const uint8_t heartBeatFrame =
+      (chVTTimeElapsedSinceX(heartBeatStart) / DP::heartBeatFramePeriod) %
+      DP::heartBeatFrames.size();
+  if (heartBeatFrame == heartBeatDisplayed) {
+    return true;
+  }
+
   DP::MutexRAII m(&mut);
-  const uint8_t glyph = DP::heartBeatSequence[heartBeatIdx++];
-  hd44780Write(&lcdd, xy2pos(3,  19), "%c", char(glyph));
-  //  hd44780Write(&lcdd, xy2pos(2U, 0U), "ps=%.2f F=%s   ", ADC::getPowerSupplyVoltage(),
-  //	       LCDDisplay::freq2Str(ICU::getFrequency()).data());
-  //  hd44780Write(&lcdd, xy2pos(3U, 0U), "lv=%.2f", ADC::getLogicVoltage());
-
-  heartBeatIdx %= DP::heartBeatSequence.size();
-
-  //enableCursor(true);
-  //setCursorPos(0, 15);
+  const auto &glyph = DP::heartBeatFrames[heartBeatFrame];
+  hd44780CustomGraphic(&lcdd, DP::heartBeatGlyphSlot, glyph.data());
+  hd44780Write(&lcdd, xy2pos(3,  19), "%c", char(DP::heartBeatGlyphSlot));
+  heartBeatDisplayed = heartBeatFrame;
 
   return true;
 }
