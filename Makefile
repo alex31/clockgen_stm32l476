@@ -318,6 +318,27 @@ include $(RULESPATH)/arm-none-eabi.mk
 include $(RULESPATH)/rules.mk
 $(OBJS): $(CONFDIR)/board.h
 
+ifeq ($(BUILD),$(RELEASE))
+OFAST_OBJS = $(BUILDDIR)/obj/hd44780.o \
+             $(BUILDDIR)/obj/mp3dec.o \
+             $(BUILDDIR)/obj/mp3tabs.o \
+             $(BUILDDIR)/obj/bitstream.o \
+             $(BUILDDIR)/obj/buffers.o \
+             $(BUILDDIR)/obj/dct32.o \
+             $(BUILDDIR)/obj/dequant.o \
+             $(BUILDDIR)/obj/dqchan.o \
+             $(BUILDDIR)/obj/huffman.o \
+             $(BUILDDIR)/obj/hufftabs.o \
+             $(BUILDDIR)/obj/imdct.o \
+             $(BUILDDIR)/obj/polyphase.o \
+             $(BUILDDIR)/obj/scalfact.o \
+             $(BUILDDIR)/obj/stproc.o \
+             $(BUILDDIR)/obj/subband.o \
+             $(BUILDDIR)/obj/trigtabs_fixpt.o
+
+$(OFAST_OBJS): CFLAGS += -Ofast
+endif
+
 
 $(CONFDIR)/board.h: $(CONFDIR)/board.cfg
 	boardGen.pl --no-pp-line --no-adcp-in $<  $@
