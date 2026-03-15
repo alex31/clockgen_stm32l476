@@ -130,7 +130,7 @@ private:
 				       GENLOOPMP3N("school", school_rings_mp3, school_rings_meta),
 				       GENLOOPMP3N("trumpet", trumpet_mp3, trumpet_meta),
 				       GENLOOPMP3N("cosmos", cosmos_mp3, cosmos_meta),
-				       GENLOOPMP3N("dbuf", double_tamponne_mp3, double_tamponne_meta),
+				       GENLOOPMP3N("tampone", double_tamponne_mp3, double_tamponne_meta),
 #endif
 				       GENLOOPMP3N("psfail", psfail_mp3, psfail_meta),
 				       GENLOOPMP3N("shortcut", shortcut_mp3, shortcut_meta),
