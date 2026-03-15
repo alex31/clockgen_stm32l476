@@ -21,18 +21,6 @@ struct AudioLoopMetadata {
 namespace {
 
 #ifndef NO_AUDIO_SET
-  constexpr uint8_t tone500_mp3[] = {
-#embed "../SOUNDS/MP3/tone500.mp3"
-  };
-  constexpr size_t tone500_mp3_len = sizeof(tone500_mp3);
-#include "../SOUNDS/MP3/tone500.meta.hpp"
-
-  constexpr uint8_t tone500t10_mp3[] = {
-#embed "../SOUNDS/MP3/tone500t10.mp3"
-  };
-  constexpr size_t tone500t10_mp3_len = sizeof(tone500t10_mp3);
-#include "../SOUNDS/MP3/tone500t10.meta.hpp"
-
   constexpr uint8_t psfail_mp3[] = {
 #embed "../SOUNDS/MP3/psfail.mp3"
   };
@@ -85,16 +73,30 @@ namespace {
 #endif
 }
 
+enum class GeneratorType {
+  None,
+  Sine500,
+  Sine500Mod,
+};
+
 #define GENLOOPMP3N(nme, file, meta_) AudioLoop {.name = nme, \
                                .samples = file, \
                                .len = file##_len, \
-                               .meta = meta_}
+                               .meta = meta_, \
+                               .generator = GeneratorType::None}
+
+#define GENLOOPPROC(nme, gen) AudioLoop {.name = nme, \
+                               .samples = nullptr, \
+                               .len = 0, \
+                               .meta = {0, 0}, \
+                               .generator = gen}
 
 struct AudioLoop {
   const etl::string_view name;
   const uint8_t *samples;
   const size_t len;
   const AudioLoopMetadata meta;
+  const GeneratorType generator;
 };
 
 class Audio {
@@ -126,8 +128,8 @@ private:
 
   static constexpr std::array loops = {
 #ifndef NO_AUDIO_SET
-				       GENLOOPMP3N("sine", tone500_mp3, tone500_meta),
-				       GENLOOPMP3N("sinemod", tone500t10_mp3, tone500t10_meta),
+				       GENLOOPPROC("sine", GeneratorType::Sine500),
+				       GENLOOPPROC("sinemod", GeneratorType::Sine500Mod),
 #ifndef SMALL_AUDIO_SET
 				       GENLOOPMP3N("school", school_rings_mp3, school_rings_meta),
 				       GENLOOPMP3N("trumpet", trumpet_mp3, trumpet_meta),
@@ -139,7 +141,7 @@ private:
 				       GENLOOPMP3N("shortcut", shortcut_mp3, shortcut_meta),
 				       GENLOOPMP3N("overvoltage", overvoltage_mp3, overvoltage_meta),
 #else
-				       AudioLoop {.name = "none", .samples = nullptr, .len = 0, .meta = {.skip_samples = 0, .play_samples = 0}}
+				       AudioLoop {.name = "none", .samples = nullptr, .len = 0, .meta = {.skip_samples = 0, .play_samples = 0}, .generator = GeneratorType::None}
 #endif
   };
   static const DACConfig dac1cfg1;

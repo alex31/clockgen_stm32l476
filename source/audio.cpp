@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <atomic>
+#include <numbers>
 #include "stdutil.h"
 #include "audio.hpp"
 
@@ -28,7 +30,7 @@ namespace {
   decoded_pcm_sample_t mp3PcmRing[mp3PcmRingSize] = {};
   volatile size_t mp3PcmReadIdx = 0U;
   volatile size_t mp3PcmWriteIdx = 0U;
-  volatile size_t mp3PcmCount = 0U;
+  std::atomic<size_t> mp3PcmCount = 0U;
   const AudioLoop *activeLoop = nullptr;
   const uint8_t *mp3StreamStart = nullptr;
   const uint8_t *mp3StreamPtr = nullptr;
@@ -39,16 +41,19 @@ namespace {
   bool mp3Active = false;
   bool mp3ThreadStarted = false;
 
+  float synthPhase = 0.0f;
+  float synthModPhase = 0.0f;
+
   size_t mp3RingFreeSpace(void)
   {
-    return mp3PcmRingSize - __atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED);
+    return mp3PcmRingSize - mp3PcmCount.load(std::memory_order_relaxed);
   }
 
   void mp3ResetRing(void)
   {
     mp3PcmReadIdx = 0U;
     mp3PcmWriteIdx = 0U;
-    __atomic_store_n(&mp3PcmCount, 0U, __ATOMIC_RELAXED);
+    mp3PcmCount.store(0U, std::memory_order_relaxed);
   }
 
   void mp3ResetDecoder(void)
@@ -109,7 +114,7 @@ namespace {
     }
 
     mp3PcmWriteIdx = writeIdx;
-    __atomic_add_fetch(&mp3PcmCount, n, __ATOMIC_RELAXED);
+    mp3PcmCount.fetch_add(n, std::memory_order_relaxed);
   }
 
   bool mp3PublishLoopSamples(const decoded_pcm_sample_t *samples, size_t n)
@@ -156,7 +161,7 @@ namespace {
 
   bool mp3DecodeOneFrame(void)
   {
-    if (activeLoop == nullptr || mp3Decoder == nullptr) {
+    if (activeLoop == nullptr || mp3Decoder == nullptr || activeLoop->generator != GeneratorType::None) {
       return false;
     }
 
@@ -208,14 +213,14 @@ namespace {
   bool mp3FillUntil(const size_t targetSamples)
   {
     size_t noProgressCount = 0U;
-    while (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) < targetSamples && mp3RingFreeSpace() >= mp3MonoFrameSamples) {
+    while (mp3PcmCount.load(std::memory_order_relaxed) < targetSamples && mp3RingFreeSpace() >= mp3MonoFrameSamples) {
       if (mp3DecodeOneFrame()) {
 	noProgressCount = 0U;
       } else if (++noProgressCount >= 4U) {
 	break;
       }
     }
-    return __atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) != 0U;
+    return mp3PcmCount.load(std::memory_order_relaxed) != 0U;
   }
 
   THD_FUNCTION(mp3DecoderThread, arg)
@@ -223,12 +228,12 @@ namespace {
     (void)arg;
     chRegSetThreadName("mp3Decoder");
     while (true) {
-      if (activeLoop == nullptr || mp3Active == false) {
+      if (activeLoop == nullptr || mp3Active == false || activeLoop->generator != GeneratorType::None) {
 	chThdSleepMilliseconds(10);
 	continue;
       }
 
-      if (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) < mp3LowWatermark) {
+      if (mp3PcmCount.load(std::memory_order_relaxed) < mp3LowWatermark) {
 	(void)mp3FillUntil(mp3PrimeSamples);
       } else {
 	chThdSleepMilliseconds(2);
@@ -298,8 +303,15 @@ void Audio::setDbVolume(const uint8_t volume)
 void Audio::startDac(void)
 {
   const AudioLoop &audioLoop = loops[loop];
-  mp3Prepare(audioLoop);
-  (void)mp3FillUntil(std::size(dmaBuff));
+  activeLoop = &audioLoop;
+
+  if (audioLoop.generator == GeneratorType::None) {
+    mp3Prepare(audioLoop);
+    (void)mp3FillUntil(std::size(dmaBuff));
+  } else {
+    synthPhase = 0.0f;
+    synthModPhase = 0.0f;
+  }
   mp3Active = true;
 
   fillDacBuffer(dmaBuff, std::size(dmaBuff));
@@ -339,8 +351,34 @@ void Audio::end_cb1(DACDriver *dacp)
 
 void Audio::fillDacBuffer(custom_dac_sample_t *dest, const size_t n)
 {
+  if (activeLoop != nullptr && activeLoop->generator != GeneratorType::None) {
+    const float phaseInc = 500.0f / 32000.0f * 2.0f * std::numbers::pi_v<float>; // 500Hz
+    const float modInc = 10.0f / 32000.0f * 2.0f * std::numbers::pi_v<float>;    // 10Hz
+    
+    for (size_t i = 0; i < n; i++) {
+      float sample = std::sin(synthPhase);
+      synthPhase += phaseInc;
+      if (synthPhase >= 2.0f * std::numbers::pi_v<float>) {
+        synthPhase -= 2.0f * std::numbers::pi_v<float>;
+      }
+      
+      if (activeLoop->generator == GeneratorType::Sine500Mod) {
+         float mod = (std::sin(synthModPhase) + 1.0f) * 0.5f;
+         sample *= mod;
+         synthModPhase += modInc;
+         if (synthModPhase >= 2.0f * std::numbers::pi_v<float>) {
+           synthModPhase -= 2.0f * std::numbers::pi_v<float>;
+         }
+      }
+      
+      const float attenuated = 2048.0f + (sample * 2047.0f * attenuation);
+      dest[i] = static_cast<custom_dac_sample_t>(std::clamp(attenuated, 0.0f, 4095.0f));
+    }
+    return;
+  }
+
   for (size_t i = 0; i < n; i++) {
-    if (__atomic_load_n(&mp3PcmCount, __ATOMIC_RELAXED) == 0U) {
+    if (mp3PcmCount.load(std::memory_order_relaxed) == 0U) {
       dest[i] = 2048U;
       continue;
     }
@@ -350,7 +388,7 @@ void Audio::fillDacBuffer(custom_dac_sample_t *dest, const size_t n)
     if (mp3PcmReadIdx == mp3PcmRingSize) {
       mp3PcmReadIdx = 0U;
     }
-    __atomic_sub_fetch(&mp3PcmCount, 1U, __ATOMIC_RELAXED);
+    mp3PcmCount.fetch_sub(1U, std::memory_order_relaxed);
 
     const float attenuated = 2048.0f + ((float(sample) * attenuation) / 16.0f);
     dest[i] = static_cast<custom_dac_sample_t>(std::clamp(attenuated, 0.0f, 4095.0f));

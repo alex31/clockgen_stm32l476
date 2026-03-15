@@ -1,3 +1,9 @@
+Atomic :
+Use std::atomic instead of intrinsic gcc API
+
+
+
+
 MP3 loop refinement
 ===================
 
