@@ -52,12 +52,6 @@ namespace {
   constexpr size_t trumpet_mp3_len = sizeof(trumpet_mp3);
 #include "../SOUNDS/MP3/trumpet.meta.hpp"
 
-  constexpr uint8_t sweep_mp3[] = {
-#embed "../SOUNDS/MP3/sweep.mp3"
-  };
-  constexpr size_t sweep_mp3_len = sizeof(sweep_mp3);
-#include "../SOUNDS/MP3/sweep.meta.hpp"
-
   constexpr uint8_t cosmos_mp3[] = {
 #embed "../SOUNDS/MP3/cosmos.mp3"
   };
@@ -77,6 +71,7 @@ enum class GeneratorType {
   None,
   Sine500,
   Sine500Mod,
+  SineSweep,
 };
 
 #define GENLOOPMP3N(nme, file, meta_) AudioLoop {.name = nme, \
@@ -131,9 +126,9 @@ private:
 				       GENLOOPPROC("sine", GeneratorType::Sine500),
 				       GENLOOPPROC("sinemod", GeneratorType::Sine500Mod),
 #ifndef SMALL_AUDIO_SET
+				       GENLOOPPROC("sweep", GeneratorType::SineSweep),
 				       GENLOOPMP3N("school", school_rings_mp3, school_rings_meta),
 				       GENLOOPMP3N("trumpet", trumpet_mp3, trumpet_meta),
-				       GENLOOPMP3N("sweep", sweep_mp3, sweep_meta),
 				       GENLOOPMP3N("cosmos", cosmos_mp3, cosmos_meta),
 				       GENLOOPMP3N("dbuf", double_tamponne_mp3, double_tamponne_meta),
 #endif

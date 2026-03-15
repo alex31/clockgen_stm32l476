@@ -43,6 +43,7 @@ namespace {
 
   float synthPhase = 0.0f;
   float synthModPhase = 0.0f;
+  float synthLowPhase = 0.0f;
 
   size_t mp3RingFreeSpace(void)
   {
@@ -311,6 +312,7 @@ void Audio::startDac(void)
   } else {
     synthPhase = 0.0f;
     synthModPhase = 0.0f;
+    synthLowPhase = 0.0f;
   }
   mp3Active = true;
 
@@ -356,19 +358,49 @@ void Audio::fillDacBuffer(custom_dac_sample_t *dest, const size_t n)
     const float modInc = 10.0f / 32000.0f * 2.0f * std::numbers::pi_v<float>;    // 10Hz
     
     for (size_t i = 0; i < n; i++) {
-      float sample = std::sin(synthPhase);
-      synthPhase += phaseInc;
-      if (synthPhase >= 2.0f * std::numbers::pi_v<float>) {
-        synthPhase -= 2.0f * std::numbers::pi_v<float>;
-      }
-      
-      if (activeLoop->generator == GeneratorType::Sine500Mod) {
-         float mod = (std::sin(synthModPhase) + 1.0f) * 0.5f;
-         sample *= mod;
-         synthModPhase += modInc;
-         if (synthModPhase >= 2.0f * std::numbers::pi_v<float>) {
-           synthModPhase -= 2.0f * std::numbers::pi_v<float>;
-         }
+      float sample = 0.0f;
+
+      if (activeLoop->generator == GeneratorType::SineSweep) {
+        float sweepPhase = synthModPhase / (2.0f * std::numbers::pi_v<float>); // 0 to 1.0 mapping over 1 second
+        
+        // High sweep from ~890Hz to ~770Hz
+        float currentFreqHigh = 890.0f - 120.0f * sweepPhase;
+        
+        // Low sweep that drops sharply from ~500Hz
+        float currentFreqLow = 500.0f * std::exp(-3.5f * sweepPhase);
+        
+        sample = (std::sin(synthPhase) * 0.6f) + (std::sin(synthLowPhase) * 0.4f);
+        
+        synthPhase += currentFreqHigh / 32000.0f * 2.0f * std::numbers::pi_v<float>;
+        if (synthPhase >= 2.0f * std::numbers::pi_v<float>) {
+          synthPhase -= 2.0f * std::numbers::pi_v<float>;
+        }
+        
+        synthLowPhase += currentFreqLow / 32000.0f * 2.0f * std::numbers::pi_v<float>;
+        if (synthLowPhase >= 2.0f * std::numbers::pi_v<float>) {
+          synthLowPhase -= 2.0f * std::numbers::pi_v<float>;
+        }
+
+        // Use mod phase as a 1 second timer for the envelope drop
+        synthModPhase += 1.0f / 32000.0f * 2.0f * std::numbers::pi_v<float>;
+        if (synthModPhase >= 2.0f * std::numbers::pi_v<float>) {
+          synthModPhase -= 2.0f * std::numbers::pi_v<float>;
+        }
+      } else {
+        sample = std::sin(synthPhase);
+        synthPhase += phaseInc;
+        if (synthPhase >= 2.0f * std::numbers::pi_v<float>) {
+          synthPhase -= 2.0f * std::numbers::pi_v<float>;
+        }
+        
+        if (activeLoop->generator == GeneratorType::Sine500Mod) {
+           float mod = (std::sin(synthModPhase) + 1.0f) * 0.5f;
+           sample *= mod;
+           synthModPhase += modInc;
+           if (synthModPhase >= 2.0f * std::numbers::pi_v<float>) {
+             synthModPhase -= 2.0f * std::numbers::pi_v<float>;
+           }
+        }
       }
       
       const float attenuated = 2048.0f + (sample * 2047.0f * attenuation);
