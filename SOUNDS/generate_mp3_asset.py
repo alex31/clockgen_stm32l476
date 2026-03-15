@@ -93,20 +93,25 @@ def write_wav_samples(path, sample_rate, samples):
         wav_file.writeframes(out.tobytes())
 
 
-def choose_loop_end(samples, match_samples, search_samples):
+def choose_loop_end(samples, match_samples, search_samples, smooth_samples):
     total = len(samples)
-    if total <= (match_samples * 2):
-        return total
+    if total <= (match_samples * 2 + smooth_samples):
+        return total - smooth_samples if total > smooth_samples else total
 
-    search_span = min(search_samples, max(match_samples * 2, total // 8))
+    search_span = max(search_samples, total // 2)
     first_candidate = max(match_samples + 1, total - search_span)
+    last_candidate = total - smooth_samples
+    
+    if first_candidate > last_candidate:
+        first_candidate = last_candidate
+
     head = samples[:match_samples]
     head_first = samples[0]
     head_next = samples[1]
 
-    best_end = total
+    best_end = last_candidate
     best_score = None
-    for end in range(first_candidate, total + 1):
+    for end in range(first_candidate, last_candidate + 1):
         tail_start = end - match_samples
         score = 0
         for i in range(match_samples):
@@ -128,21 +133,22 @@ def choose_loop_end(samples, match_samples, search_samples):
 
 
 def smooth_loop_tail(samples, play_samples, smooth_samples):
-    smooth = min(smooth_samples, play_samples // 4)
+    available_after = len(samples) - play_samples
+    smooth = min(smooth_samples, available_after, play_samples // 4)
     if smooth < 2:
         return samples[:play_samples]
 
     tuned = array.array("h", samples[:play_samples])
-    tail_start = play_samples - smooth
     for i in range(smooth):
-        alpha_num = i + 1
-        alpha_den = smooth + 1
-        head = tuned[i]
-        tail = tuned[tail_start + i]
-        blended = ((alpha_den - alpha_num) * tail + alpha_num * head) // alpha_den
-        tuned[tail_start + i] = blended
+        w_head = i / smooth
+        w_tail = 1.0 - w_head
+        
+        head_val = tuned[i]
+        post_roll_val = samples[play_samples + i]
+        
+        blended = int(w_head * head_val + w_tail * post_roll_val)
+        tuned[i] = blended
 
-    tuned[play_samples - 1] = tuned[0]
     return tuned
 
 
@@ -196,7 +202,7 @@ def main():
         else:
             decode_to_wav(args.input_audio, decoded_wav, args.sample_rate, args.duration_seconds)
             decoded_samples = read_wav_samples(decoded_wav)
-            play_samples = choose_loop_end(decoded_samples, args.match_samples, args.search_samples)
+            play_samples = choose_loop_end(decoded_samples, args.match_samples, args.search_samples, args.smooth_samples)
             processed_samples = smooth_loop_tail(decoded_samples, play_samples, args.smooth_samples)
             write_wav_samples(processed_wav, args.sample_rate, processed_samples)
             encode_mp3(processed_wav, output_mp3, args.bitrate)
@@ -209,7 +215,7 @@ def main():
             if output_mp3 != args.input_audio.resolve():
                 output_mp3.write_bytes(args.input_audio.read_bytes())
             decoded_samples = read_wav_samples(decoded_wav)
-            play_samples = choose_loop_end(decoded_samples, args.match_samples, args.search_samples)
+            play_samples = choose_loop_end(decoded_samples, args.match_samples, args.search_samples, args.smooth_samples)
         else:
             # Keep metadata in sync with the processed loop PCM that was encoded.
             decoded_samples = processed_samples
